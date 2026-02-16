@@ -1,0 +1,356 @@
+{
+  "dashboard": {
+    "uid": "integration-api-monitoring",
+    "title": "Integration API Service - Мониторинг",
+    "tags": ["integration", "api", "webhook", "microservice"],
+    "timezone": "browser",
+    "schemaVersion": 27,
+    "version": 1,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Обзор инстансов",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "count(count by (instance) (integration_payment_requests_created_total))",
+            "legendFormat": "Активных инстансов"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "HTTP запросы (все инстансы)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+        "targets": [
+          {
+            "expr": "sum(rate(integration_http_requests_total[5m])) by (method, status_code)",
+            "legendFormat": "{{method}} - {{status_code}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "reqps", "label": "Запросов/сек"}
+        ]
+      },
+      {
+        "id": 3,
+        "title": "HTTP Latency (p95)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(integration_http_request_duration_seconds_bucket[5m])) by (le, route))",
+            "legendFormat": "{{route}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Секунды"}
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Платежные запросы - Создано",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(increase(integration_payment_requests_created_total[1h]))",
+            "legendFormat": "За последний час"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "green"},
+                {"value": 100, "color": "yellow"},
+                {"value": 500, "color": "red"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 7,
+        "title": "Webhook - Попытки",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(increase(integration_webhook_attempts_total[1h]))",
+            "legendFormat": "За последний час"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "green"},
+                {"value": 100, "color": "yellow"},
+                {"value": 500, "color": "red"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 8,
+        "title": "Webhook - Успешные/Неуспешные",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+        "targets": [
+          {
+            "expr": "sum(rate(integration_webhook_attempts_total{status=\"success\"}[5m]))",
+            "legendFormat": "Успешные"
+          },
+          {
+            "expr": "sum(rate(integration_webhook_attempts_total{status=\"failed\"}[5m]))",
+            "legendFormat": "Неуспешные"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Попыток/сек"}
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Webhook - Время доставки (p95)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(integration_webhook_duration_seconds_bucket[5m])) by (le))",
+            "legendFormat": "Webhook Latency"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Секунды"}
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Webhook - Retry",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 20},
+        "targets": [
+          {
+            "expr": "sum(increase(integration_webhook_retries_total[1h]))",
+            "legendFormat": "Retry за последний час"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "green"},
+                {"value": 50, "color": "yellow"},
+                {"value": 200, "color": "red"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 11,
+        "title": "Webhook - Ошибки",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+        "targets": [
+          {
+            "expr": "sum(rate(integration_webhook_errors_total[5m])) by (error_type)",
+            "legendFormat": "{{error_type}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Ошибок/сек"}
+        ]
+      },
+      {
+        "id": 12,
+        "title": "API запросы - Всего (HTTP метрики)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+        "targets": [
+          {
+            "expr": "sum(rate(integration_http_requests_total[5m])) by (method, route, status_code)",
+            "legendFormat": "{{method}} {{route}} - {{status_code}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Запросов/сек"}
+        ]
+      },
+      {
+        "id": 13,
+        "title": "API - Latency (p95) (HTTP метрики)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 32},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(integration_http_request_duration_seconds_bucket[5m])) by (le, method, route))",
+            "legendFormat": "{{method}} {{route}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Секунды"}
+        ]
+      },
+      {
+        "id": 14,
+        "title": "API - Ошибки",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 32},
+        "targets": [
+          {
+            "expr": "sum(rate(integration_api_errors_total[5m])) by (endpoint, error_type)",
+            "legendFormat": "{{endpoint}} - {{error_type}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Ошибок/сек"}
+        ]
+      },
+      {
+        "id": 16,
+        "title": "Node.js - CPU",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 40},
+        "targets": [
+          {
+            "expr": "avg(integration_api_service_process_cpu_user_seconds_total)",
+            "legendFormat": "CPU User"
+          },
+          {
+            "expr": "avg(integration_api_service_process_cpu_system_seconds_total)",
+            "legendFormat": "CPU System"
+          }
+        ],
+        "yaxes": [
+          {"format": "percent", "label": "CPU %"}
+        ]
+      },
+      {
+        "id": 17,
+        "title": "Node.js - Memory",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 48},
+        "targets": [
+          {
+            "expr": "avg(integration_api_service_process_resident_memory_bytes)",
+            "legendFormat": "Memory"
+          }
+        ],
+        "yaxes": [
+          {"format": "bytes", "label": "Байты"}
+        ]
+      },
+      {
+        "id": 18,
+        "title": "Распределение по инстансам - HTTP запросы",
+        "type": "piechart",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 48},
+        "targets": [
+          {
+            "expr": "sum(rate(integration_http_requests_total[5m])) by (instance)",
+            "legendFormat": "{{instance}}"
+          }
+        ]
+      },
+      {
+        "id": 19,
+        "title": "Распределение по инстансам - Webhook",
+        "type": "piechart",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 56},
+        "targets": [
+          {
+            "expr": "sum(rate(integration_webhook_attempts_total[5m])) by (instance)",
+            "legendFormat": "{{instance}}"
+          }
+        ]
+      },
+      {
+        "id": 20,
+        "title": "Backend запросы - Всего",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 64},
+        "targets": [
+          {
+            "expr": "sum(rate(integration_backend_requests_total[5m])) by (method, endpoint, status_code)",
+            "legendFormat": "{{method}} {{endpoint}} - {{status_code}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "reqps", "label": "Запросов/сек"}
+        ]
+      },
+      {
+        "id": 21,
+        "title": "Backend Latency (p95)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 64},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(integration_backend_request_duration_seconds_bucket[5m])) by (le, method, endpoint))",
+            "legendFormat": "{{method}} {{endpoint}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Секунды"}
+        ]
+      },
+      {
+        "id": 22,
+        "title": "Backend - Ошибки",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 72},
+        "targets": [
+          {
+            "expr": "sum(rate(integration_backend_errors_total[5m])) by (endpoint, error_type)",
+            "legendFormat": "{{endpoint}} - {{error_type}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Ошибок/сек"}
+        ]
+      },
+      {
+        "id": 23,
+        "title": "Общие ошибки",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 72},
+        "targets": [
+          {
+            "expr": "sum(rate(integration_errors_total[5m])) by (service, error_code, error_type)",
+            "legendFormat": "{{service}} - {{error_code}} - {{error_type}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Ошибок/сек"}
+        ]
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {
+      "refresh_intervals": ["10s", "30s", "1m", "5m", "15m", "30m", "1h", "2h", "1d"]
+    }
+  }
+}
+

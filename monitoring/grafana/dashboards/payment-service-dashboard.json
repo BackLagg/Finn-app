@@ -1,0 +1,445 @@
+{
+  "dashboard": {
+    "uid": "payment-service-monitoring",
+    "title": "Payment Service - Мониторинг",
+    "tags": ["payment", "ton", "microservice"],
+    "timezone": "browser",
+    "schemaVersion": 27,
+    "version": 1,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Обзор инстансов",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "count(count by (instance) (payment_deposits_total))",
+            "legendFormat": "Активных инстансов"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "HTTP запросы (все инстансы)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total[5m])) by (method, status_code)",
+            "legendFormat": "{{method}} - {{status_code}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "reqps", "label": "Запросов/сек"}
+        ]
+      },
+      {
+        "id": 3,
+        "title": "HTTP Latency (p95)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, route))",
+            "legendFormat": "{{route}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Секунды"}
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Депозиты - Всего",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(increase(payment_deposits_total[1h]))",
+            "legendFormat": "За последний час"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "green"},
+                {"value": 100, "color": "yellow"},
+                {"value": 500, "color": "red"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 5,
+        "title": "Депозиты - Успешные/Неуспешные",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+        "targets": [
+          {
+            "expr": "sum(rate(payment_deposits_total{status=\"success\"}[5m])) by (currency)",
+            "legendFormat": "Успешные - {{currency}}"
+          },
+          {
+            "expr": "sum(rate(payment_deposits_total{status=\"failed\"}[5m])) by (currency)",
+            "legendFormat": "Неуспешные - {{currency}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Депозитов/сек"}
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Депозиты - Время обработки (p95)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(payment_deposit_duration_seconds_bucket[5m])) by (le, currency))",
+            "legendFormat": "{{currency}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Секунды"}
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Выводы - Всего",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(increase(payment_withdrawals_total[1h]))",
+            "legendFormat": "За последний час"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "green"},
+                {"value": 50, "color": "yellow"},
+                {"value": 200, "color": "red"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 8,
+        "title": "Выводы - Успешные/Неуспешные",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20},
+        "targets": [
+          {
+            "expr": "sum(rate(payment_withdrawals_total{status=\"success\"}[5m])) by (currency)",
+            "legendFormat": "Успешные - {{currency}}"
+          },
+          {
+            "expr": "sum(rate(payment_withdrawals_total{status=\"failed\"}[5m])) by (currency)",
+            "legendFormat": "Неуспешные - {{currency}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Выводов/сек"}
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Выводы - Время обработки (p95)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(payment_withdrawal_duration_seconds_bucket[5m])) by (le, currency))",
+            "legendFormat": "{{currency}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Секунды"}
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Баланс платформы - TON",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 28},
+        "targets": [
+          {
+            "expr": "avg(ton_platform_balance)",
+            "legendFormat": "TON"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "unit": "short",
+            "decimals": 4,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": 1, "color": "yellow"},
+                {"value": 10, "color": "green"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 11,
+        "title": "Баланс платформы - Jetton",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 28},
+        "targets": [
+          {
+            "expr": "avg(jetton_platform_balance)",
+            "legendFormat": "FBC"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "unit": "short",
+            "decimals": 4
+          }
+        }
+      },
+      {
+        "id": 12,
+        "title": "TON RPC - Запросы",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 32},
+        "targets": [
+          {
+            "expr": "sum(rate(ton_rpc_requests_total[5m])) by (method, status)",
+            "legendFormat": "{{method}} - {{status}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Запросов/сек"}
+        ]
+      },
+      {
+        "id": 13,
+        "title": "TON RPC - Latency (p95)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 32},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(ton_rpc_duration_seconds_bucket[5m])) by (le, method))",
+            "legendFormat": "{{method}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Секунды"}
+        ]
+      },
+      {
+        "id": 14,
+        "title": "TON RPC - Ошибки",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 40},
+        "targets": [
+          {
+            "expr": "sum(rate(ton_rpc_errors_total[5m])) by (method, error_type)",
+            "legendFormat": "{{method}} - {{error_type}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Ошибок/сек"}
+        ]
+      },
+      {
+        "id": 15,
+        "title": "Callbacks - Попытки",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 40},
+        "targets": [
+          {
+            "expr": "sum(rate(payment_callback_attempts_total[5m])) by (type, status)",
+            "legendFormat": "{{type}} - {{status}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Попыток/сек"}
+        ]
+      },
+      {
+        "id": 16,
+        "title": "Callbacks - Ошибки",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 48},
+        "targets": [
+          {
+            "expr": "sum(rate(payment_callback_errors_total[5m])) by (type, error_type)",
+            "legendFormat": "{{type}} - {{error_type}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Ошибок/сек"}
+        ]
+      },
+      {
+        "id": 17,
+        "title": "Storage - Операции",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 48},
+        "targets": [
+          {
+            "expr": "sum(rate(storage_operations_total[5m])) by (operation, status)",
+            "legendFormat": "{{operation}} - {{status}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Операций/сек"}
+        ]
+      },
+      {
+        "id": 18,
+        "title": "Locks - Приобретения/Ошибки",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 56},
+        "targets": [
+          {
+            "expr": "sum(rate(lock_acquisitions_total[5m])) by (resource_type)",
+            "legendFormat": "Приобретения - {{resource_type}}"
+          },
+          {
+            "expr": "sum(rate(lock_failures_total[5m])) by (resource_type)",
+            "legendFormat": "Ошибки - {{resource_type}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Событий/сек"}
+        ]
+      },
+      {
+        "id": 19,
+        "title": "Общие ошибки",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 56},
+        "targets": [
+          {
+            "expr": "sum(rate(payment_errors_total[5m])) by (service, error_type)",
+            "legendFormat": "{{service}} - {{error_type}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Ошибок/сек"}
+        ]
+      },
+      {
+        "id": 20,
+        "title": "Депозиты - Суммы",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 64},
+        "targets": [
+          {
+            "expr": "sum(rate(payment_deposit_amount_sum[5m])) by (currency)",
+            "legendFormat": "{{currency}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Сумма/сек"}
+        ]
+      },
+      {
+        "id": 21,
+        "title": "Выводы - Суммы",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 64},
+        "targets": [
+          {
+            "expr": "sum(rate(payment_withdrawal_amount_sum[5m])) by (currency)",
+            "legendFormat": "{{currency}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Сумма/сек"}
+        ]
+      },
+      {
+        "id": 22,
+        "title": "Node.js - CPU",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 72},
+        "targets": [
+          {
+            "expr": "avg(payment_service_process_cpu_user_seconds_total)",
+            "legendFormat": "CPU User"
+          },
+          {
+            "expr": "avg(payment_service_process_cpu_system_seconds_total)",
+            "legendFormat": "CPU System"
+          }
+        ],
+        "yaxes": [
+          {"format": "percent", "label": "CPU %"}
+        ]
+      },
+      {
+        "id": 23,
+        "title": "Node.js - Memory",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 72},
+        "targets": [
+          {
+            "expr": "avg(payment_service_process_resident_memory_bytes)",
+            "legendFormat": "Memory"
+          }
+        ],
+        "yaxes": [
+          {"format": "bytes", "label": "Байты"}
+        ]
+      },
+      {
+        "id": 24,
+        "title": "Распределение по инстансам - Депозиты",
+        "type": "piechart",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 80},
+        "targets": [
+          {
+            "expr": "sum(rate(payment_deposits_total[5m])) by (instance)",
+            "legendFormat": "{{instance}}"
+          }
+        ]
+      },
+      {
+        "id": 25,
+        "title": "Распределение по инстансам - HTTP запросы",
+        "type": "piechart",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 80},
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total[5m])) by (instance)",
+            "legendFormat": "{{instance}}"
+          }
+        ]
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {
+      "refresh_intervals": ["10s", "30s", "1m", "5m", "15m", "30m", "1h", "2h", "1d"]
+    }
+  }
+}
+

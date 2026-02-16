@@ -1,0 +1,262 @@
+{
+  "dashboard": {
+    "uid": "backend-monitoring",
+    "title": "Backend - Мониторинг",
+    "tags": ["backend", "api", "nestjs"],
+    "timezone": "browser",
+    "schemaVersion": 27,
+    "version": 1,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "HTTP запросы/сек",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(rate(backend_http_requests_total[5m])) by (method, status_code)",
+            "legendFormat": "{{method}} - {{status_code}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "reqps", "label": "Запросов/сек"}
+        ]
+      },
+      {
+        "id": 2,
+        "title": "HTTP Latency (p95)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(backend_http_request_duration_seconds_bucket[5m])) by (le, route))",
+            "legendFormat": "{{route}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Секунды"}
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Auth запросы",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+        "targets": [
+          {
+            "expr": "sum(rate(backend_auth_requests_total[5m])) by (type, status)",
+            "legendFormat": "{{type}} - {{status}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Запросов/сек"}
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Auth Latency (p95)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(backend_auth_duration_seconds_bucket[5m])) by (le, type))",
+            "legendFormat": "{{type}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Секунды"}
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Cache Hit Rate",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 16},
+        "targets": [
+          {
+            "expr": "sum(rate(backend_cache_hits_total[5m])) / (sum(rate(backend_cache_hits_total[5m])) + sum(rate(backend_cache_misses_total[5m]))) * 100",
+            "legendFormat": "Hit Rate %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "unit": "percent",
+            "decimals": 2,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": 50, "color": "yellow"},
+                {"value": 80, "color": "green"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 6,
+        "title": "Cache операции",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20},
+        "targets": [
+          {
+            "expr": "sum(rate(backend_cache_operations_total[5m])) by (operation, status)",
+            "legendFormat": "{{operation}} - {{status}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Операций/сек"}
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Cache Latency (p95)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(backend_cache_duration_seconds_bucket[5m])) by (le, operation))",
+            "legendFormat": "{{operation}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Секунды"}
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Wallet операции",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 28},
+        "targets": [
+          {
+            "expr": "sum(rate(backend_wallet_operations_total[5m])) by (operation, status)",
+            "legendFormat": "{{operation}} - {{status}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Операций/сек"}
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Referral операции",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 28},
+        "targets": [
+          {
+            "expr": "sum(rate(backend_referral_operations_total[5m])) by (operation, status)",
+            "legendFormat": "{{operation}} - {{status}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Операций/сек"}
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Database операции",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 36},
+        "targets": [
+          {
+            "expr": "sum(rate(backend_db_operations_total[5m])) by (operation, collection, status)",
+            "legendFormat": "{{operation}} - {{collection}} - {{status}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Операций/сек"}
+        ]
+      },
+      {
+        "id": 11,
+        "title": "Database Latency (p95)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 36},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(backend_db_duration_seconds_bucket[5m])) by (le, operation, collection))",
+            "legendFormat": "{{operation}} - {{collection}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Секунды"}
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Database ошибки",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 44},
+        "targets": [
+          {
+            "expr": "sum(rate(backend_db_errors_total[5m])) by (operation, collection, error_type)",
+            "legendFormat": "{{operation}} - {{collection}} - {{error_type}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Ошибок/сек"}
+        ]
+      },
+      {
+        "id": 13,
+        "title": "Общие ошибки",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 44},
+        "targets": [
+          {
+            "expr": "sum(rate(backend_errors_total[5m])) by (service, error_type)",
+            "legendFormat": "{{service}} - {{error_type}}"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Ошибок/сек"}
+        ]
+      },
+      {
+        "id": 14,
+        "title": "Node.js - CPU",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 52},
+        "targets": [
+          {
+            "expr": "avg(backend_process_cpu_user_seconds_total)",
+            "legendFormat": "CPU User"
+          },
+          {
+            "expr": "avg(backend_process_cpu_system_seconds_total)",
+            "legendFormat": "CPU System"
+          }
+        ],
+        "yaxes": [
+          {"format": "percent", "label": "CPU %"}
+        ]
+      },
+      {
+        "id": 15,
+        "title": "Node.js - Memory",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 52},
+        "targets": [
+          {
+            "expr": "avg(backend_process_resident_memory_bytes)",
+            "legendFormat": "Memory"
+          }
+        ],
+        "yaxes": [
+          {"format": "bytes", "label": "Байты"}
+        ]
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {
+      "refresh_intervals": ["10s", "30s", "1m", "5m", "15m", "30m", "1h", "2h", "1d"]
+    }
+  }
+}
+

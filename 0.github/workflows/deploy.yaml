@@ -1,0 +1,81 @@
+name: Deploy Application
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Add host key to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Install sshpass
+        run: sudo apt-get install -y sshpass
+
+      - name: Deploy to server
+        env:
+          SERVER_PASS: ${{ secrets.SERVER_PASSWORD }}
+          # API ключи и секреты
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          PAYMENT_API_KEY: ${{ secrets.PAYMENT_API_KEY }}
+          FILE_API_KEY: ${{ secrets.FILE_API_KEY }}
+          INTEGRATION_API_KEY: ${{ secrets.INTEGRATION_API_KEY }}
+          INTER_SERVICE_SECRET: ${{ secrets.INTER_SERVICE_SECRET }}
+          TOKEN_SECRET: ${{ secrets.TOKEN_SECRET }}
+          INTEGRATION_TOKEN_SECRET: ${{ secrets.INTEGRATION_TOKEN_SECRET }}
+          WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+          INTEGRATION_WEBHOOK_SECRET: ${{ secrets.INTEGRATION_WEBHOOK_SECRET }}
+          # TON переменные
+          TON_API_KEY: ${{ secrets.TON_API_KEY }}
+          PLATFORM_WALLET_MNEMONIC: ${{ secrets.PLATFORM_WALLET_MNEMONIC }}
+          PLATFORM_SECRET_KEY: ${{ secrets.PLATFORM_SECRET_KEY }}
+          PLATFORM_PUBLIC_KEY: ${{ secrets.PLATFORM_PUBLIC_KEY }}
+          PROXY_CONTRACT_ADDRESS: ${{ secrets.PROXY_CONTRACT_ADDRESS }}
+          FBC_JETTON_MASTER_ADDRESS: ${{ secrets.FBC_JETTON_MASTER_ADDRESS }}
+        run: |
+          sshpass -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << EOF
+            set -e
+            
+            # Клонирование репозитория (если не существует)
+            # Обновление репозитория выполняется внутри deploy.sh
+            if [ ! -d '/root/Ref-app' ]; then
+                cd /root && git clone https://github.com/${{ github.repository }}.git Ref-app
+            fi
+            
+            # Загрузка и выполнение скрипта деплоя
+            # Скрипт сам выполнит git fetch и git pull для определения изменений
+            cd /root/Ref-app
+            chmod +x scripts/deploy.sh
+            bash scripts/deploy.sh https://github.com/${{ github.repository }}.git
+          EOF
+
+  post-deploy-healthcheck:
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Add host key to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Install sshpass
+        run: sudo apt-get install -y sshpass
+
+      - name: Healthcheck and status after deploy
+        env:
+          SERVER_PASS: ${{ secrets.SERVER_PASSWORD }}
+        run: |
+          sshpass -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            cd /root/Ref-app
+            chmod +x scripts/healthcheck.sh
+            bash scripts/healthcheck.sh
+          EOF

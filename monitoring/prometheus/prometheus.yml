@@ -1,0 +1,110 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  # Prometheus сам себя мониторит
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Системные метрики сервера
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+
+  # Docker контейнеры метрики
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    scrape_interval: 15s
+
+  # MongoDB метрики
+  - job_name: 'mongodb-exporter'
+    static_configs:
+      - targets: ['mongodb-exporter:9216']
+    scrape_interval: 30s
+
+  # Backend метрики (Reff-app)
+  - job_name: 'backend'
+    static_configs:
+      - targets: ['backend:8080']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+
+  # Frontend метрики (отключено - frontend не экспортирует метрики Prometheus)
+  # - job_name: 'frontend'
+  #   static_configs:
+  #     - targets: ['frontend:80']
+  #   metrics_path: '/health'
+  #   scrape_interval: 15s
+
+  # Bot метрики
+  - job_name: 'bot'
+    static_configs:
+      - targets: ['bot:8000']
+    scrape_interval: 30s
+
+  # Integration API Service метрики
+  - job_name: 'integration-api-service'
+    static_configs:
+      - targets:
+          - 'integration-api-service:3005'
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+
+  # Payment Service метрики (stateless, может быть несколько инстансов)
+  # Для Kubernetes используйте service discovery или static_configs
+  - job_name: 'payment-service'
+    # Kubernetes service discovery (раскомментируйте если используете K8s)
+    # kubernetes_sd_configs:
+    #   - role: pod
+    #     namespaces:
+    #       names:
+    #         - default
+    #     relabel_configs:
+    #       - source_labels: [__meta_kubernetes_pod_label_app]
+    #         regex: payment-service
+    #         action: keep
+    #       - source_labels: [__meta_kubernetes_pod_ip]
+    #         target_label: __address__
+    #         replacement: '${1}:3001'
+    #       - source_labels: [__meta_kubernetes_pod_name]
+    #         target_label: pod
+    #       - source_labels: [__meta_kubernetes_namespace]
+    #         target_label: namespace
+    
+    # Static configs для Docker Compose или фиксированных инстансов
+    static_configs:
+      - targets: 
+          - 'payment-service:3001'
+          # Добавьте дополнительные инстансы при необходимости:
+          # - 'payment-service-2:3001'
+          # - 'payment-service-3:3001'
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    # Метрики будут автоматически агрегироваться Prometheus
+    # для кластерных метрик используйте sum(), avg(), max() в запросах
+    # Метки instance, pod, namespace автоматически добавляются к метрикам
+
+  # Nginx метрики (отключено - nginx не экспортирует метрики Prometheus без nginx-exporter)
+  # Для мониторинга nginx используйте nginx-exporter или удалите этот target
+  # - job_name: 'nginx'
+  #   static_configs:
+  #     - targets: ['nginx:80']
+  #   metrics_path: '/nginx_status'
+  #   scrape_interval: 10s
+
+  # Docker контейнеры
+  - job_name: 'docker'
+    static_configs:
+      - targets: ['localhost:9323']
+    scrape_interval: 15s 
