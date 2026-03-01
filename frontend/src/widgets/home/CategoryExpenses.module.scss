@@ -1,0 +1,62 @@
+@use '@shared/styles/variables';
+
+.category-expenses {
+  margin-bottom: 16px;
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  &__card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 16px;
+    transition: all 0.2s;
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--color-accent);
+      box-shadow: var(--shadow);
+      transform: translateY(-2px);
+    }
+  }
+
+  &__icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    flex-shrink: 0;
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__category {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    margin-bottom: 4px;
+  }
+
+  &__amount {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+  }
+}

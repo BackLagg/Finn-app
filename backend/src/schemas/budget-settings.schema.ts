@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { FixedExpenseSchema } from './fixed-expense.schema';
+import { MultiCurrencyAmount, MultiCurrencyAmountSchema } from './multi-currency-amount.schema';
 
 export type BudgetSettingsDocument = BudgetSettings &
   Document & {
@@ -16,11 +17,11 @@ export class BudgetSettings {
   @Prop({ type: Types.ObjectId, ref: 'PartnerRoom', required: false, index: true })
   roomId?: Types.ObjectId;
 
-  @Prop({ default: 'RUB' })
+  @Prop({ default: 'USD' })
   currency!: string;
 
-  @Prop({ required: true })
-  monthlyIncome!: number;
+  @Prop({ type: MultiCurrencyAmountSchema, required: true })
+  monthlyIncome!: MultiCurrencyAmount;
 
   @Prop({ type: [FixedExpenseSchema], default: [] })
   fixedExpenses!: { name: string; amount: number }[];

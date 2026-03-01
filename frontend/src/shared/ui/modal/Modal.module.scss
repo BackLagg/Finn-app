@@ -1,4 +1,6 @@
-@use '../../styles/variables' as *;
+@use '@shared/styles/variables';
+
+$modal-width: 500px;
 
 .modalOverlay {
   position: fixed;
@@ -6,52 +8,86 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
   padding: 20px;
+  backdrop-filter: blur(2px);
+  box-sizing: border-box;
+}
+
+.modalWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  height: calc(100vh - 40px);
+  height: calc(100dvh - 40px);
+  max-height: calc(100vh - 40px);
+  max-height: calc(100dvh - 40px);
+  overflow: hidden;
+  width: 100%;
+  max-width: $modal-width;
+}
+
+.modalAbove {
+  flex-shrink: 0;
+  width: 100%;
+}
+
+.modalBelow {
+  flex-shrink: 0;
+  width: 100%;
 }
 
 .modalContent {
-  background: white;
-  border-radius: 16px;
-  max-width: 500px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
   width: 100%;
-  max-height: 60vh;
+  box-sizing: border-box;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.modalContent_fill {
+  flex: 1 1 0;
 }
 
 .modalHeader {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px 12px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
 }
 
 .modalTitle {
-  font-family: $font-text;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
-  color: #131417;
+  color: var(--color-text-primary);
   margin: 0;
 }
 
 .modalClose {
-  background: none;
+  background: transparent;
   border: none;
   padding: 8px;
   cursor: pointer;
-  border-radius: 8px;
-  color: #6B7280;
-  transition: all 0.2s ease;
+  border-radius: 12px;
+  color: var(--color-text-secondary);
+  transition: all 0.2s;
 
   &:hover {
-    background: #f3f4f6;
-    color: #374151;
+    background: var(--color-bg);
+    color: var(--color-text-primary);
   }
 
   svg {
@@ -61,8 +97,21 @@
 }
 
 .modalBody {
-  padding: 16px 20px;
+  flex: 1;
+  padding: 24px;
   overflow-y: auto;
-  max-height: calc(60vh - 120px);
+  overflow-x: hidden;
+  min-height: 0;
 }
 
+.modalFooter {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+}

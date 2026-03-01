@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { MultiCurrencyAmount, MultiCurrencyAmountSchema } from './multi-currency-amount.schema';
 
 export type TransactionDocument = Transaction &
   Document & {
@@ -12,8 +13,8 @@ export type TransactionSource = 'manual' | 'receipt_ai';
 
 @Schema({ timestamps: true })
 export class Transaction {
-  @Prop({ required: true })
-  amount!: number;
+  @Prop({ type: MultiCurrencyAmountSchema, required: true })
+  amount!: MultiCurrencyAmount;
 
   @Prop({ required: true, enum: ['income', 'expense'] })
   type!: TransactionType;
@@ -38,6 +39,9 @@ export class Transaction {
 
   @Prop({ required: false })
   receiptImageUrl?: string;
+
+  @Prop({ required: true, default: 'USD' })
+  inputCurrency!: string;
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);

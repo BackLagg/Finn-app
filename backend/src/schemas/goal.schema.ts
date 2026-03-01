@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { MultiCurrencyAmount, MultiCurrencyAmountSchema } from './multi-currency-amount.schema';
 
 export type GoalDocument = Goal &
   Document & {
@@ -18,13 +19,13 @@ export class Goal {
   @Prop({ required: true })
   title!: string;
 
-  @Prop({ required: true })
-  targetAmount!: number;
+  @Prop({ type: MultiCurrencyAmountSchema, required: true })
+  targetAmount!: MultiCurrencyAmount;
 
-  @Prop({ default: 0 })
-  currentAmount!: number;
+  @Prop({ type: MultiCurrencyAmountSchema, required: true })
+  currentAmount!: MultiCurrencyAmount;
 
-  @Prop({ default: 'RUB' })
+  @Prop({ default: 'USD' })
   currency!: string;
 
   @Prop({ required: false })

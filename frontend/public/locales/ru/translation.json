@@ -37,12 +37,68 @@
     "investments": "Инвестиции",
     "purchases": "Покупки",
     "pinList": "Закрепить",
-    "unpinList": "Открепить"
+    "unpinList": "Открепить",
+    "monthlyBalance": {
+      "title": "Общий баланс",
+      "totalBalance": "Общий баланс",
+      "expenses": "Расходы",
+      "income": "Доходы"
+    },
+    "budget": {
+      "title": "Бюджеты",
+      "monthly": "Ежемесячно",
+      "monthlyDate": "Январь 2026",
+      "overall": "Общий бюджет",
+      "allCategories": "Категория: Все расходы",
+      "allExpenses": "Все расходы"
+    },
+    "scheduledPayments": {
+      "title": "Запланированные платежи",
+      "totalScheduled": "Запланированные расходы",
+      "once": "Один раз",
+      "daily": "Каждый день",
+      "weekly": "Каждую неделю",
+      "monthly": "Каждый месяц",
+      "yearly": "Каждый год",
+      "everyMonth": "Каждые 1 месяц",
+      "oneTime": "Один раз",
+      "card": "Карта",
+      "inDays": "За 3 дней в 20:00"
+    },
+    "goals": {
+      "title": "Цели накопления",
+      "accounts": "Счета",
+      "debts": "Долги",
+      "all": "Всего",
+      "savings": "Сбережения",
+      "remaining": "Осталось"
+    },
+    "reminder": {
+      "createTitle": "Создать напоминание",
+      "create": "Создать",
+      "once": "Один раз",
+      "recurring": "Ежемесячно",
+      "repeat": "Повторять",
+      "descriptionPlaceholder": "Описание платежа",
+      "recurringHint": "В коротких месяцах будет последний день",
+      "forDate": "Напоминания на этот день",
+      "swipeUp": "Свайп вверх — задачи",
+      "swipeDown": "Свайп вниз — форма",
+      "noReminders": "Нет напоминаний на этот день"
+    },
+    "charts": {
+      "title": "Аналитика",
+      "dailyExpenses": "Ежедневные расходы",
+      "categoryBreakdown": "Распределение по категориям",
+      "incomeVsExpense": "Доходы vs Расходы"
+    }
   },
   "profile": {
     "title": "Профиль",
     "summary": "Сводка",
+    "statistics": "Статистика",
     "settings": "Настройки",
+    "currency": "Валюта приложения",
     "language": "Язык",
     "theme": "Тема",
     "themeLight": "Свет",

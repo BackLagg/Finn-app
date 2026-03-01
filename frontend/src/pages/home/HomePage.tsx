@@ -2,19 +2,22 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { financeAPI } from '@shared/api';
+import { Dropdown } from '@shared/ui';
+import { useCurrencyPreference } from '@shared/lib/use-currency-preference';
 import {
-  ChartsSection,
-  ExpenseCalculator,
   ExpenseList,
   GoalsSection,
-  ReceiptScanner,
-  ShoppingLists,
-  PinnedShoppingList,
+  BudgetSection,
+  ScheduledPayments,
+  MonthlyBalance,
+  CalendarWithReminders,
 } from '@widgets/home';
+import MonthlyBudgetInput from '@widgets/home/MonthlyBudgetInput';
 import styles from './HomePage.module.scss';
 
 const HomePage: React.FC = () => {
   const { t } = useTranslation();
+  const [currency] = useCurrencyPreference();
   const [context, setContext] = useState<'personal' | 'partner'>('personal');
   const [selectedRoomId, setSelectedRoomId] = useState<string | undefined>();
 
@@ -28,10 +31,14 @@ const HomePage: React.FC = () => {
 
   const currentRoomId = context === 'partner' ? selectedRoomId : undefined;
 
+  const roomOptions = rooms.map((room) => ({
+    value: room._id,
+    label: room.name,
+  }));
+
   return (
     <div className={styles['home-page']}>
       <div className={styles['home-page__header']}>
-        <h1 className={styles['home-page__title']}>{t('home.title')}</h1>
         <div className={styles['home-page__context-filter']}>
           <button
             className={`${styles['home-page__tab']} ${context === 'personal' ? styles['home-page__tab--active'] : ''}`}
@@ -47,31 +54,29 @@ const HomePage: React.FC = () => {
           </button>
         </div>
         {context === 'partner' && rooms.length > 0 && (
-          <select
-            className={styles['home-page__room-select']}
+          <Dropdown
+            options={roomOptions}
             value={selectedRoomId || ''}
-            onChange={(e) => setSelectedRoomId(e.target.value || undefined)}
-          >
-            <option value="">{t('partners.selectRoom')}</option>
-            {rooms.map((room) => (
-              <option key={room._id} value={room._id}>
-                {room.name}
-              </option>
-            ))}
-          </select>
+            onChange={(val) => setSelectedRoomId(val || undefined)}
+            placeholder={t('partners.selectRoom')}
+            className={styles['home-page__room-select']}
+          />
         )}
       </div>
 
       <div className={styles['home-page__content']}>
-        <ReceiptScanner roomId={currentRoomId} />
-        <ChartsSection roomId={currentRoomId} />
-        <ExpenseCalculator roomId={currentRoomId} />
-        <ExpenseList roomId={currentRoomId} />
-        <GoalsSection roomId={currentRoomId} />
-        <ShoppingLists roomId={currentRoomId} />
-      </div>
+        <MonthlyBudgetInput roomId={currentRoomId} />
 
-      <PinnedShoppingList />
+        <div className={styles['home-page__calendar-section']}>
+          <CalendarWithReminders roomId={currentRoomId} currency={currency} />
+        </div>
+
+        <MonthlyBalance roomId={currentRoomId} />
+        <BudgetSection roomId={currentRoomId} />
+        <ScheduledPayments roomId={currentRoomId} />
+        <GoalsSection roomId={currentRoomId} />
+        <ExpenseList roomId={currentRoomId} />
+      </div>
     </div>
   );
 };

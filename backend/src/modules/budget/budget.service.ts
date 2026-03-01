@@ -46,12 +46,20 @@ export class BudgetService {
       filter.$or = [{ roomId: { $exists: false } }, { roomId: null }];
     }
 
+    const amount = data.monthlyIncome ?? 0;
+    const monthlyIncome = {
+      USD: data.currency === 'USD' ? amount : 0,
+      EUR: data.currency === 'EUR' ? amount : 0,
+      RUB: data.currency === 'RUB' ? amount : 0,
+      BYN: data.currency === 'BYN' ? amount : 0,
+    };
+
     const doc = await this.budgetModel.findOneAndUpdate(
       filter,
       {
         $set: {
           currency: data.currency,
-          monthlyIncome: data.monthlyIncome,
+          monthlyIncome,
           fixedExpenses: data.fixedExpenses,
           distribution: {
             savings: data.savingsPercent,

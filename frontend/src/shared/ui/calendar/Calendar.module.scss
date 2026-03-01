@@ -1,0 +1,129 @@
+@use '@shared/styles/variables';
+
+.calendar {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 16px;
+  width: 100%;
+  max-width: 400px;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  &__nav {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: var(--color-bg);
+    }
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  &__title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  &__weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+
+  &__weekday {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-text-tertiary);
+    padding: 8px 0;
+  }
+
+  &__days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+
+  &__day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+
+    &:hover:not(&--empty):not(&--disabled) {
+      background: var(--color-bg);
+    }
+
+    &--empty {
+      cursor: default;
+    }
+
+    &--selected {
+      background: var(--color-accent);
+      color: #0a0a0a;
+      font-weight: 600;
+
+      &:hover {
+        background: var(--color-accent-hover);
+      }
+    }
+
+    &--marked:not(&--colored) {
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 4px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: var(--color-success);
+      }
+    }
+
+    &--colored {
+      font-weight: 600;
+      border: 2px solid transparent;
+    }
+
+    &--disabled {
+      color: var(--color-text-tertiary);
+      cursor: not-allowed;
+      opacity: 0.5;
+
+      &:hover {
+        background: transparent;
+      }
+    }
+  }
+}

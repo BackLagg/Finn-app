@@ -37,12 +37,68 @@
     "investments": "Investments",
     "purchases": "Purchases",
     "pinList": "Pin",
-    "unpinList": "Unpin"
+    "unpinList": "Unpin",
+    "monthlyBalance": {
+      "title": "Total Balance",
+      "totalBalance": "Total Balance",
+      "expenses": "Expenses",
+      "income": "Income"
+    },
+    "budget": {
+      "title": "Budgets",
+      "monthly": "Monthly",
+      "monthlyDate": "January 2026",
+      "overall": "Overall Budget",
+      "allCategories": "Category: All Expenses",
+      "allExpenses": "All Expenses"
+    },
+    "scheduledPayments": {
+      "title": "Scheduled Payments",
+      "totalScheduled": "Scheduled Expenses",
+      "once": "Once",
+      "daily": "Every day",
+      "weekly": "Every week",
+      "monthly": "Every month",
+      "yearly": "Every year",
+      "everyMonth": "Every 1 month",
+      "oneTime": "One time",
+      "card": "Card",
+      "inDays": "In 3 days at 20:00"
+    },
+    "goals": {
+      "title": "Savings Goals",
+      "accounts": "Accounts",
+      "debts": "Debts",
+      "all": "All",
+      "savings": "Savings",
+      "remaining": "Remaining"
+    },
+    "reminder": {
+      "createTitle": "Create reminder",
+      "create": "Create",
+      "once": "Once",
+      "recurring": "Monthly",
+      "repeat": "Repeat",
+      "descriptionPlaceholder": "Payment description",
+      "recurringHint": "In short months will be the last day",
+      "forDate": "Reminders for this day",
+      "swipeUp": "Swipe up — tasks",
+      "swipeDown": "Swipe down — form",
+      "noReminders": "No reminders for this day"
+    },
+    "charts": {
+      "title": "Analytics",
+      "dailyExpenses": "Daily Expenses",
+      "categoryBreakdown": "Category Breakdown",
+      "incomeVsExpense": "Income vs Expense"
+    }
   },
   "profile": {
     "title": "Profile",
     "summary": "Summary",
+    "statistics": "Statistics",
     "settings": "Settings",
+    "currency": "App currency",
     "language": "Language",
     "theme": "Theme",
     "themeLight": "Light",
