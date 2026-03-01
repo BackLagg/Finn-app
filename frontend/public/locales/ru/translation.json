@@ -15,10 +15,12 @@
     "loading": "Загрузка...",
     "error": "Ошибка",
     "income": "Доход",
-    "expense": "Расход"
+    "expense": "Расход",
+    "coming_soon": "Скоро..."
   },
   "home": {
     "title": "Главная",
+    "available": "Доступно",
     "personal": "Личные",
     "withPartner": "С партнёром",
     "expenses": "Траты",
@@ -43,6 +45,8 @@
     "settings": "Настройки",
     "language": "Язык",
     "theme": "Тема",
+    "themeLight": "Свет",
+    "themeDark": "Тёмн",
     "subscriptions": "Подписки"
   },
   "partners": {
@@ -51,7 +55,8 @@
     "invite": "Пригласить",
     "inviteCode": "Код приглашения",
     "members": "Участники",
-    "contributions": "Вклады"
+    "contributions": "Вклады",
+    "selectRoom": "Выберите комнату"
   },
   "validation": {
     "required": "Обязательное поле",

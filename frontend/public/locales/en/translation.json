@@ -15,10 +15,12 @@
     "loading": "Loading...",
     "error": "Error",
     "income": "Income",
-    "expense": "Expense"
+    "expense": "Expense",
+    "coming_soon": "Coming soon..."
   },
   "home": {
     "title": "Home",
+    "available": "Available",
     "personal": "Personal",
     "withPartner": "With partner",
     "expenses": "Expenses",
@@ -43,6 +45,8 @@
     "settings": "Settings",
     "language": "Language",
     "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
     "subscriptions": "Subscriptions"
   },
   "partners": {
@@ -51,7 +55,8 @@
     "invite": "Invite",
     "inviteCode": "Invite code",
     "members": "Members",
-    "contributions": "Contributions"
+    "contributions": "Contributions",
+    "selectRoom": "Select room"
   },
   "validation": {
     "required": "Required field",

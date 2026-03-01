@@ -24,6 +24,7 @@ const PartnersPage: React.FC = () => {
     mutationFn: (name: string) => financeAPI.partnerRooms.create(name),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['partnerRooms'] });
+      setRoomName('');
       toast.success(t('partners.createRoom'));
     },
     onError: () => toast.error(t('errors.generic')),
@@ -49,50 +50,116 @@ const PartnersPage: React.FC = () => {
 
   const activeRoom = rooms[activeIndex];
 
+  const handleSwipe = (direction: 'left' | 'right') => {
+    if (direction === 'left' && activeIndex < rooms.length - 1) {
+      setActiveIndex(activeIndex + 1);
+    } else if (direction === 'right' && activeIndex > 0) {
+      setActiveIndex(activeIndex - 1);
+    }
+  };
+
   return (
-    <div className={styles.partnersPage}>
-      <h1>{t('partners.title')}</h1>
-      <section className={styles.actions}>
-        <div>
+    <div className={styles['partners-page']}>
+      <h1 className={styles['partners-page__title']}>{t('partners.title')}</h1>
+      
+      <section className={styles['partners-page__actions']}>
+        <div className={styles['partners-page__action-group']}>
           <input
+            className={styles['partners-page__input']}
             value={roomName}
             onChange={(e) => setRoomName(e.target.value)}
             placeholder={t('partners.createRoom')}
           />
-          <button type="button" onClick={handleCreate} disabled={createMutation.isPending}>
+          <button
+            type="button"
+            onClick={handleCreate}
+            disabled={createMutation.isPending}
+            className={styles['partners-page__btn']}
+          >
             {t('partners.createRoom')}
           </button>
         </div>
-        <div>
+        <div className={styles['partners-page__action-group']}>
           <input
+            className={styles['partners-page__input']}
             value={inviteCode}
             onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
             placeholder={t('partners.inviteCode')}
           />
-          <button type="button" onClick={handleJoin} disabled={joinMutation.isPending}>
+          <button
+            type="button"
+            onClick={handleJoin}
+            disabled={joinMutation.isPending}
+            className={styles['partners-page__btn']}
+          >
             {t('partners.invite')}
           </button>
         </div>
       </section>
+
       {rooms.length > 0 && (
-        <section className={styles.rooms}>
-          <div className={styles.tabs}>
+        <section className={styles['partners-page__rooms']}>
+          <div className={styles['partners-page__tabs']}>
             {rooms.map((r, i) => (
               <button
                 key={r._id}
                 type="button"
-                className={activeIndex === i ? styles.activeTab : ''}
+                className={`${styles['partners-page__tab']} ${activeIndex === i ? styles['partners-page__tab--active'] : ''}`}
                 onClick={() => setActiveIndex(i)}
               >
                 {r.name}
               </button>
             ))}
           </div>
+
           {activeRoom && (
-            <div className={styles.roomDetail}>
-              <h2>{activeRoom.name}</h2>
-              <p>{t('partners.inviteCode')}: <strong>{activeRoom.inviteCode}</strong></p>
-              <p>{t('partners.members')}: {activeRoom.members?.length ?? 0}</p>
+            <div className={styles['partners-page__room-detail']}>
+              <div className={styles['partners-page__room-header']}>
+                <h2 className={styles['partners-page__room-name']}>{activeRoom.name}</h2>
+              </div>
+              
+              <div className={styles['partners-page__room-info']}>
+                <div className={styles['partners-page__info-item']}>
+                  <span className={styles['partners-page__info-label']}>
+                    {t('partners.inviteCode')}:
+                  </span>
+                  <span className={styles['partners-page__info-value']}>
+                    {activeRoom.inviteCode}
+                  </span>
+                </div>
+                <div className={styles['partners-page__info-item']}>
+                  <span className={styles['partners-page__info-label']}>
+                    {t('partners.members')}:
+                  </span>
+                  <span className={styles['partners-page__info-value']}>
+                    {activeRoom.members?.length ?? 0}
+                  </span>
+                </div>
+              </div>
+
+              {activeRoom.members && activeRoom.members.length > 0 && (
+                <div className={styles['partners-page__members']}>
+                  <h3 className={styles['partners-page__members-title']}>
+                    {t('partners.members')}
+                  </h3>
+                  <ul className={styles['partners-page__members-list']}>
+                    {activeRoom.members.map((member, idx) => (
+                      <li key={idx} className={styles['partners-page__member']}>
+                        <span className={styles['partners-page__member-name']}>
+                          {typeof member.userId === 'object' 
+                            ? member.userId?.telegramID || member.userId?._id || 'User'
+                            : member.userId || 'User'}
+                        </span>
+                        {member.contributionPercent && (
+                          <span className={styles['partners-page__member-contribution']}>
+                            {member.contributionPercent}%
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           )}
         </section>

@@ -33,11 +33,19 @@ const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ roomId }) => {
   };
 
   return (
-    <section className={styles.receiptScanner}>
-      <h2>{t('home.aiScanner')}</h2>
+    <section className={styles['receipt-scanner']}>
+      <h2 className={styles['receipt-scanner__title']}>{t('home.aiScanner')}</h2>
       <input ref={inputRef} type="file" accept="image/*" capture="environment" onChange={handleChange} hidden />
-      <button type="button" onClick={handleClick} className={styles.scanBtn} disabled={scanMutation.isPending}>
-        {scanMutation.isPending ? t('common.loading') : t('home.aiScanner')}
+      <button
+        type="button"
+        onClick={handleClick}
+        className={styles['receipt-scanner__btn']}
+        disabled={scanMutation.isPending}
+      >
+        <span className={styles['receipt-scanner__btn-icon']}>📸</span>
+        <span className={styles['receipt-scanner__btn-text']}>
+          {scanMutation.isPending ? t('common.loading') : t('home.aiScanner')}
+        </span>
       </button>
     </section>
   );

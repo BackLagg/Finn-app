@@ -1,99 +1,101 @@
 @use './variables' as *;
 @use './fonts' as *;
 
-// Отключение эффекта синего выделения при нажатии на элементы
 * {
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
-// Разрешаем выделение текста в полях ввода
 input,
 textarea {
-    -webkit-user-select: text;
-    -khtml-user-select: text;
-    -moz-user-select: text;
-    -ms-user-select: text;
-    user-select: text;
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
 
-// Скрытие скроллбара с сохранением функции скроллинга
 html {
-    background-color: var(--color-bg, #ffffff);
-    scrollbar-width: none;
-    /* Firefox */
-    -ms-overflow-style: none;
+  background-color: var(--color-bg);
+  scrollbar-width: thin;
+  -ms-overflow-style: none;
 
-    /* IE и Edge */
-    &::-webkit-scrollbar {
-        width: 0px;
-        background: transparent;
-        /* Chrome/Safari/Webkit */
-    }
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: var(--color-bg);
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 3px;
+  }
 }
 
 body {
-    background-color: var(--color-bg, #ffffff);
-    margin: 0;
-    padding: 0;
-    overflow-y: scroll;
-    scrollbar-width: none;
-    /* Firefox */
-    -ms-overflow-style: none;
-
-    /* IE и Edge */
-    &::-webkit-scrollbar {
-        width: 0px;
-        background: transparent;
-        /* Chrome/Safari/Webkit */
-    }
+  background-color: var(--color-bg);
+  margin: 0;
+  padding: 0;
+  font-family: $font-primary;
+  color: var(--color-text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-y: scroll;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .main {
-    overflow: auto;
-    background-color: var(--color-bg-secondary, #fafafa);
+  overflow: auto;
+  background-color: var(--color-bg);
 
-    // Скрытие скроллбара с сохранением функции скроллинга
+  overflow-y: auto;
+  scrollbar-width: thin;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+    background: transparent;
+  }
+
+  .main-content {
+    background-color: var(--color-bg);
+    display: flex;
+    flex-direction: column;
     overflow-y: auto;
-    scrollbar-width: none;
-    /* Firefox */
-    -ms-overflow-style: none;
-
-    /* IE и Edge */
-    &::-webkit-scrollbar {
-        width: 0px;
-        background: transparent;
-        /* Chrome/Safari/Webkit */
-    }
-
-    .main-content {
-        background-color: var(--color-bg-secondary, #fafafa);
-        display: flex;
-        flex-direction: column;
-
-        // Скрытие скроллбара с сохранением функции скроллинга
-        overflow-y: auto;
-        scrollbar-width: none;
-        /* Firefox */
-        -ms-overflow-style: none;
-
-        /* IE и Edge */
-        &::-webkit-scrollbar {
-            width: 0px;
-            background: transparent;
-            /* Chrome/Safari/Webkit */
-        }
-    }
+  }
 }
 
-// Скрытие маленьких уведомлений о подтверждении под номером кошелька
-// Начинаем с минимального - скрываем только маленькие бейджи внутри кнопки
-.wallet-connect button [class*="badge"] {
-    display: none !important;
+.recharts-default-tooltip {
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius) !important;
+  padding: 8px 12px !important;
+  color: var(--color-text-primary) !important;
+  font-size: 13px !important;
+  box-shadow: var(--shadow-lg) !important;
 }
 
+.recharts-text {
+  fill: var(--color-text-secondary) !important;
+  font-size: 12px !important;
+}
+
+button {
+  font-family: inherit;
+}
+
+input,
+select {
+  font-family: inherit;
+}
+
+* {
+  box-sizing: border-box;
+}

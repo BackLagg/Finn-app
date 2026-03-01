@@ -17,7 +17,7 @@ const BottomNavigation: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <div className={styles.bottomNavigation}>
+    <nav className={styles.navigation}>
       {navItems.map(({ path, icon, labelKey }) => {
         const isActive = location.pathname === path;
         const label = t(labelKey);
@@ -25,16 +25,16 @@ const BottomNavigation: React.FC = () => {
           <NavLink
             key={path}
             to={path}
-            className={`${styles.navButton}${isActive ? ` ${styles.active}` : ''}`}
+            className={`${styles.navigation__item}${isActive ? ` ${styles['navigation__item--active']}` : ''}`}
           >
-            <div className={styles.navIconWrapper}>
-              <img src={icon} alt={label} className={styles.navIcon} />
+            <div className={styles.navigation__icon}>
+              <img src={icon} alt={label} />
             </div>
-            <span className={styles.navLabel}>{label}</span>
+            <span className={styles.navigation__label}>{label}</span>
           </NavLink>
         );
       })}
-    </div>
+    </nav>
   );
 };
 

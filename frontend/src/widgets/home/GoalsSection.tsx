@@ -19,18 +19,21 @@ const GoalsSection: React.FC<GoalsSectionProps> = ({ roomId }) => {
   });
 
   return (
-    <section className={styles.goalsSection}>
-      <h2>{t('home.goals')}</h2>
-      <div className={styles.goalsList}>
+    <section className={styles['goals-section']}>
+      <h2 className={styles['goals-section__title']}>{t('home.goals')}</h2>
+      <div className={styles['goals-section__list']}>
         {goals.map((g) => {
           const pct = g.targetAmount > 0 ? Math.min(100, (g.currentAmount / g.targetAmount) * 100) : 0;
           return (
-            <div key={g._id} className={styles.goalCard}>
-              <div className={styles.goalTitle}>{g.title}</div>
-              <div className={styles.progressBar}>
-                <div className={styles.progressFill} style={{ width: `${pct}%` }} />
+            <div key={g._id} className={styles['goals-section__card']}>
+              <div className={styles['goals-section__card-title']}>{g.title}</div>
+              <div className={styles['goals-section__progress']}>
+                <div className={styles['goals-section__progress-bar']}>
+                  <div className={styles['goals-section__progress-fill']} style={{ width: `${pct}%` }} />
+                </div>
+                <span className={styles['goals-section__progress-text']}>{pct.toFixed(0)}%</span>
               </div>
-              <div className={styles.goalAmount}>
+              <div className={styles['goals-section__amount']}>
                 {g.currentAmount} / {g.targetAmount} {g.currency}
               </div>
             </div>

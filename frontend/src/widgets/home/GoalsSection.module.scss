@@ -1,36 +1,75 @@
-.goalsSection {
+.goals-section {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  padding: 16px;
+  padding: 20px;
   margin-bottom: 16px;
-  box-shadow: var(--shadow);
-}
 
-.goalCard {
-  margin-bottom: 12px;
-}
+  &__title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0 0 16px 0;
+  }
 
-.goalTitle {
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
+  &__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+  }
 
-.progressBar {
-  height: 8px;
-  background: var(--color-bg-secondary);
-  border-radius: var(--radius);
-  overflow: hidden;
-  margin: 8px 0;
-}
+  &__card {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 16px;
+    transition: all 0.2s;
 
-.progressFill {
-  height: 100%;
-  background: var(--color-accent);
-  transition: width 0.3s;
-}
+    &:hover {
+      border-color: var(--color-accent);
+      box-shadow: var(--shadow);
+    }
+  }
 
-.goalAmount {
-  font-size: 12px;
-  color: var(--color-text-secondary);
+  &__card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: 12px;
+  }
+
+  &__progress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  &__progress-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--color-border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  &__progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-accent), var(--color-accent-hover));
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  &__progress-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    min-width: 40px;
+    text-align: right;
+  }
+
+  &__amount {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+  }
 }

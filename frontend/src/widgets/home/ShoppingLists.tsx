@@ -1,51 +1,67 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useInView } from 'react-intersection-observer';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { financeAPI } from '@shared/api';
-import PinnedShoppingList from './PinnedShoppingList';
 import styles from './ShoppingLists.module.scss';
 
-const ShoppingLists: React.FC = () => {
+interface ShoppingListsProps {
+  roomId?: string;
+}
+
+const ShoppingLists: React.FC<ShoppingListsProps> = ({ roomId }) => {
   const { t } = useTranslation();
-  const [showPinned, setShowPinned] = useState(true);
-  const { ref, inView } = useInView({ threshold: 0.5 });
+  const queryClient = useQueryClient();
+
   const { data: lists = [] } = useQuery({
-    queryKey: ['shoppingLists'],
+    queryKey: ['shoppingLists', roomId],
     queryFn: async () => {
-      const res = await financeAPI.shoppingLists.list();
+      const res = await financeAPI.shoppingLists.list(roomId);
       return res.data;
     },
   });
-  const hasPinned = lists.some((l) => l.isPinned);
 
-  useEffect(() => {
-    if (inView && hasPinned) setShowPinned(false);
-    else if (!inView && hasPinned) setShowPinned(true);
-  }, [inView, hasPinned]);
+  const pinMutation = useMutation({
+    mutationFn: (listId: string) => financeAPI.shoppingLists.togglePin(listId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['shoppingLists'] });
+    },
+  });
 
   return (
-    <>
-      <section ref={ref} className={styles.shoppingLists}>
-        <h2>{t('home.shoppingLists')}</h2>
-        <ul>
-          {lists.map((list) => (
-            <li key={list._id}>
-              <strong>{list.title}</strong>
-              <ul>
-                {list.items.map((item, i) => (
-                  <li key={i}>
-                    <input type="checkbox" checked={item.checked} readOnly />
+    <section className={styles['shopping-lists']} data-section="shopping-lists">
+      <h2 className={styles['shopping-lists__title']}>{t('home.shoppingLists')}</h2>
+      <div className={styles['shopping-lists__grid']}>
+        {lists.map((list) => (
+          <div key={list._id} className={styles['shopping-lists__card']}>
+            <div className={styles['shopping-lists__card-header']}>
+              <h3 className={styles['shopping-lists__card-title']}>{list.title}</h3>
+              <button
+                type="button"
+                className={styles['shopping-lists__pin-btn']}
+                onClick={() => pinMutation.mutate(list._id)}
+              >
+                {list.isPinned ? '📌' : '📍'}
+              </button>
+            </div>
+            <ul className={styles['shopping-lists__items']}>
+              {list.items.map((item, i) => (
+                <li key={i} className={styles['shopping-lists__item']}>
+                  <input
+                    type="checkbox"
+                    className={styles['shopping-lists__checkbox']}
+                    checked={item.checked}
+                    readOnly
+                  />
+                  <span className={styles['shopping-lists__item-name']}>
                     {item.name}
-                  </li>
-                ))}
-              </ul>
-            </li>
-          ))}
-        </ul>
-      </section>
-      <PinnedShoppingList visible={showPinned} />
-    </>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 };
 

@@ -19,22 +19,21 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`${styles.mainLayout} ${className}`}>
+    <div className={`${styles['main-layout']} ${className}`}>
       {showHeader && (
-        <header className={styles.mainLayoutHeader}>
+        <header className={styles['main-layout__header']}>
           <Header />
         </header>
       )}
-      <main className={styles.mainLayoutContent}>
+      <main className={styles['main-layout__content']}>
         {children || null}
       </main>
       {showNavigation && (
-        <nav className={styles.mainLayoutNavigation}>
+        <nav className={styles['main-layout__navigation']}>
           <Navigation />
         </nav>
       )}
       
-      {/* ToastContainer для уведомлений */}
       <ToastContainer 
         position="top-right"
         autoClose={3000}
@@ -50,7 +49,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         transition={Slide}
         limit={3}
         toastStyle={{
-          borderRadius: '12px',
+          borderRadius: '4px',
           fontSize: '14px',
           padding: '16px 20px',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',

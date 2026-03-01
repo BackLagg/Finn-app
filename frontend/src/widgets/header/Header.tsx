@@ -1,14 +1,21 @@
 import React, { memo } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { RootState } from '@app/store';
+import { useTheme } from '@features/theme';
+import { useLanguage } from '@features/i18n';
+import { Switch } from '@shared/ui';
 import styles from './Header.module.scss';
 
 const Header: React.FC = memo(() => {
   const user = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { theme, toggleTheme } = useTheme();
+  const { language, setLanguage } = useLanguage();
 
-  const truncateText = (text: string, maxLength: number = 20): string => {
+  const truncateText = (text: string, maxLength: number = 16): string => {
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
 
@@ -26,33 +33,52 @@ const Header: React.FC = memo(() => {
   };
 
   return (
-    <div className={styles.header}>
+    <header className={styles.header}>
       <div
-        className={styles.headerLeft}
+        className={styles.header__user}
         onClick={handleProfileClick}
-        style={{ cursor: 'pointer' }}
       >
-        <div className={styles.headerAvatar}>
+        <div className={styles['header__avatar']}>
           {profilePhoto ? (
             <img
               src={profilePhoto}
               alt="Profile"
-              className={styles.headerAvatarImg}
+              className={styles['header__avatar-img']}
             />
           ) : (
-            <div className={styles.headerAvatarPlaceholder} />
+            <div className={styles['header__avatar-placeholder']} />
           )}
         </div>
-        <div className={styles.headerUserInfo}>
+        <div className={styles['header__user-info']}>
           <span
-            className={styles.headerName}
+            className={styles['header__name']}
             title={user.name || user.username || 'User'}
           >
             {truncateText(user.name || user.username || 'User')}
           </span>
         </div>
       </div>
-    </div>
+      <div className={styles.header__controls}>
+        <div className={styles.header__switch}>
+          <Switch
+            checked={language === 'en'}
+            onChange={() => setLanguage(language === 'ru' ? 'en' : 'ru')}
+            leftLabel="RU"
+            rightLabel="EN"
+            size="sm"
+          />
+        </div>
+        <div className={styles.header__switch}>
+          <Switch
+            checked={theme === 'dark'}
+            onChange={toggleTheme}
+            leftLabel={t('profile.themeLight')}
+            rightLabel={t('profile.themeDark')}
+            size="sm"
+          />
+        </div>
+      </div>
+    </header>
   );
 });
 

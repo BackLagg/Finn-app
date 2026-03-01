@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useTransactionStats } from '@features/transactions/use-transaction-stats';
 import styles from './ChartsSection.module.scss';
 
-const COLORS = ['#ff6b35', '#ff8c42', '#f48c06', '#e85d04', '#ea580c', '#d97706'];
+const COLORS = ['#ff6b35', '#ff8c42', '#0ecb81', '#f6465d', '#3861fb', '#848e9c'];
 
 interface ChartsSectionProps {
   roomId?: string;
@@ -23,10 +23,10 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ roomId }) => {
   }));
 
   return (
-    <section className={styles.chartsSection}>
-      <h2>{t('home.charts')}</h2>
-      <div className={styles.chartWrapper}>
-        <ResponsiveContainer width="100%" height={200}>
+    <section className={styles['charts-section']}>
+      <h2 className={styles['charts-section__title']}>{t('home.charts')}</h2>
+      <div className={styles['charts-section__wrapper']}>
+        <ResponsiveContainer width="100%" height={240}>
           <PieChart>
             <Pie
               data={pieData}
@@ -34,8 +34,8 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ roomId }) => {
               nameKey="name"
               cx="50%"
               cy="50%"
-              innerRadius={50}
-              outerRadius={80}
+              innerRadius={60}
+              outerRadius={90}
               label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
             >
               {pieData.map((entry) => (

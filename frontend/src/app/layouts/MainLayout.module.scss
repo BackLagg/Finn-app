@@ -1,87 +1,95 @@
-@use '../../shared/styles/variables' as *;
-
-.mainLayout {
+.main-layout {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  background-color: transparent;
+  min-height: 100vh;
+  background: var(--color-bg);
   position: relative;
-}
 
-.mainLayoutHeader {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  background: none;
-}
-
-.mainLayoutContent {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  margin-top: 72px; // Высота header
-  margin-bottom: 70px; // Высота navigation + отступы
-
-  &::-webkit-scrollbar {
-    width: 0px;
-    background: transparent;
+  &__header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: var(--color-surface);
   }
-}
 
-.mainLayoutNavigation {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  display: flex;
-  justify-content: center;
-  pointer-events: none;
-  background: none;
+  &__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    margin-top: 56px;
+    margin-bottom: 72px;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--color-bg);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--color-border);
+      border-radius: 3px;
+
+      &:hover {
+        background: var(--color-text-tertiary);
+      }
+    }
+  }
+
+  &__navigation {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+  }
 }
 
 :global {
   .Toastify__toast-container--top-right {
-    top: calc(0.5em) !important;
-    right: calc(0.5em) !important;
-    width: auto !important;
-    max-width: 420px !important;
+    top: 1em !important;
+    right: 1em !important;
+    max-width: 360px !important;
   }
 
   .Toastify__toast {
-    width: auto !important;
-    max-width: 420px !important;
-    min-width: 300px !important;
+    background: var(--color-surface) !important;
+    border: 1px solid var(--color-border) !important;
+    border-radius: var(--radius) !important;
+    color: var(--color-text-primary) !important;
   }
 
   .Toastify__toast--success {
-    background: linear-gradient(135deg, #ffffff 0%, #d1fae5 100%) !important;
-    border: 2px solid rgba(34, 197, 94, 0.3) !important;
-    border-radius: 12px !important;
-    color: #1f2937 !important;
+    border-color: var(--color-success) !important;
+    
+    &::before {
+      content: '✓';
+      color: var(--color-success);
+      font-weight: bold;
+      margin-right: 8px;
+    }
   }
 
   .Toastify__toast--error {
-    background: linear-gradient(135deg, #ffffff 0%, #fee2e2 100%) !important;
-    border: 2px solid rgba(239, 68, 68, 0.3) !important;
-    border-radius: 12px !important;
-    color: #1f2937 !important;
-  }
-
-  .Toastify__toast--info {
-    background: linear-gradient(135deg, #ffffff 0%, #d1fae5 100%) !important;
-    border: 2px solid rgba(34, 197, 94, 0.3) !important;
-    border-radius: 12px !important;
-    color: #1f2937 !important;
+    border-color: var(--color-danger) !important;
+    
+    &::before {
+      content: '✕';
+      color: var(--color-danger);
+      font-weight: bold;
+      margin-right: 8px;
+    }
   }
 
   .Toastify__close-button {
-    color: #1f2937 !important;
+    color: var(--color-text-secondary) !important;
     opacity: 0.7;
 
     &:hover {
@@ -89,4 +97,3 @@
     }
   }
 }
-
