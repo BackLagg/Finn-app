@@ -1,0 +1,104 @@
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
+import { TransactionService } from './transaction.service';
+import { CreateTransactionDto } from '../../dto/transaction.dto';
+import { UpdateTransactionDto } from '../../dto/transaction.dto';
+import { UserGuard } from '../../guards/user.guard';
+import { AuthenticatedRequest } from '../../interfaces/request.interface';
+import { Types } from 'mongoose';
+
+@Controller('transaction')
+@UseGuards(UserGuard)
+export class TransactionController {
+  constructor(private readonly transactionService: TransactionService) {}
+
+  private getUserId(req: AuthenticatedRequest): Types.ObjectId {
+    const u = req.user as { _id?: Types.ObjectId };
+    return u!._id!;
+  }
+
+  @Post()
+  async create(@Body() dto: CreateTransactionDto, @Req() req: AuthenticatedRequest) {
+    const userId = this.getUserId(req);
+    const roomId = dto.roomId ? new Types.ObjectId(dto.roomId) : undefined;
+    return this.transactionService.create(userId, {
+      amount: dto.amount,
+      type: dto.type,
+      category: dto.category,
+      date: dto.date ? new Date(dto.date) : undefined,
+      description: dto.description,
+      roomId,
+    });
+  }
+
+  @Get()
+  async findAll(
+    @Query('roomId') roomId: string | undefined,
+    @Query('from') from: string | undefined,
+    @Query('to') to: string | undefined,
+    @Query('limit') limit: string | undefined,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = this.getUserId(req);
+    return this.transactionService.findAll(userId, {
+      roomId: roomId ? new Types.ObjectId(roomId) : undefined,
+      from: from ? new Date(from) : undefined,
+      to: to ? new Date(to) : undefined,
+      limit: limit ? parseInt(limit, 10) : undefined,
+    });
+  }
+
+  @Get('stats')
+  async getStats(
+    @Query('roomId') roomId: string | undefined,
+    @Query('from') from: string | undefined,
+    @Query('to') to: string | undefined,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = this.getUserId(req);
+    return this.transactionService.getStatsByCategory(userId, {
+      roomId: roomId ? new Types.ObjectId(roomId) : undefined,
+      from: from ? new Date(from) : undefined,
+      to: to ? new Date(to) : undefined,
+    });
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    const userId = this.getUserId(req);
+    return this.transactionService.findById(id, userId);
+  }
+
+  @Put(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateTransactionDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = this.getUserId(req);
+    const data: Record<string, unknown> = {};
+    if (dto.amount !== undefined) data.amount = dto.amount;
+    if (dto.type !== undefined) data.type = dto.type;
+    if (dto.category !== undefined) data.category = dto.category;
+    if (dto.date !== undefined) data.date = new Date(dto.date);
+    if (dto.description !== undefined) data.description = dto.description;
+    return this.transactionService.update(id, userId, data);
+  }
+
+  @Delete(':id')
+  async delete(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    const userId = this.getUserId(req);
+    await this.transactionService.delete(id, userId);
+    return { ok: true };
+  }
+}

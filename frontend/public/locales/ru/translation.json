@@ -1,0 +1,63 @@
+{
+  "common": {
+    "calculate": "Рассчитать",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "edit": "Редактировать",
+    "add": "Добавить",
+    "close": "Закрыть",
+    "currency": "Валюта",
+    "amount": "Сумма",
+    "date": "Дата",
+    "description": "Описание",
+    "category": "Категория",
+    "loading": "Загрузка...",
+    "error": "Ошибка",
+    "income": "Доход",
+    "expense": "Расход"
+  },
+  "home": {
+    "title": "Главная",
+    "personal": "Личные",
+    "withPartner": "С партнёром",
+    "expenses": "Траты",
+    "earnings": "Заработки",
+    "charts": "Графики",
+    "calculator": "Расчёт трат",
+    "aiScanner": "Сканер чеков",
+    "expenseList": "Список трат",
+    "shoppingLists": "Списки покупок",
+    "goals": "Цели и накопления",
+    "monthlyIncome": "Доход за месяц",
+    "fixedExpenses": "Обязательные траты",
+    "savings": "Сбережения",
+    "investments": "Инвестиции",
+    "purchases": "Покупки",
+    "pinList": "Закрепить",
+    "unpinList": "Открепить"
+  },
+  "profile": {
+    "title": "Профиль",
+    "summary": "Сводка",
+    "settings": "Настройки",
+    "language": "Язык",
+    "theme": "Тема",
+    "subscriptions": "Подписки"
+  },
+  "partners": {
+    "title": "Партнёры",
+    "createRoom": "Создать комнату",
+    "invite": "Пригласить",
+    "inviteCode": "Код приглашения",
+    "members": "Участники",
+    "contributions": "Вклады"
+  },
+  "validation": {
+    "required": "Обязательное поле",
+    "invalidAmount": "Некорректная сумма"
+  },
+  "errors": {
+    "generic": "Что-то пошло не так"
+  }
+}

@@ -1,14 +1,13 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { Inject, Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { User, UserDocument } from '../../../schemas/user.schema';
+import { UserDocument } from '../../../schemas/user.schema';
 import { TelegramUserData } from '../../../middleware/telegram-auth.middleware';
 import { MongoErrorUtil } from '../../../utils/mongo-error.util';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectModel(User.name)
+    @Inject('UserModel')
     private userModel: Model<UserDocument>,
   ) {}
 

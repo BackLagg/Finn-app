@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClientProviderWrapper, ReduxProvider } from './providers';
 import App from './App';
+import '@shared/lib/i18n';
 
 
 const root = createRoot(

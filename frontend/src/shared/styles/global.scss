@@ -24,7 +24,7 @@ textarea {
 
 // Скрытие скроллбара с сохранением функции скроллинга
 html {
-    background-color: $color-bg;
+    background-color: var(--color-bg, #ffffff);
     scrollbar-width: none;
     /* Firefox */
     -ms-overflow-style: none;
@@ -38,7 +38,7 @@ html {
 }
 
 body {
-    background-color: $color-bg;
+    background-color: var(--color-bg, #ffffff);
     margin: 0;
     padding: 0;
     overflow-y: scroll;
@@ -56,7 +56,7 @@ body {
 
 .main {
     overflow: auto;
-    background-color: #FAFAFA;
+    background-color: var(--color-bg-secondary, #fafafa);
 
     // Скрытие скроллбара с сохранением функции скроллинга
     overflow-y: auto;
@@ -72,7 +72,7 @@ body {
     }
 
     .main-content {
-        background-color: #FAFAFA;
+        background-color: var(--color-bg-secondary, #fafafa);
         display: flex;
         flex-direction: column;
 

@@ -39,7 +39,12 @@ export default registerAs('app', () => {
       process.env.INTEGRATION_TOKEN_SECRET || 'change-me-in-production',
 
     // Публичный URL для файлов (через nginx/домен)
-    // Если не указан, используется относительный путь /files/...
     filePublicUrl: process.env.FILE_PUBLIC_URL || '',
+
+    aiReceiptProvider: (process.env.AI_RECEIPT_PROVIDER || 'openai') as
+      | 'openai'
+      | 'google',
+    openaiApiKey: process.env.OPENAI_API_KEY || '',
+    googleApplicationCredentials: process.env.GOOGLE_APPLICATION_CREDENTIALS || '',
   };
 });

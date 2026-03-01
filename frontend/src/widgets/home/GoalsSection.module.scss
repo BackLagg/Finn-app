@@ -1,0 +1,36 @@
+.goalsSection {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+
+.goalCard {
+  margin-bottom: 12px;
+}
+
+.goalTitle {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.progressBar {
+  height: 8px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 8px 0;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--color-accent);
+  transition: width 0.3s;
+}
+
+.goalAmount {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}

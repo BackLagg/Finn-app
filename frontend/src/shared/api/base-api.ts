@@ -1,20 +1,24 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
 import { handleError } from '../lib/error-handler';
 
-// Конфигурация API
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://fabricbot.tech/api';
-
-//export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+export const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.DEV ? 'http://localhost:8080/api' : 'https://fabricbot.tech/api');
 
 // Утилита для получения initData из Telegram WebApp
 export const getInitData = (): string => {
   return window?.Telegram?.WebApp?.initData || '';
 };
 
-// Создание экземпляра axios с базовой конфигурацией
 export const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 120000, // 120 секунд для больших сообщений
+  timeout: 120000,
+});
+
+apiClient.interceptors.request.use((config) => {
+  const initData = getInitData();
+  if (initData) config.headers['X-Init-Data'] = initData;
+  return config;
 });
 
 // Интерцептор для обработки ошибок

@@ -1,32 +1,28 @@
-// ===== НОВАЯ ЦВЕТОВАЯ ПАЛИТРА (из fabricbot-frontend1) =====
+// Theme colors use CSS variables from themes.scss (var(--color-bg) etc)
 
-// Основные цвета
-$color-bg: #ffffff;
-$color-surface: #fafbfc;
-$color-card: #ffffff;
-$color-border: #e6e8ec;
+$color-bg: var(--color-bg);
+$color-surface: var(--color-surface);
+$color-card: var(--color-card);
+$color-border: var(--color-border);
+$color-text-primary: var(--color-text-primary);
+$color-text-secondary: var(--color-text-secondary);
+$color-accent: var(--color-accent);
+$color-accent-hover: var(--color-accent-hover);
+$color-focus: var(--color-focus);
+$color-danger: var(--color-danger);
+$color-success: var(--color-success);
 
-// Текстовые цвета
-$color-text-primary: #111827;
-$color-text-secondary: #6b7280;
+$radius: var(--radius, 4px);
+$shadow: var(--shadow);
 
-// Брендовые цвета (зеленая палитра)
-$color-brand-50: #ecfdf5;
-$color-brand-100: #d1fae5;
-$color-brand-200: #a7f3d0;
-$color-brand-300: #6ee7b7;
-$color-brand-400: #34d399;
-$color-brand-500: #10b981; // основной
-$color-brand-600: #059669; // hover
-$color-brand-700: #047857; // active
-
-// Дополнительные цвета
-$color-focus: rgba(16, 185, 129, 0.35);
-$color-danger: #ef4444;
-
-// Радиусы и тени
-$radius: 12px;
-$shadow: 0 6px 18px rgba(17, 24, 39, 0.06);
+$color-brand-50: var(--color-accent-muted, rgba(232, 93, 4, 0.15));
+$color-brand-100: var(--color-accent-muted, rgba(232, 93, 4, 0.2));
+$color-brand-200: rgba(232, 93, 4, 0.3);
+$color-brand-300: #ff8c42;
+$color-brand-400: #f48c06;
+$color-brand-500: var(--color-accent);
+$color-brand-600: var(--color-accent-hover);
+$color-brand-700: #ea580c;
 
 // Шрифты
 $font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;

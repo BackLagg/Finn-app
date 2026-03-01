@@ -1,0 +1,63 @@
+{
+  "common": {
+    "calculate": "Calculate",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "close": "Close",
+    "currency": "Currency",
+    "amount": "Amount",
+    "date": "Date",
+    "description": "Description",
+    "category": "Category",
+    "loading": "Loading...",
+    "error": "Error",
+    "income": "Income",
+    "expense": "Expense"
+  },
+  "home": {
+    "title": "Home",
+    "personal": "Personal",
+    "withPartner": "With partner",
+    "expenses": "Expenses",
+    "earnings": "Earnings",
+    "charts": "Charts",
+    "calculator": "Expense calculator",
+    "aiScanner": "Receipt scanner",
+    "expenseList": "Expense list",
+    "shoppingLists": "Shopping lists",
+    "goals": "Goals and savings",
+    "monthlyIncome": "Monthly income",
+    "fixedExpenses": "Fixed expenses",
+    "savings": "Savings",
+    "investments": "Investments",
+    "purchases": "Purchases",
+    "pinList": "Pin",
+    "unpinList": "Unpin"
+  },
+  "profile": {
+    "title": "Profile",
+    "summary": "Summary",
+    "settings": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "subscriptions": "Subscriptions"
+  },
+  "partners": {
+    "title": "Partners",
+    "createRoom": "Create room",
+    "invite": "Invite",
+    "inviteCode": "Invite code",
+    "members": "Members",
+    "contributions": "Contributions"
+  },
+  "validation": {
+    "required": "Required field",
+    "invalidAmount": "Invalid amount"
+  },
+  "errors": {
+    "generic": "Something went wrong"
+  }
+}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '@features/auth';
+import { useTheme } from '@features/theme';
 import { ErrorBoundary } from '@shared/ui';
 import { getErrorType } from '@shared/lib';
 
@@ -8,10 +9,14 @@ import { ErrorScreen, Onboarding } from '@shared/ui';
 import { MainLayout } from './layouts';
 import { LoadingPage } from '@pages/loading';
 import { EmptyPage } from '@pages/empty';
+import { HomePage } from '@pages/home';
+import { ProfilePage } from '@pages/profile';
+import { PartnersPage } from '@pages/partners';
 
 import '@shared/styles/index.scss';
 
 const App: React.FC = () => {
+  useTheme();
   const { user, isLoading, error, isNewUser } = useAuth();
   const [showLoading, setShowLoading] = useState(true);
 
@@ -42,8 +47,10 @@ const App: React.FC = () => {
     <ErrorBoundary>
       <MainLayout>
         <Routes>
-          <Route path="/" element={<Navigate to="/profile" replace />} />
-          <Route path="/profile" element={<EmptyPage />} />
+          <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/partners" element={<PartnersPage />} />
         </Routes>
       </MainLayout>
     </ErrorBoundary>

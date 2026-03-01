@@ -3,6 +3,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './modules/auth/auth.module';
 import { FileModule } from './modules/file/file.module';
+import { TransactionModule } from './modules/transaction/transaction.module';
+import { BudgetModule } from './modules/budget/budget.module';
+import { GoalModule } from './modules/goal/goal.module';
+import { ShoppingListModule } from './modules/shopping-list/shopping-list.module';
+import { PartnerRoomModule } from './modules/partner-room/partner-room.module';
+import { ReceiptAIModule } from './modules/receipt-ai/receipt-ai.module';
 import { CacheModule } from './modules/cache/cache.module';
 import { TelegramAuthMiddleware } from './middleware/telegram-auth.middleware';
 import { User, UserSchema } from './schemas/user.schema';
@@ -40,6 +46,12 @@ import { RouteConstants } from './constants/routes.constants';
     CacheModule,
     AuthModule,
     FileModule,
+    TransactionModule,
+    BudgetModule,
+    GoalModule,
+    ShoppingListModule,
+    PartnerRoomModule,
+    ReceiptAIModule,
   ],
 })
 export class AppModule implements NestModule {

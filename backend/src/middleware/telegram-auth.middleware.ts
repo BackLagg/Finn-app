@@ -1,10 +1,9 @@
 import { Injectable, NestMiddleware, Inject } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Response, NextFunction } from 'express';
 import { ConfigType } from '@nestjs/config';
 import * as crypto from 'crypto';
-import { User, UserDocument } from '../schemas/user.schema';
+import { UserDocument } from '../schemas/user.schema';
 import { AuthenticatedRequest } from '../interfaces/request.interface';
 import { UserFullData } from '../interfaces/user-data.interface';
 import appConfig from '../config/app.config';
@@ -25,7 +24,7 @@ export class TelegramAuthMiddleware implements NestMiddleware {
   constructor(
     @Inject(appConfig.KEY)
     private readonly appConfiguration: ConfigType<typeof appConfig>,
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @Inject('UserModel') private userModel: Model<UserDocument>,
     private readonly cacheService: CacheService,
   ) {}
 

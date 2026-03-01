@@ -1,10 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { Inject } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
-import {
-  UserProfile,
-  UserProfileDocument,
-} from '../../../schemas/user-profile.schema';
+import { UserProfileDocument } from '../../../schemas/user-profile.schema';
 import { TelegramUserData } from '../../../middleware/telegram-auth.middleware';
 import { UpdateUserProfileDto } from '../../../dto/user-profile.dto';
 import { FileService } from '../../file/file.service';
@@ -17,7 +14,7 @@ export class UserProfileService {
   private readonly logger = new Logger(UserProfileService.name);
 
   constructor(
-    @InjectModel(UserProfile.name)
+    @Inject('UserProfileModel')
     private userProfileModel: Model<UserProfileDocument>,
     private fileService: FileService,
     private cacheService: CacheService,
