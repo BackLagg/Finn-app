@@ -68,7 +68,7 @@ export class TransactionService {
   async update(
     id: string,
     userId: Types.ObjectId,
-    data: Partial<{ amount: number; type: string; category: string; date: Date; description: string }>,
+    data: Partial<{ amount: number; type: string; category: string; date: Date; description: string; receiptImageUrl: string }>,
   ): Promise<TransactionDocument | null> {
     return this.transactionModel
       .findOneAndUpdate({ _id: new Types.ObjectId(id), userId }, { $set: data }, { new: true })

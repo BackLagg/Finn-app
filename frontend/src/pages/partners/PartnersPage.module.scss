@@ -1,7 +1,11 @@
 .partners-page {
-  padding: 16px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 16px;
   min-height: 100%;
   background: var(--color-bg);
+  box-sizing: border-box;
 
   &__title {
     font-size: 24px;
@@ -81,14 +85,11 @@
     margin-bottom: 20px;
     overflow-x: auto;
     padding-bottom: 8px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 
     &::-webkit-scrollbar {
-      height: 4px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: var(--color-border);
-      border-radius: 2px;
+      display: none;
     }
   }
 

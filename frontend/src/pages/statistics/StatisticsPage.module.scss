@@ -1,0 +1,65 @@
+@use '@shared/styles/variables' as *;
+
+.statistics-page {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 16px 80px;
+  min-height: 100%;
+  background: var(--color-bg);
+  box-sizing: border-box;
+
+  &__header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+    background: var(--color-bg);
+  }
+
+  &__context {
+    width: 100%;
+  }
+
+  &__tabs {
+    display: flex;
+    gap: 8px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    padding: 4px;
+  }
+
+  &__tab {
+    flex: 1;
+    padding: 10px 16px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      color: var(--color-text-primary);
+    }
+
+    &--active {
+      background: var(--color-accent);
+      color: #0a0a0a;
+    }
+  }
+
+  &__room {
+    width: 100%;
+  }
+
+  &__content {
+    min-height: 200px;
+  }
+}

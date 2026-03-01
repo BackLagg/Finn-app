@@ -7,21 +7,33 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   position: sticky;
   top: 0;
   z-index: 100;
   box-shadow: var(--shadow);
+  overflow: hidden;
 
-  &__user {
+  &__avatar-wrap {
     display: flex;
     align-items: center;
     gap: 12px;
     cursor: pointer;
     transition: opacity 0.2s;
+    min-width: 0;
 
     &:hover {
       opacity: 0.8;
     }
+  }
+
+  &__name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &__avatar {
@@ -47,26 +59,11 @@
     }
   }
 
-  &__user-info {
-    display: flex;
-    flex-direction: column;
-  }
-
-  &__name {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--color-text-primary);
-    letter-spacing: -0.01em;
-  }
-
   &__controls {
     display: flex;
     align-items: center;
-    gap: 12px;
-  }
-
-  &__switch {
-    display: flex;
-    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    min-width: 0;
   }
 }

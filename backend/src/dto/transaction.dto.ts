@@ -21,6 +21,10 @@ export class CreateTransactionDto {
   @IsOptional()
   @IsString()
   roomId?: string;
+
+  @IsOptional()
+  @IsString()
+  receiptImageUrl?: string;
 }
 
 export class UpdateTransactionDto {
@@ -43,4 +47,8 @@ export class UpdateTransactionDto {
   @IsOptional()
   @IsString()
   description?: string;
+
+  @IsOptional()
+  @IsString()
+  receiptImageUrl?: string;
 }

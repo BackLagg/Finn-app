@@ -16,7 +16,11 @@
     "error": "Ошибка",
     "income": "Доход",
     "expense": "Расход",
-    "coming_soon": "Скоро..."
+    "coming_soon": "Скоро...",
+    "previous": "Назад",
+    "next": "Вперёд",
+    "expand": "Развернуть",
+    "collapse": "Свернуть"
   },
   "home": {
     "title": "Главная",
@@ -29,6 +33,7 @@
     "calculator": "Расчёт трат",
     "aiScanner": "Сканер чеков",
     "expenseList": "Список трат",
+    "attachReceipt": "Прикрепить чек",
     "shoppingLists": "Списки покупок",
     "goals": "Цели и накопления",
     "monthlyIncome": "Доход за месяц",
@@ -104,6 +109,30 @@
     "themeLight": "Свет",
     "themeDark": "Тёмн",
     "subscriptions": "Подписки"
+  },
+  "statistics": {
+    "title": "Статистика",
+    "tabTitle": "Аналитика",
+    "planner": {
+      "title": "Планёр",
+      "incomePayments": "Поступления",
+      "commentPlaceholder": "Комментарий",
+      "sourcePlaceholder": "Источник (ЗП, Инвестиции…)",
+      "totalIncome": "Всего доход",
+      "noExpenses": "Нет расходов",
+      "addPlan": "Добавить план",
+      "planName": "Название",
+      "planNamePlaceholder": "Квартира, День рождения...",
+      "dayOfMonth": "День месяца",
+      "savingFor": "На что копим",
+      "savingForPlaceholder": "Оплата аренды, подарок...",
+      "plans": "Планы",
+      "plansTotal": "Сумма планов",
+      "available": "Доступно",
+      "distribution": "Распределение",
+      "withInvestments": "С инвестициями",
+      "savingsOnly": "Только накопления"
+    }
   },
   "partners": {
     "title": "Партнёры",

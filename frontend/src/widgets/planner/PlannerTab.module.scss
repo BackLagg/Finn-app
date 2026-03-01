@@ -1,0 +1,221 @@
+@use '@shared/styles/variables' as *;
+
+.planner {
+  width: 100%;
+  padding-bottom: 24px;
+  box-sizing: border-box;
+
+  &__calendar {
+    margin-bottom: 20px;
+  }
+
+  &__summary {
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  &__summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid var(--color-border);
+    }
+  }
+
+  &__summary-label {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+  }
+
+  &__summary-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+
+    &--accent {
+      color: var(--color-success);
+    }
+  }
+
+  &__toggle {
+    margin-bottom: 16px;
+  }
+
+  &__distribution {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  &__distribution-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0 0 12px 0;
+  }
+
+  &__distribution-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__distribution-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__distribution-label {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+  }
+
+  &__distribution-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  &__plans {
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+
+  &__plans-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  &__plans-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0;
+  }
+
+  &__plans-add {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: var(--color-accent);
+    border: none;
+    border-radius: 10px;
+    color: #0a0a0a;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--color-accent-hover);
+    }
+  }
+
+  &__plans-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__plan {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    background: var(--color-bg);
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+  }
+
+  &__plan-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+
+  &__plan-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__plan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+
+  &__plan-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  &__plan-amount {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+  }
+
+  &__plan-saving {
+    font-size: 12px;
+    color: var(--color-text-tertiary);
+    margin-bottom: 8px;
+  }
+
+  &__plan-progress {
+    width: 100%;
+    height: 6px;
+    background: var(--color-border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  &__plan-progressFill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+  }
+
+  &__plan-allocated {
+    font-size: 12px;
+    color: var(--color-text-tertiary);
+    margin-top: 6px;
+  }
+
+  &__plan-remove {
+    padding: 6px;
+    background: transparent;
+    border: none;
+    color: var(--color-text-tertiary);
+    cursor: pointer;
+    border-radius: 8px;
+
+    &:hover {
+      color: var(--color-danger);
+      background: rgba(239, 68, 68, 0.1);
+    }
+  }
+}

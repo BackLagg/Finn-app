@@ -57,6 +57,16 @@ export class FileModule implements NestModule {
       .apply(
         multer({
           storage: memoryStorage,
+          limits: { fileSize: AppConstants.FILE_SIZE.LIMITS.IMAGE },
+        }).single('file'),
+        TelegramAuthMiddleware,
+      )
+      .forRoutes('file/upload-receipt');
+
+    consumer
+      .apply(
+        multer({
+          storage: memoryStorage,
           limits: { fileSize: AppConstants.FILE_SIZE.LIMITS.DOCUMENT },
         }).single('document'),
         TelegramAuthMiddleware,

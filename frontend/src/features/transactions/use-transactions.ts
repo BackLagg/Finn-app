@@ -14,10 +14,17 @@ export function useTransactions(roomId?: string) {
     mutationFn: (data: Parameters<typeof financeAPI.transactions.create>[0]) => financeAPI.transactions.create(data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['transactions', roomId] }),
   });
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Parameters<typeof financeAPI.transactions.update>[1] }) =>
+      financeAPI.transactions.update(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['transactions', roomId] }),
+  });
   return {
     transactions: query.data ?? [],
     isLoading: query.isLoading,
     refetch: query.refetch,
     create: createMutation.mutate,
+    update: (params: { id: string; data: Parameters<typeof financeAPI.transactions.update>[1] }) =>
+      updateMutation.mutate(params),
   };
 }

@@ -132,6 +132,60 @@ export class FileController {
     }
   }
 
+  @Post('upload-receipt')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(UserGuard)
+  async uploadReceipt(
+    @Req() req: AuthenticatedRequest,
+  ): Promise<{ success: boolean; imageUrl: string; filename: string }> {
+    const file = (req as MulterRequest).file;
+
+    if (!file) {
+      throw new BadRequestException({
+        message: 'No file uploaded',
+        errorCode: 'NO_FILE_UPLOADED',
+      });
+    }
+
+    try {
+      if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
+        throw new BadRequestException({
+          message: 'Invalid file type',
+          errorCode: 'INVALID_FILE_TYPE',
+        });
+      }
+
+      if (file.size > AppConstants.FILE_SIZE.LIMITS.IMAGE) {
+        throw new BadRequestException({
+          message: 'File size exceeds limit',
+          errorCode: 'FILE_TOO_LARGE',
+        });
+      }
+
+      const result = await this.fileService.uploadFile(
+        file.buffer,
+        file.originalname,
+        'receipts',
+        file.mimetype,
+        'receipt',
+      );
+
+      return {
+        success: true,
+        imageUrl: result.url,
+        filename: result.filename,
+      };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new InternalServerErrorException({
+        message: 'Failed to upload file',
+        errorCode: 'UPLOAD_ERROR',
+      });
+    }
+  }
+
   @Post('upload-document')
   @HttpCode(HttpStatus.OK)
   @UseGuards(UserGuard)

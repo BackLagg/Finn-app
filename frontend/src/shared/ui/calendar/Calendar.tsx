@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import styles from './Calendar.module.scss';
 
@@ -9,6 +10,9 @@ export interface MarkedDateWithColor {
 
 interface CalendarProps {
   selectedDate?: Date;
+  viewDate?: Date;
+  collapsed?: boolean;
+  headerActions?: React.ReactNode;
   onDateSelect?: (date: Date) => void;
   onMonthChange?: (year: number, month: number) => void;
   markedDates?: Date[];
@@ -20,6 +24,9 @@ interface CalendarProps {
 
 export const Calendar: React.FC<CalendarProps> = ({
   selectedDate,
+  viewDate,
+  collapsed = false,
+  headerActions,
   onDateSelect,
   onMonthChange,
   markedDates = [],
@@ -28,7 +35,8 @@ export const Calendar: React.FC<CalendarProps> = ({
   maxDate,
   className,
 }) => {
-  const [currentMonth, setCurrentMonth] = useState(selectedDate || new Date());
+  const [internalMonth, setInternalMonth] = useState(selectedDate || new Date());
+  const currentMonth = viewDate ?? internalMonth;
 
   const monthNames = [
     'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
@@ -62,13 +70,13 @@ export const Calendar: React.FC<CalendarProps> = ({
 
   const handlePrevMonth = () => {
     const next = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1);
-    setCurrentMonth(next);
+    if (!viewDate) setInternalMonth(next);
     onMonthChange?.(next.getFullYear(), next.getMonth());
   };
 
   const handleNextMonth = () => {
     const next = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1);
-    setCurrentMonth(next);
+    if (!viewDate) setInternalMonth(next);
     onMonthChange?.(next.getFullYear(), next.getMonth());
   };
 
@@ -118,39 +126,49 @@ export const Calendar: React.FC<CalendarProps> = ({
     }
   };
 
-  const days = getDaysInMonth(currentMonth);
+  const allDays = getDaysInMonth(currentMonth);
+  const days = collapsed ? allDays.slice(0, 7) : allDays;
 
   return (
     <div className={`${styles.calendar} ${className || ''}`}>
       <div className={styles.calendar__header}>
-        <button
-          type="button"
-          className={styles.calendar__nav}
-          onClick={handlePrevMonth}
-        >
-          <FiChevronLeft />
-        </button>
-        <div className={styles.calendar__title}>
-          {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
-        </div>
-        <button
-          type="button"
-          className={styles.calendar__nav}
-          onClick={handleNextMonth}
-        >
-          <FiChevronRight />
-        </button>
-      </div>
-
-      <div className={styles.calendar__weekdays}>
-        {weekDays.map((day) => (
-          <div key={day} className={styles.calendar__weekday}>
-            {day}
+        <div className={styles.calendar__headerNav}>
+          <button
+            type="button"
+            className={styles.calendar__nav}
+            onClick={handlePrevMonth}
+          >
+            <FiChevronLeft />
+          </button>
+          <div className={styles.calendar__title}>
+            {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
           </div>
-        ))}
+          <button
+            type="button"
+            className={styles.calendar__nav}
+            onClick={handleNextMonth}
+          >
+            <FiChevronRight />
+          </button>
+        </div>
+        {headerActions}
       </div>
 
-      <div className={styles.calendar__days}>
+      <motion.div
+        className={styles.calendar__body}
+        initial={false}
+        animate={{ height: collapsed ? 90 : 360 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+      >
+        <div className={styles.calendar__weekdays}>
+          {weekDays.map((day) => (
+            <div key={day} className={styles.calendar__weekday}>
+              {day}
+            </div>
+          ))}
+        </div>
+
+        <div className={styles.calendar__days}>
         {days.map((date, index) => {
           const markColor = getMarkColor(date);
           const isMarked = isDateMarked(date);
@@ -181,7 +199,8 @@ export const Calendar: React.FC<CalendarProps> = ({
             </button>
           );
         })}
-      </div>
+        </div>
+      </motion.div>
     </div>
   );
 };

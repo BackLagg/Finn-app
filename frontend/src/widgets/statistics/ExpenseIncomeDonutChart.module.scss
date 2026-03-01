@@ -1,0 +1,33 @@
+@use '@shared/styles/variables' as *;
+
+.chart {
+  margin-bottom: 20px;
+
+  &__tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  &__tab {
+    flex: 1;
+    padding: 8px 16px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--color-text-primary);
+    }
+
+    &--active {
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+      color: #0a0a0a;
+    }
+  }
+}

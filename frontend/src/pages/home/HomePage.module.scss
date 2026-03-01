@@ -1,18 +1,22 @@
 @use '@shared/styles/variables';
 
 .home-page {
-  padding: 20px;
-  min-height: 100%;
-  background: var(--color-bg);
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 20px 16px;
+  min-height: 100%;
+  background: var(--color-bg);
+  box-sizing: border-box;
 
   &__header {
     margin-bottom: 24px;
   }
 
   &__context-filter {
-    display: inline-flex;
+    display: flex;
+    width: 100%;
+    max-width: 320px;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: 12px;

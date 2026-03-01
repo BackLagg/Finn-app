@@ -22,19 +22,11 @@ textarea {
 
 html {
   background-color: var(--color-bg);
-  scrollbar-width: thin;
+  scrollbar-width: none;
   -ms-overflow-style: none;
 
   &::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  &::-webkit-scrollbar-track {
-    background: var(--color-bg);
-  }
-  &::-webkit-scrollbar-thumb {
-    background: var(--color-border);
-    border-radius: 3px;
+    display: none;
   }
 }
 
@@ -47,21 +39,25 @@ body {
   font-size: 14px;
   line-height: 1.5;
   overflow-y: scroll;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .main {
   overflow: auto;
   background-color: var(--color-bg);
-
   overflow-y: auto;
-  scrollbar-width: thin;
+  scrollbar-width: none;
   -ms-overflow-style: none;
 
   &::-webkit-scrollbar {
-    width: 6px;
-    background: transparent;
+    display: none;
   }
 
   .main-content {
@@ -98,4 +94,10 @@ select {
 
 * {
   box-sizing: border-box;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }

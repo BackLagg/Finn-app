@@ -16,7 +16,11 @@
     "error": "Error",
     "income": "Income",
     "expense": "Expense",
-    "coming_soon": "Coming soon..."
+    "coming_soon": "Coming soon...",
+    "previous": "Previous",
+    "next": "Next",
+    "expand": "Expand",
+    "collapse": "Collapse"
   },
   "home": {
     "title": "Home",
@@ -29,6 +33,7 @@
     "calculator": "Expense calculator",
     "aiScanner": "Receipt scanner",
     "expenseList": "Expense list",
+    "attachReceipt": "Attach receipt",
     "shoppingLists": "Shopping lists",
     "goals": "Goals and savings",
     "monthlyIncome": "Monthly income",
@@ -104,6 +109,30 @@
     "themeLight": "Light",
     "themeDark": "Dark",
     "subscriptions": "Subscriptions"
+  },
+  "statistics": {
+    "title": "Statistics",
+    "tabTitle": "Analytics",
+    "planner": {
+      "title": "Planner",
+      "incomePayments": "Income",
+      "commentPlaceholder": "Comment",
+      "sourcePlaceholder": "Source (Salary, Investments…)",
+      "totalIncome": "Total income",
+      "noExpenses": "No expenses",
+      "addPlan": "Add plan",
+      "planName": "Name",
+      "planNamePlaceholder": "Rent, Birthday...",
+      "dayOfMonth": "Day of month",
+      "savingFor": "Saving for",
+      "savingForPlaceholder": "Rent payment, gift...",
+      "plans": "Plans",
+      "plansTotal": "Plans total",
+      "available": "Available",
+      "distribution": "Distribution",
+      "withInvestments": "With investments",
+      "savingsOnly": "Savings only"
+    }
   },
   "partners": {
     "title": "Partners",

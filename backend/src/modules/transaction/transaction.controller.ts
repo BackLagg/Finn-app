@@ -38,6 +38,7 @@ export class TransactionController {
       date: dto.date ? new Date(dto.date) : undefined,
       description: dto.description,
       roomId,
+      receiptImageUrl: dto.receiptImageUrl,
     });
   }
 
@@ -92,6 +93,7 @@ export class TransactionController {
     if (dto.category !== undefined) data.category = dto.category;
     if (dto.date !== undefined) data.date = new Date(dto.date);
     if (dto.description !== undefined) data.description = dto.description;
+    if (dto.receiptImageUrl !== undefined) data.receiptImageUrl = dto.receiptImageUrl;
     return this.transactionService.update(id, userId, data);
   }
 

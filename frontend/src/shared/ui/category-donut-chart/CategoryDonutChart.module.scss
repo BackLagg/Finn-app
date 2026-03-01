@@ -1,0 +1,72 @@
+@use '@shared/styles/variables' as *;
+
+.donut-chart {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+
+  &__title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0 0 16px 0;
+    text-align: center;
+  }
+
+  &__wrap {
+    min-height: 240px;
+  }
+
+  &__total {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-accent);
+    margin-top: -20px;
+  }
+
+  &__tooltip {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &__tooltip-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: 4px;
+  }
+
+  &__tooltip-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+  }
+
+  :global(.recharts-legend-wrapper) {
+    margin-top: 8px !important;
+  }
+
+  &__legend-item {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 12px;
+  }
+
+  &__legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+}

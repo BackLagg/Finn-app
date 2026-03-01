@@ -1,3 +1,61 @@
+@use '@shared/styles/variables' as *;
+
 .calendar-reminders {
   width: 100%;
+  position: relative;
+
+  &--pinned {
+    position: fixed;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    z-index: 90;
+    max-width: 1200px;
+    width: 100%;
+    padding: 0 16px;
+    box-sizing: border-box;
+
+    > div {
+      max-width: 100%;
+    }
+  }
+
+  &__toolbar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  &__btn {
+    padding: 8px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      color: var(--color-accent);
+      border-color: var(--color-accent);
+    }
+
+    &--active {
+      color: var(--color-accent);
+      border-color: var(--color-accent);
+      background: rgba(232, 93, 4, 0.1);
+    }
+  }
+
+  &__spacer {
+    flex-shrink: 0;
+
+    &--collapsed {
+      height: 160px;
+    }
+
+    &--expanded {
+      height: 280px;
+    }
+  }
 }

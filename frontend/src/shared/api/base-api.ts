@@ -5,6 +5,8 @@ export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   (import.meta.env.DEV ? 'http://localhost:8080/api' : 'https://fabricbot.tech/api');
 
+export const FILE_BASE_URL = API_BASE_URL.replace('/api', '');
+
 // Утилита для получения initData из Telegram WebApp
 export const getInitData = (): string => {
   return window?.Telegram?.WebApp?.initData || '';

@@ -8,6 +8,7 @@ export interface Transaction {
   date: string;
   description?: string;
   source?: string;
+  receiptImageUrl?: string;
 }
 
 export interface BudgetSettings {
@@ -51,9 +52,9 @@ export const financeAPI = {
   transactions: {
     list: (params?: { roomId?: string; from?: string; to?: string; limit?: number }) =>
       apiClient.get<Transaction[]>('/transaction', { params }),
-    create: (data: { amount: number; type: 'income' | 'expense'; category: string; date?: string; description?: string; roomId?: string }) =>
+    create: (data: { amount: number; type: 'income' | 'expense'; category: string; date?: string; description?: string; roomId?: string; receiptImageUrl?: string }) =>
       apiClient.post<Transaction>('/transaction', data),
-    update: (id: string, data: Partial<{ amount: number; type: string; category: string; date: string; description: string }>) =>
+    update: (id: string, data: Partial<{ amount: number; type: string; category: string; date: string; description: string; receiptImageUrl: string }>) =>
       apiClient.put<Transaction>(`/transaction/${id}`, data),
     delete: (id: string) => apiClient.delete(`/transaction/${id}`),
     stats: (params?: { roomId?: string; from?: string; to?: string }) =>

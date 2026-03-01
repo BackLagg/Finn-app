@@ -1,44 +1,49 @@
 import React, { memo } from 'react';
-import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { RootState } from '@app/store';
+import { FiSun, FiMoon } from 'react-icons/fi';
 import { useTheme } from '@features/theme';
 import { useLanguage } from '@features/i18n';
-import { Switch } from '@shared/ui';
+import { HeaderToggle } from './HeaderToggle';
 import styles from './Header.module.scss';
 
 const Header: React.FC = memo(() => {
-  const user = useSelector((state: RootState) => state.user);
   const navigate = useNavigate();
-  const { t } = useTranslation();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
 
-  const truncateText = (text: string, maxLength: number = 16): string => {
-    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+  const getUserData = () => {
+    const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
+    if (!user) return { photo: null, name: '' };
+    const name = [user.first_name, user.last_name].filter(Boolean).join(' ') || user.username || '';
+    return {
+      photo: user.photo_url || null,
+      name,
+    };
   };
 
-  const getProfilePhoto = () => {
-    if (window.Telegram?.WebApp?.initDataUnsafe?.user?.photo_url) {
-      return window.Telegram.WebApp.initDataUnsafe.user.photo_url;
-    }
-    return null;
-  };
-
-  const profilePhoto = getProfilePhoto();
+  const { photo: profilePhoto, name: userName } = getUserData();
 
   const handleProfileClick = () => {
     navigate('/profile');
   };
 
+  const languageOptions = [
+    { value: 'ru', label: 'RU' },
+    { value: 'en', label: 'EN' },
+  ];
+
+  const themeOptions = [
+    { value: 'light', icon: <FiSun size={18} /> },
+    { value: 'dark', icon: <FiMoon size={18} /> },
+  ];
+
   return (
     <header className={styles.header}>
       <div
-        className={styles.header__user}
+        className={styles['header__avatar-wrap']}
         onClick={handleProfileClick}
       >
-        <div className={styles['header__avatar']}>
+        <div className={styles.header__avatar}>
           {profilePhoto ? (
             <img
               src={profilePhoto}
@@ -49,32 +54,23 @@ const Header: React.FC = memo(() => {
             <div className={styles['header__avatar-placeholder']} />
           )}
         </div>
-        <div className={styles['header__user-info']}>
-          <span
-            className={styles['header__name']}
-            title={user.name || user.username || 'User'}
-          >
-            {truncateText(user.name || user.username || 'User')}
-          </span>
-        </div>
+        {userName && (
+          <span className={styles.header__name}>{userName}</span>
+        )}
       </div>
       <div className={styles.header__controls}>
-        <div className={styles.header__switch}>
-          <Switch
-            checked={language === 'en'}
-            onChange={() => setLanguage(language === 'ru' ? 'en' : 'ru')}
-            leftLabel="RU"
-            rightLabel="EN"
-            size="sm"
+        <div title="RU / EN">
+          <HeaderToggle
+            options={languageOptions}
+            value={language}
+            onChange={(val) => setLanguage(val as 'ru' | 'en')}
           />
         </div>
-        <div className={styles.header__switch}>
-          <Switch
-            checked={theme === 'dark'}
-            onChange={toggleTheme}
-            leftLabel={t('profile.themeLight')}
-            rightLabel={t('profile.themeDark')}
-            size="sm"
+        <div title="Theme">
+          <HeaderToggle
+            options={themeOptions}
+            value={theme}
+            onChange={(val) => setTheme(val as 'light' | 'dark')}
           />
         </div>
       </div>
