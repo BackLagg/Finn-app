@@ -79,7 +79,7 @@ export const CategoryDonutChart: React.FC<CategoryDonutChartProps> = ({
                   return (
                     <span className={styles['donut-chart__legend-item']}>
                       <span className={styles['donut-chart__legend-dot']} style={{ backgroundColor: (entry as { color?: string }).color }} />
-                      {value} ({item?.percentage}%)
+                      {value} {item ? `${item.value.toLocaleString()} ${currencySymbol}` : ''} ({item?.percentage}%)
                     </span>
                   );
                 }}
@@ -87,9 +87,6 @@ export const CategoryDonutChart: React.FC<CategoryDonutChartProps> = ({
             )}
           </PieChart>
         </ResponsiveContainer>
-      </div>
-      <div className={styles['donut-chart__total']}>
-        {total.toLocaleString()} {currencySymbol}
       </div>
     </div>
   );

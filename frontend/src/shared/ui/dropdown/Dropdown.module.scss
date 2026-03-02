@@ -99,6 +99,10 @@
       font-weight: 500;
     }
 
+    &--focused {
+      background: var(--color-bg);
+    }
+
     &:first-child {
       border-radius: 12px 12px 0 0;
     }

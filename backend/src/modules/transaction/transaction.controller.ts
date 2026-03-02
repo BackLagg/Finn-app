@@ -16,6 +16,17 @@ import { UpdateTransactionDto } from '../../dto/transaction.dto';
 import { UserGuard } from '../../guards/user.guard';
 import { AuthenticatedRequest } from '../../interfaces/request.interface';
 import { Types } from 'mongoose';
+import { MultiCurrencyAmount } from '../../schemas/multi-currency-amount.schema';
+
+function toMultiCurrencyAmount(value: number, currency: string): MultiCurrencyAmount {
+  const curr = currency.toUpperCase();
+  return {
+    USD: curr === 'USD' ? value : 0,
+    EUR: curr === 'EUR' ? value : 0,
+    RUB: curr === 'RUB' ? value : 0,
+    BYN: curr === 'BYN' ? value : 0,
+  };
+}
 
 @Controller('transaction')
 @UseGuards(UserGuard)
@@ -31,8 +42,10 @@ export class TransactionController {
   async create(@Body() dto: CreateTransactionDto, @Req() req: AuthenticatedRequest) {
     const userId = this.getUserId(req);
     const roomId = dto.roomId ? new Types.ObjectId(dto.roomId) : undefined;
+    const currency = dto.currency ?? 'USD';
     return this.transactionService.create(userId, {
-      amount: dto.amount,
+      amount: toMultiCurrencyAmount(dto.amount, currency),
+      inputCurrency: currency,
       type: dto.type,
       category: dto.category,
       date: dto.date ? new Date(dto.date) : undefined,
@@ -88,7 +101,9 @@ export class TransactionController {
   ) {
     const userId = this.getUserId(req);
     const data: Record<string, unknown> = {};
-    if (dto.amount !== undefined) data.amount = dto.amount;
+    const currency = dto.currency ?? 'USD';
+    if (dto.amount !== undefined) data.amount = toMultiCurrencyAmount(dto.amount, currency);
+    if (dto.amount !== undefined) data.inputCurrency = currency;
     if (dto.type !== undefined) data.type = dto.type;
     if (dto.category !== undefined) data.category = dto.category;
     if (dto.date !== undefined) data.date = new Date(dto.date);

@@ -1,10 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { FiChevronDown, FiChevronUp, FiMapPin } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
 import { Calendar } from '@shared/ui';
 import { ReminderFormModal } from './ReminderFormModal';
 import { getReminders, getMarkedDatesWithColors, Reminder, DateWithColor } from '@shared/lib/reminders';
 import { Currency } from '@shared/lib/currency';
+import { useCollapsedStorage } from '@shared/lib/use-collapsed-storage';
 import styles from './CalendarWithReminders.module.scss';
 
 const PIN_TOP_OFFSET = 156;
@@ -27,8 +28,40 @@ export const CalendarWithReminders: React.FC<CalendarWithRemindersProps> = ({
   pinnable = false,
 }) => {
   const { t } = useTranslation();
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isPinned, setIsPinned] = useState(false);
+  const [isCollapsed, toggleCollapsed] = useCollapsedStorage('calendar', true);
+  const [isPinned, setIsPinnedState] = useState(() => {
+    try {
+      const raw = localStorage.getItem('planner-collapsed');
+      if (!raw) return false;
+      const obj = JSON.parse(raw) as Record<string, boolean>;
+      return obj.calendarPinned ?? false;
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('planner-collapsed');
+      const obj: Record<string, boolean> = raw ? JSON.parse(raw) : {};
+      obj.calendarPinned = isPinned;
+      localStorage.setItem('planner-collapsed', JSON.stringify(obj));
+    } catch {}
+  }, [isPinned]);
+
+  const setIsPinned = useCallback((v: boolean | ((prev: boolean) => boolean)) => {
+    setIsPinnedState((prev) => {
+      const next = typeof v === 'function' ? v(prev) : v;
+      try {
+        const raw = localStorage.getItem('planner-collapsed');
+        const obj: Record<string, boolean> = raw ? JSON.parse(raw) : {};
+        obj.calendarPinned = next;
+        localStorage.setItem('planner-collapsed', JSON.stringify(obj));
+      } catch {}
+      return next;
+    });
+  }, []);
+
   const [selectedDate, setSelectedDate] = useState(new Date());
   const viewYear = viewDate ? viewDate.getFullYear() : new Date().getFullYear();
   const viewMonth = viewDate ? viewDate.getMonth() : new Date().getMonth();
@@ -36,6 +69,10 @@ export const CalendarWithReminders: React.FC<CalendarWithRemindersProps> = ({
   const [reminders, setReminders] = useState<Reminder[]>(() =>
     getReminders(roomId)
   );
+
+  useEffect(() => {
+    setReminders(getReminders(roomId));
+  }, [roomId]);
 
   const handleMonthChange = useCallback(
     (year: number, month: number) => {
@@ -85,7 +122,7 @@ export const CalendarWithReminders: React.FC<CalendarWithRemindersProps> = ({
               <button
                 type="button"
                 className={styles['calendar-reminders__btn']}
-                onClick={() => setIsCollapsed((v) => !v)}
+                onClick={toggleCollapsed}
                 title={isCollapsed ? t('common.expand') : t('common.collapse')}
               >
                 {isCollapsed ? (

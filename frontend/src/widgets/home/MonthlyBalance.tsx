@@ -72,21 +72,6 @@ const MonthlyBalance: React.FC<MonthlyBalanceProps> = ({ roomId }) => {
           <FiChevronRight />
         </button>
       </div>
-
-      <div className={styles['monthly-balance__summary']}>
-        <div className={styles['monthly-balance__summary-card']}>
-          <div className={styles['monthly-balance__summary-label']}>{t('home.monthlyBalance.expenses')}</div>
-          <div className={`${styles['monthly-balance__summary-amount']} ${styles['monthly-balance__summary-amount--expense']}`}>
-            {expenses.toLocaleString()} $
-          </div>
-        </div>
-        <div className={styles['monthly-balance__summary-card']}>
-          <div className={styles['monthly-balance__summary-label']}>{t('home.monthlyBalance.income')}</div>
-          <div className={`${styles['monthly-balance__summary-amount']} ${styles['monthly-balance__summary-amount--income']}`}>
-            {income.toLocaleString()} $
-          </div>
-        </div>
-      </div>
     </section>
   );
 };

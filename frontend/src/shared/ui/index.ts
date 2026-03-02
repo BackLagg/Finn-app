@@ -11,3 +11,4 @@ export { Calendar } from './calendar';
 export { Toggle } from './toggle';
 export { CategoryDonutChart } from './category-donut-chart';
 export type { CategoryDataItem } from './category-donut-chart';
+export { CollapsibleSection } from './collapsible-section';

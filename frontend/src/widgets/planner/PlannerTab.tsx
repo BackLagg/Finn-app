@@ -3,18 +3,18 @@ import { useTranslation } from 'react-i18next';
 import { FiPlus, FiTrash2 } from 'react-icons/fi';
 import { usePlans, useIncomePayments } from '@features/planner';
 import { useCurrencyPreference } from '@shared/lib/use-currency-preference';
+import { useSavingsOnlyPreference } from '@shared/lib/use-savings-only-preference';
 import { currencySymbols } from '@shared/lib/currency';
-import { Toggle } from '@shared/ui';
+import { Toggle, CollapsibleSection } from '@shared/ui';
 import {
   CalendarWithReminders,
-  MonthlyBalance,
   BudgetSection,
   ScheduledPayments,
   GoalsSection,
   ExpenseList,
 } from '@widgets/home';
-import { ExpenseIncomeDonutChart } from '@widgets/statistics';
 import { IncomeExpensesBlock } from './IncomeExpensesBlock';
+import { DistributionRadialChart } from './DistributionRadialChart';
 import { PlanFormModal } from './PlanFormModal';
 import styles from './PlannerTab.module.scss';
 
@@ -35,8 +35,8 @@ interface PlannerTabProps {
 export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId }) => {
   const { t } = useTranslation();
   const [currency] = useCurrencyPreference();
+  const [savingsOnly] = useSavingsOnlyPreference();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [savingsOnly, setSavingsOnly] = useState(false);
   const [showPlanModal, setShowPlanModal] = useState(false);
 
   const year = currentDate.getFullYear();
@@ -86,74 +86,48 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId }) => {
         />
       </div>
 
-      <IncomeExpensesBlock
-        roomId={roomId}
-        year={year}
-        month={month}
-      />
-
-      <MonthlyBalance roomId={roomId} />
-
-      <div className={styles.planner__summary}>
-        <div className={styles['planner__summary-row']}>
-          <span className={styles['planner__summary-label']}>{t('statistics.planner.plansTotal')}</span>
-          <span className={styles['planner__summary-value']}>
-            {plansTotal.toLocaleString()} {currencySymbols[currency]}
-          </span>
-        </div>
-        <div className={styles['planner__summary-row']}>
-          <span className={styles['planner__summary-label']}>{t('statistics.planner.available')}</span>
-          <span className={`${styles['planner__summary-value']} ${styles['planner__summary-value--accent']}`}>
-            {available.toLocaleString()} {currencySymbols[currency]}
-          </span>
-        </div>
-      </div>
-
-      <div className={styles.planner__toggle}>
-        <Toggle
-          options={toggleOptions}
-          value={savingsOnly ? 'savings' : 'full'}
-          onChange={(v) => setSavingsOnly(v === 'savings')}
+      <CollapsibleSection id="incomeExpenses" title={t('home.expenses')} defaultExpanded>
+        <IncomeExpensesBlock
+          roomId={roomId}
+          year={year}
+          month={month}
         />
-      </div>
+      </CollapsibleSection>
 
-      <div className={styles.planner__distribution}>
-        <h3 className={styles['planner__distribution-title']}>{t('statistics.planner.distribution')}</h3>
-        <div className={styles['planner__distribution-items']}>
-          <div className={styles['planner__distribution-item']}>
-            <span className={styles['planner__distribution-label']}>{t('home.savings')}</span>
-            <span className={styles['planner__distribution-value']}>
-              {savingsAmount.toLocaleString()} ({distribution.savings}%)
-            </span>
-          </div>
-          {!savingsOnly && (
-            <>
-              <div className={styles['planner__distribution-item']}>
-                <span className={styles['planner__distribution-label']}>{t('home.investments')}</span>
-                <span className={styles['planner__distribution-value']}>
-                  {investmentsAmount.toLocaleString()} ({distribution.investments}%)
-                </span>
-              </div>
-              <div className={styles['planner__distribution-item']}>
-                <span className={styles['planner__distribution-label']}>{t('home.purchases')}</span>
-                <span className={styles['planner__distribution-value']}>
-                  {purchasesAmount.toLocaleString()} ({distribution.purchases}%)
-                </span>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
+      <CollapsibleSection id="distribution" title={t('statistics.planner.distribution')} defaultExpanded>
+        <DistributionRadialChart
+          savingsAmount={savingsAmount}
+          investmentsAmount={investmentsAmount}
+          purchasesAmount={purchasesAmount}
+          savingsPercent={distribution.savings}
+          investmentsPercent={distribution.investments}
+          purchasesPercent={distribution.purchases}
+          savingsOnly={savingsOnly}
+          currencySymbol={currencySymbols[currency]}
+        />
+      </CollapsibleSection>
 
-      <ExpenseIncomeDonutChart roomId={roomId} />
-      <BudgetSection roomId={roomId} />
-      <ScheduledPayments roomId={roomId} />
-      <GoalsSection roomId={roomId} />
-      <ExpenseList roomId={roomId} />
+      <CollapsibleSection id="budget" title={t('home.budget.title', 'Бюджет')} defaultExpanded>
+        <BudgetSection roomId={roomId} />
+      </CollapsibleSection>
 
-      <div className={styles['planner__plans']}>
-        <div className={styles['planner__plans-header']}>
-          <h3 className={styles['planner__plans-title']}>{t('statistics.planner.plans')}</h3>
+      <CollapsibleSection id="scheduled" title={t('home.scheduledPayments', 'Платежи')} defaultExpanded>
+        <ScheduledPayments roomId={roomId} />
+      </CollapsibleSection>
+
+      <CollapsibleSection id="goals" title={t('home.goals', 'Цели')} defaultExpanded>
+        <GoalsSection roomId={roomId} />
+      </CollapsibleSection>
+
+      <CollapsibleSection id="expenseList" title={t('home.expenseList', 'Список расходов')} defaultExpanded>
+        <ExpenseList roomId={roomId} />
+      </CollapsibleSection>
+
+      <CollapsibleSection
+        id="plans"
+        title={t('statistics.planner.plans')}
+        defaultExpanded
+        headerAction={
           <button
             type="button"
             className={styles['planner__plans-add']}
@@ -162,8 +136,9 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId }) => {
             <FiPlus size={20} />
             {t('common.add')}
           </button>
-        </div>
-
+        }
+      >
+      <div className={styles['planner__plans']}>
         <div className={styles['planner__plans-list']}>
           {plans
             .sort((a, b) => a.dayOfMonth - b.dayOfMonth)
@@ -219,6 +194,7 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId }) => {
             })}
         </div>
       </div>
+      </CollapsibleSection>
 
       {showPlanModal && (
         <PlanFormModal

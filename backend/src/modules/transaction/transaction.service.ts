@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Inject } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 import { TransactionDocument } from '../../schemas/transaction.schema';
+import { MultiCurrencyAmount } from '../../schemas/multi-currency-amount.schema';
 
 @Injectable()
 export class TransactionService {
@@ -13,7 +14,8 @@ export class TransactionService {
   async create(
     userId: Types.ObjectId,
     data: {
-      amount: number;
+      amount: MultiCurrencyAmount;
+      inputCurrency: string;
       type: 'income' | 'expense';
       category: string;
       date?: Date;
@@ -28,6 +30,7 @@ export class TransactionService {
       userId,
       date: data.date ?? new Date(),
       source: data.source ?? 'manual',
+      inputCurrency: data.inputCurrency ?? 'USD',
     });
     return doc;
   }
@@ -68,7 +71,7 @@ export class TransactionService {
   async update(
     id: string,
     userId: Types.ObjectId,
-    data: Partial<{ amount: number; type: string; category: string; date: Date; description: string; receiptImageUrl: string }>,
+    data: Partial<{ amount: MultiCurrencyAmount; inputCurrency: string; type: string; category: string; date: Date; description: string; receiptImageUrl: string }>,
   ): Promise<TransactionDocument | null> {
     return this.transactionModel
       .findOneAndUpdate({ _id: new Types.ObjectId(id), userId }, { $set: data }, { new: true })
@@ -96,7 +99,21 @@ export class TransactionService {
     }
     const result = await this.transactionModel.aggregate<{ _id: string; total: number }>([
       { $match: match },
-      { $group: { _id: '$category', total: { $sum: '$amount' } } },
+      {
+        $group: {
+          _id: '$category',
+          total: {
+            $sum: {
+              $add: [
+                { $ifNull: ['$amount.USD', 0] },
+                { $ifNull: ['$amount.EUR', 0] },
+                { $ifNull: ['$amount.RUB', 0] },
+                { $ifNull: ['$amount.BYN', 0] },
+              ],
+            },
+          },
+        },
+      },
       { $sort: { total: -1 } },
     ]).exec();
     return result.map((r) => ({ category: r._id, total: r.total }));

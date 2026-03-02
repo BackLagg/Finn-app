@@ -11,7 +11,7 @@ import styles from './ExpenseList.module.scss';
 function getAmount(tx: Transaction): number {
   if (typeof tx.amount === 'number') return tx.amount;
   const a = tx.amount as { USD?: number; EUR?: number; RUB?: number; BYN?: number };
-  return a.USD ?? a.EUR ?? a.RUB ?? a.BYN ?? 0;
+  return a.USD || a.EUR || a.RUB || a.BYN || 0;
 }
 
 interface ExpenseListProps {

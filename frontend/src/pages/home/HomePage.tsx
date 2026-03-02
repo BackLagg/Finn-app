@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { financeAPI } from '@shared/api';
 import { Dropdown } from '@shared/ui';
+import { useRoomPreference } from '@shared/lib/use-room-preference';
 import styles from './HomePage.module.scss';
 
 const HomePage: React.FC = () => {
   const { t } = useTranslation();
-  const [context, setContext] = useState<'personal' | 'partner'>('personal');
-  const [selectedRoomId, setSelectedRoomId] = useState<string | undefined>();
+  const [context, setContext, selectedRoomId, setSelectedRoomId] = useRoomPreference();
 
   const { data: rooms = [] } = useQuery({
     queryKey: ['partnerRooms'],
@@ -19,6 +19,12 @@ const HomePage: React.FC = () => {
   });
 
   const currentRoomId = context === 'partner' ? selectedRoomId : undefined;
+
+  useEffect(() => {
+    if (context === 'partner' && rooms.length > 0 && !selectedRoomId) {
+      setSelectedRoomId(rooms[0]._id);
+    }
+  }, [context, rooms, selectedRoomId, setSelectedRoomId]);
 
   const roomOptions = rooms.map((room) => ({
     value: room._id,

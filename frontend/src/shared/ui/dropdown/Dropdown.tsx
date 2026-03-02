@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { FiChevronDown } from 'react-icons/fi';
 import styles from './Dropdown.module.scss';
 
@@ -26,9 +26,12 @@ export const Dropdown: React.FC<DropdownProps> = ({
   className,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [focusedIndex, setFocusedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const selectedOption = options.find((opt) => opt.value === value);
+  const currentIndex = options.findIndex((opt) => opt.value === value);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -41,10 +44,58 @@ export const Dropdown: React.FC<DropdownProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSelect = (optionValue: string) => {
-    onChange(optionValue);
-    setIsOpen(false);
+  const handleSelect = useCallback(
+    (optionValue: string) => {
+      onChange(optionValue);
+      setIsOpen(false);
+      setFocusedIndex(-1);
+    },
+    [onChange]
+  );
+
+  useEffect(() => {
+    if (isOpen) setFocusedIndex(currentIndex >= 0 ? currentIndex : 0);
+  }, [isOpen, currentIndex]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!isOpen) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        setIsOpen(true);
+      }
+      return;
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsOpen(false);
+      setFocusedIndex(-1);
+      return;
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setFocusedIndex((i) => (i < options.length - 1 ? i + 1 : 0));
+      return;
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setFocusedIndex((i) => (i > 0 ? i - 1 : options.length - 1));
+      return;
+    }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const opt = options[focusedIndex >= 0 ? focusedIndex : 0];
+      if (opt) handleSelect(opt.value);
+      return;
+    }
   };
+
+  useEffect(() => {
+    if (isOpen && focusedIndex >= 0 && menuRef.current) {
+      const item = menuRef.current.children[focusedIndex] as HTMLElement;
+      item?.scrollIntoView({ block: 'nearest' });
+    }
+  }, [isOpen, focusedIndex]);
 
   return (
     <div className={`${styles.dropdown} ${className || ''}`} ref={dropdownRef}>
@@ -65,15 +116,19 @@ export const Dropdown: React.FC<DropdownProps> = ({
         />
       </button>
       {isOpen && (
-        <div className={styles.dropdown__menu}>
-          {options.map((option) => (
+        <div className={styles.dropdown__menu} ref={menuRef} role="listbox">
+          {options.map((option, idx) => (
             <button
               key={option.value}
               type="button"
+              role="option"
+              aria-selected={option.value === value}
+              tabIndex={-1}
               className={`${styles.dropdown__item} ${
                 option.value === value ? styles['dropdown__item--active'] : ''
-              }`}
+              } ${idx === focusedIndex ? styles['dropdown__item--focused'] : ''}`}
               onClick={() => handleSelect(option.value)}
+              onMouseEnter={() => setFocusedIndex(idx)}
             >
               {option.icon && (
                 <span className={styles.dropdown__icon}>{option.icon}</span>

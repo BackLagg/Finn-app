@@ -13,6 +13,17 @@ import { TransactionService } from '../transaction/transaction.service';
 import { UserGuard } from '../../guards/user.guard';
 import { AuthenticatedRequest } from '../../interfaces/request.interface';
 import { Types } from 'mongoose';
+import { MultiCurrencyAmount } from '../../schemas/multi-currency-amount.schema';
+
+function toMultiCurrencyAmount(value: number, currency: string): MultiCurrencyAmount {
+  const curr = currency.toUpperCase();
+  return {
+    USD: curr === 'USD' ? value : 0,
+    EUR: curr === 'EUR' ? value : 0,
+    RUB: curr === 'RUB' ? value : 0,
+    BYN: curr === 'BYN' ? value : 0,
+  };
+}
 
 @Controller('receipt-ai')
 @UseGuards(UserGuard)
@@ -43,8 +54,10 @@ export class ReceiptAIController {
       : undefined;
 
     const parsed = await this.receiptAIService.parseReceipt(file.buffer, language);
+    const currency = language === 'ru' ? 'RUB' : 'USD';
     const transaction = await this.transactionService.create(userId, {
-      amount: parsed.amount,
+      amount: toMultiCurrencyAmount(parsed.amount, currency),
+      inputCurrency: currency,
       type: 'expense',
       category: parsed.category,
       description: parsed.description,

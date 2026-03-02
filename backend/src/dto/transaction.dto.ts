@@ -1,8 +1,14 @@
-import { IsNumber, IsEnum, IsString, IsOptional, IsDateString } from 'class-validator';
+import { IsNumber, IsEnum, IsString, IsOptional, IsDateString, IsIn } from 'class-validator';
+
+const CURRENCIES = ['USD', 'EUR', 'RUB', 'BYN'] as const;
 
 export class CreateTransactionDto {
   @IsNumber()
   amount!: number;
+
+  @IsOptional()
+  @IsIn(CURRENCIES)
+  currency?: string;
 
   @IsEnum(['income', 'expense'])
   type!: 'income' | 'expense';
@@ -31,6 +37,10 @@ export class UpdateTransactionDto {
   @IsOptional()
   @IsNumber()
   amount?: number;
+
+  @IsOptional()
+  @IsIn(CURRENCIES)
+  currency?: string;
 
   @IsOptional()
   @IsEnum(['income', 'expense'])

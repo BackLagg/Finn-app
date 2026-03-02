@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import styles from './Modal.module.scss';
 
@@ -25,6 +25,7 @@ const Modal: React.FC<ModalProps> = ({
 }) => {
   const isFill = height === 'fill';
   const heightStyle = typeof height === 'number' ? `${height}px` : height;
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -33,6 +34,37 @@ const Modal: React.FC<ModalProps> = ({
       return () => {
         document.body.style.overflow = prev;
       };
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'Tab') {
+        const el = contentRef.current;
+        if (!el) return;
+        const focusables = Array.from(el.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'));
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last?.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first?.focus();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  useEffect(() => {
+    if (isOpen && contentRef.current) {
+      const focusable = contentRef.current.querySelector<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      focusable?.focus();
     }
   }, [isOpen]);
 
@@ -54,6 +86,7 @@ const Modal: React.FC<ModalProps> = ({
             </div>
           )}
           <motion.div
+            ref={contentRef}
             className={`${styles.modalContent} ${isFill ? styles.modalContent_fill : ''}`}
             style={!isFill ? { maxHeight: heightStyle, height: height === 'auto' ? 'auto' : heightStyle } : undefined}
             onClick={(e) => e.stopPropagation()}

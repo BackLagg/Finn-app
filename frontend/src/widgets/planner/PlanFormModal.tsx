@@ -43,7 +43,13 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({
 
   return (
     <Modal isOpen onClose={onClose} title={t('statistics.planner.addPlan')}>
-      <div className={styles['plan-form']}>
+      <form
+        className={styles['plan-form']}
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
+      >
         <label className={styles['plan-form__label']}>{t('statistics.planner.planName')}</label>
         <input
           type="text"
@@ -90,15 +96,14 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({
             {t('common.cancel')}
           </button>
           <button
-            type="button"
+            type="submit"
             className={styles['plan-form__save']}
-            onClick={handleSubmit}
             disabled={!isValid}
           >
             {t('common.save')}
           </button>
         </div>
-      </div>
+      </form>
     </Modal>
   );
 };

@@ -105,6 +105,7 @@
     "settings": "Настройки",
     "currency": "Валюта приложения",
     "language": "Язык",
+    "distributionMode": "Режим распределения",
     "theme": "Тема",
     "themeLight": "Свет",
     "themeDark": "Тёмн",

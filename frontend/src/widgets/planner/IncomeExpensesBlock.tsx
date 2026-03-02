@@ -1,13 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FiPlus, FiTrash2, FiChevronLeft, FiChevronRight, FiImage } from 'react-icons/fi';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { financeAPI, fileAPI, getReceiptImageUrl } from '@shared/api';
 import { useCurrencyPreference } from '@shared/lib/use-currency-preference';
 import { currencySymbols } from '@shared/lib/currency';
-import { CategoryIcon, categoryColorMap } from '@shared/ui';
+import { CategoryIcon, categoryColorMap, Dropdown } from '@shared/ui';
 import { Modal } from '@shared/ui';
-import { useIncomePayments } from '@features/planner';
 import { useTransactionStats } from '@features/transactions/use-transaction-stats';
 import type { Transaction } from '@shared/api';
 import { toast } from 'react-toastify';
@@ -21,7 +20,7 @@ const EXPENSE_CATEGORIES = [
 function getAmount(tx: Transaction): number {
   if (typeof tx.amount === 'number') return tx.amount;
   const a = tx.amount as { USD?: number; EUR?: number; RUB?: number; BYN?: number };
-  return a.USD ?? a.EUR ?? a.RUB ?? a.BYN ?? 0;
+  return a.USD || a.EUR || a.RUB || a.BYN || 0;
 }
 
 interface IncomeExpensesBlockProps {
@@ -46,8 +45,6 @@ export const IncomeExpensesBlock: React.FC<IncomeExpensesBlockProps> = ({
   const firstDay = new Date(year, month, 1).toISOString().slice(0, 10);
   const lastDay = new Date(year, month + 1, 0).toISOString().slice(0, 10);
 
-  const { payments, addPayment, removePayment, totalIncome } = useIncomePayments(year, month);
-
   const { data: stats = [] } = useTransactionStats(roomId, firstDay, lastDay);
   const { data: transactions = [] } = useQuery({
     queryKey: ['transactions', roomId, firstDay, lastDay],
@@ -59,16 +56,41 @@ export const IncomeExpensesBlock: React.FC<IncomeExpensesBlockProps> = ({
 
   const totalExpenses = stats.reduce((s, st) => s + st.total, 0);
   const expenseTransactions = transactions.filter((tx) => tx.type === 'expense');
+  const incomeTransactions = transactions.filter((tx) => tx.type === 'income');
+  const totalIncome = incomeTransactions.reduce((s, tx) => s + getAmount(tx), 0);
   const categoryTransactions = selectedCategory
     ? expenseTransactions.filter((tx) => tx.category === selectedCategory)
     : [];
 
+  const createIncomeMutation = useMutation({
+    mutationFn: (data: { amount: number; source: string }) =>
+      financeAPI.transactions.create({
+        amount: data.amount,
+        type: 'income',
+        category: data.source || t('statistics.planner.incomePayments'),
+        date: new Date(year, month, new Date().getDate()).toISOString().slice(0, 10),
+        description: data.source || undefined,
+        roomId,
+        currency,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions', roomId] });
+      queryClient.invalidateQueries({ queryKey: ['transaction-stats', roomId] });
+    },
+  });
+  const deleteTransactionMutation = useMutation({
+    mutationFn: (id: string) => financeAPI.transactions.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions', roomId] });
+      queryClient.invalidateQueries({ queryKey: ['transaction-stats', roomId] });
+    },
+  });
   const [incomeAmount, setIncomeAmount] = useState('');
   const [incomeSource, setIncomeSource] = useState('');
   const handleAddIncome = () => {
-    const num = parseFloat(incomeAmount.replace(',', '.'));
+    const num = Math.max(0, parseFloat(incomeAmount.replace(',', '.')) || 0);
     if (num > 0) {
-      addPayment(num, incomeSource.trim() || t('statistics.planner.incomePayments'));
+      createIncomeMutation.mutate({ amount: num, source: incomeSource.trim() || t('statistics.planner.incomePayments') });
       setIncomeAmount('');
       setIncomeSource('');
     }
@@ -123,7 +145,7 @@ export const IncomeExpensesBlock: React.FC<IncomeExpensesBlockProps> = ({
               inputMode="decimal"
               className={styles.block__input}
               value={incomeAmount}
-              onChange={(e) => setIncomeAmount(e.target.value.replace(/[^\d.,]/g, ''))}
+              onChange={(e) => setIncomeAmount(e.target.value.replace(/[-]/g, '').replace(/[^\d.,]/g, ''))}
               placeholder={t('common.amount')}
             />
             <input
@@ -138,7 +160,8 @@ export const IncomeExpensesBlock: React.FC<IncomeExpensesBlockProps> = ({
               className={styles.block__addBtn}
               onClick={handleAddIncome}
               disabled={
-                !incomeAmount || parseFloat(incomeAmount.replace(',', '.')) <= 0
+                !incomeAmount ||
+                (parseFloat(incomeAmount.replace(',', '.')) || 0) <= 0
               }
             >
               <FiPlus size={18} />
@@ -146,25 +169,27 @@ export const IncomeExpensesBlock: React.FC<IncomeExpensesBlockProps> = ({
             </button>
           </div>
           <div className={styles.block__incomeList}>
-            {payments.map((p) => (
-              <div key={p.id} className={styles.block__incomeItem}>
-                <div className={styles.block__incomeItemInfo}>
-                  <span className={styles.block__incomeAmount}>
-                    +{p.amount.toLocaleString()} {currencySymbols[currency]}
-                  </span>
-                  <span className={styles.block__incomeSource}>{p.comment}</span>
-                  <span className={styles.block__incomeDate}>{formatDate(p.createdAt)}</span>
+            {incomeTransactions
+              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+              .map((tx) => (
+                <div key={tx._id} className={styles.block__incomeItem}>
+                  <div className={styles.block__incomeItemInfo}>
+                    <span className={styles.block__incomeAmount}>
+                      +{getAmount(tx).toLocaleString()} {currencySymbols[currency]}
+                    </span>
+                    <span className={styles.block__incomeSource}>{tx.category}</span>
+                    <span className={styles.block__incomeDate}>{formatDate(tx.date)}</span>
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.block__removeBtn}
+                    onClick={() => deleteTransactionMutation.mutate(tx._id)}
+                    title={t('common.delete')}
+                  >
+                    <FiTrash2 size={16} />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  className={styles.block__removeBtn}
-                  onClick={() => removePayment(p.id)}
-                  title={t('common.delete')}
-                >
-                  <FiTrash2 size={16} />
-                </button>
-              </div>
-            ))}
+              ))}
           </div>
         </div>
       )}
@@ -318,6 +343,7 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
     try {
       await financeAPI.transactions.create({
         amount: num,
+        currency,
         type: 'expense',
         category,
         date: new Date().toISOString().slice(0, 10),
@@ -331,20 +357,24 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
     }
   };
 
+  const categoryOptions = categories.map((c) => ({ value: c, label: c }));
+
   return (
-    <div className={styles.addForm}>
+    <form
+      className={styles.addForm}
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSubmit();
+      }}
+    >
       <div className={styles.addForm__row}>
-        <select
-          className={styles.addForm__select}
+        <Dropdown
+          options={categoryOptions}
           value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        >
-          {categories.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
+          onChange={setCategory}
+          placeholder={t('common.category')}
+          className={styles.addForm__dropdown}
+        />
       </div>
       <div className={styles.addForm__row}>
         <input
@@ -352,7 +382,7 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
           inputMode="decimal"
           className={styles.addForm__input}
           value={amount}
-          onChange={(e) => setAmount(e.target.value.replace(/[^\d.,]/g, ''))}
+          onChange={(e) => setAmount(e.target.value.replace(/[-]/g, '').replace(/[^\d.,]/g, ''))}
           placeholder={t('common.amount')}
         />
         <span className={styles.addForm__currency}>{currencySymbols[currency as keyof typeof currencySymbols]}</span>
@@ -389,15 +419,14 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
           {t('common.cancel')}
         </button>
         <button
-          type="button"
+          type="submit"
           className={styles.addForm__submit}
-          onClick={handleSubmit}
-          disabled={!amount || parseFloat(amount.replace(',', '.')) <= 0}
+          disabled={!amount || (parseFloat(amount.replace(',', '.')) || 0) <= 0}
         >
           {t('common.add')}
         </button>
       </div>
-    </div>
+    </form>
   );
 };
 

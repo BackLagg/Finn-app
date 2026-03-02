@@ -4,8 +4,9 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
 import { useTheme } from '@features/theme';
 import { useLanguage } from '@features/i18n';
-import { Switch, Dropdown } from '@shared/ui';
+import { Switch, Dropdown, Toggle } from '@shared/ui';
 import { useCurrencyPreference } from '@shared/lib/use-currency-preference';
+import { useSavingsOnlyPreference } from '@shared/lib/use-savings-only-preference';
 import { Currency, currencySymbols } from '@shared/lib/currency';
 import styles from './ProfilePage.module.scss';
 
@@ -15,6 +16,7 @@ const ProfilePage: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
   const [currency, setCurrency] = useCurrencyPreference();
+  const [savingsOnly, setSavingsOnly] = useSavingsOnlyPreference();
 
   const getProfilePhoto = () => {
     if (window.Telegram?.WebApp?.initDataUnsafe?.user?.photo_url) {
@@ -68,6 +70,18 @@ const ProfilePage: React.FC = () => {
             leftLabel="RU"
             rightLabel="EN"
             size="md"
+          />
+        </div>
+        <div className={styles['profile-page__setting-item']}>
+          <span className={styles['profile-page__setting-label']}>{t('profile.distributionMode')}</span>
+          <Toggle
+            options={[
+              { value: 'full', label: t('statistics.planner.withInvestments') },
+              { value: 'savings', label: t('statistics.planner.savingsOnly') },
+            ]}
+            value={savingsOnly ? 'savings' : 'full'}
+            onChange={(v) => setSavingsOnly(v === 'savings')}
+            className={styles['profile-page__toggle']}
           />
         </div>
         <div className={styles['profile-page__setting-item']}>
