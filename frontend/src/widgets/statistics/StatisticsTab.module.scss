@@ -5,13 +5,6 @@
   padding-bottom: 24px;
   box-sizing: border-box;
 
-  &__title {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--color-text-primary);
-    margin: 0 0 16px 0;
-  }
-
   &__context {
     margin-bottom: 16px;
   }
@@ -29,7 +22,7 @@
 
   &__card {
     flex: 1;
-    min-width: 140px;
+    min-width: 160px;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
@@ -39,12 +32,38 @@
   &__cardLabel {
     font-size: 13px;
     color: var(--color-text-secondary);
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+  }
+
+  &__cardRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__cardIcon {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__cardContent {
+    min-width: 0;
   }
 
   &__cardValue {
-    font-size: 18px;
-    font-weight: 700;
+    font-size: 16px;
+    font-weight: 600;
     color: var(--color-text-primary);
+  }
+
+  &__cardAmount {
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 4px;
   }
 }

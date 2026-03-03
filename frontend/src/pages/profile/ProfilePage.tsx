@@ -20,7 +20,7 @@ const ProfilePage: React.FC = () => {
   const [currency, setCurrency] = useCurrencyPreference();
   const [savingsOnly, setSavingsOnly] = useSavingsOnlyPreference();
   const [distribution, setDistribution] = useDistributionPreference();
-  const [monthlyIncome] = useMonthlyIncomePreference();
+  const [monthlyIncome, setMonthlyIncome] = useMonthlyIncomePreference();
 
   const handleSavingsOnlyChange = useCallback(
     (value: boolean) => {
@@ -99,10 +99,30 @@ const ProfilePage: React.FC = () => {
             className={styles['profile-page__toggle']}
           />
         </div>
-        <div className={styles['profile-page__setting-item']}>
-          <span className={styles['profile-page__setting-label']}>
-            {t('statistics.planner.distribution')}
-          </span>
+      </section>
+
+      <section className={styles['profile-page__distribution-block']}>
+        <h2 className={styles['profile-page__section-title']}>
+          {t('statistics.planner.distribution')}
+        </h2>
+        <div className={styles['profile-page__distribution-row']}>
+          <label className={styles['profile-page__setting-label']}>
+            {t('home.monthlyIncome')}
+          </label>
+          <div className={styles['profile-page__salary-input-wrap']}>
+            <input
+              type="number"
+              min={0}
+              step={1}
+              value={monthlyIncome || ''}
+              onChange={(e) => setMonthlyIncome(Number(e.target.value) || 0)}
+              className={styles['profile-page__salary-input']}
+              placeholder="0"
+            />
+            <span className={styles['profile-page__currency-badge']}>
+              {currencySymbols[currency]} {currency}
+            </span>
+          </div>
         </div>
         <div className={styles['profile-page__distribution']}>
           <DistributionSliders

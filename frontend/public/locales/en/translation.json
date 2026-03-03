@@ -121,6 +121,8 @@
   "statistics": {
     "title": "Statistics",
     "tabTitle": "Analytics",
+    "mostExpensiveCategory": "Most expensive category",
+    "mostProfitableCategory": "Most profitable category",
     "planner": {
       "title": "Planner",
       "incomePayments": "Income",

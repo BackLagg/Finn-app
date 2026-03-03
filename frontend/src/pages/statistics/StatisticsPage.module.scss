@@ -10,14 +10,35 @@
   box-sizing: border-box;
 
   &__header {
-    position: sticky;
-    top: 0;
-    z-index: 10;
+    position: fixed;
+    top: 68px;
+    left: 0;
+    right: 0;
+    z-index: 100;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    margin-bottom: 20px;
-    background: var(--color-bg);
+    padding: 16px 20px;
+    background: transparent;
+  }
+
+  &__header-inner {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__header-spacer {
+    flex-shrink: 0;
+    height: 80px;
+    margin-bottom: 0;
+
+    &--with-room {
+      height: 120px;
+    }
   }
 
   &__context {

@@ -121,6 +121,8 @@
   "statistics": {
     "title": "Статистика",
     "tabTitle": "Аналитика",
+    "mostExpensiveCategory": "Наиболее затратная категория",
+    "mostProfitableCategory": "Наиболее прибыльная категория",
     "planner": {
       "title": "Планёр",
       "incomePayments": "Поступления",

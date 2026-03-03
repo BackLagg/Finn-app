@@ -67,12 +67,64 @@
   }
 
   &__settings,
-  &__subscriptions {
+  &__subscriptions,
+  &__distribution-block {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: 24px;
     padding: 24px;
     margin-bottom: 20px;
+  }
+
+  &__distribution-block {
+    .profile-page__section-title {
+      margin-bottom: 16px;
+    }
+  }
+
+  &__distribution-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  &__salary-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__salary-input {
+    flex: 1;
+    min-width: 0;
+    max-width: 180px;
+    padding: 12px 14px;
+    font-size: 16px;
+    line-height: 20px;
+    color: var(--color-text-primary);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-accent);
+    }
+
+    &::placeholder {
+      color: var(--color-text-secondary);
+      opacity: 0.7;
+    }
+  }
+
+  &__currency-badge {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
   }
 
   &__section-title {
@@ -168,6 +220,6 @@
   }
 
   &__distribution {
-    padding: 16px 0 0;
+    padding: 0;
   }
 }

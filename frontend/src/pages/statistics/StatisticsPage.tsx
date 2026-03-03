@@ -40,23 +40,29 @@ const StatisticsPage: React.FC = () => {
   return (
     <div className={styles['statistics-page']}>
       <div className={styles['statistics-page__header']}>
-        <div className={styles['statistics-page__context']}>
-          <Toggle
-            options={toggleOptions}
-            value={context}
-            onChange={(val) => setContext(val as 'personal' | 'partner')}
-          />
+        <div className={styles['statistics-page__header-inner']}>
+          <div className={styles['statistics-page__context']}>
+            <Toggle
+              options={toggleOptions}
+              value={context}
+              onChange={(val) => setContext(val as 'personal' | 'partner')}
+            />
+          </div>
+          {context === 'partner' && rooms.length > 0 && (
+            <Dropdown
+              options={roomOptions}
+              value={selectedRoomId || ''}
+              onChange={(val) => setSelectedRoomId(val || undefined)}
+              placeholder={t('partners.selectRoom')}
+              className={styles['statistics-page__room']}
+            />
+          )}
         </div>
-        {context === 'partner' && rooms.length > 0 && (
-          <Dropdown
-            options={roomOptions}
-            value={selectedRoomId || ''}
-            onChange={(val) => setSelectedRoomId(val || undefined)}
-            placeholder={t('partners.selectRoom')}
-            className={styles['statistics-page__room']}
-          />
-        )}
       </div>
+      <div
+        className={`${styles['statistics-page__header-spacer']} ${context === 'partner' && rooms.length > 0 ? styles['statistics-page__header-spacer--with-room'] : ''}`}
+        aria-hidden
+      />
       <div className={styles['statistics-page__content']}>
         <StatisticsTab roomId={currentRoomId} />
       </div>
