@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { FiPlus, FiTrash2 } from 'react-icons/fi';
+import { financeAPI } from '@shared/api';
+import { getTransactionAmount } from '@shared/lib/transaction';
+import { getCategoryLabel } from '@shared/lib/category-labels';
 import { usePlans, useIncomePayments } from '@features/planner';
 import { useCurrencyPreference } from '@shared/lib/use-currency-preference';
 import { useSavingsOnlyPreference } from '@shared/lib/use-savings-only-preference';
 import { currencySymbols } from '@shared/lib/currency';
+import type { DayBalance } from '@shared/ui';
 import { Toggle, CollapsibleSection } from '@shared/ui';
 import { CalendarWithReminders } from '../CalendarWithReminders';
 import { BudgetSection } from '../BudgetSection';
@@ -12,7 +17,7 @@ import { ScheduledPayments } from '../ScheduledPayments';
 import { GoalsSection } from '../GoalsSection';
 import { ExpenseList } from '../ExpenseList';
 import { IncomeExpensesBlock } from '../IncomeExpensesBlock';
-import { DistributionRadialChart } from '../DistributionRadialChart';
+import { DistributionRadialChart, type IncomeCategoryItem } from '../DistributionRadialChart';
 import { PlanFormModal } from '../PlanFormModal';
 import styles from './PlannerTab.module.scss';
 
@@ -37,6 +42,7 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector 
   const [savingsOnly] = useSavingsOnlyPreference();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showPlanModal, setShowPlanModal] = useState(false);
+  const [distributionView, setDistributionView] = useState<'expense' | 'income'>('expense');
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -44,6 +50,61 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector 
 
   const { plans, addPlan, removePlan } = usePlans(year, month);
   const { payments, addPayment, removePayment, totalIncome } = useIncomePayments(year, month);
+
+  const firstDay = new Date(year, month, 1).toISOString().slice(0, 10);
+  const lastDay = new Date(year, month + 1, 0).toISOString().slice(0, 10);
+  const { data: monthTransactions = [] } = useQuery({
+    queryKey: ['transactions', roomId, firstDay, lastDay],
+    queryFn: async () => {
+      const res = await financeAPI.transactions.list({ roomId, from: firstDay, to: lastDay });
+      return res.data;
+    },
+  });
+
+  const dayBalance = useMemo((): DayBalance[] => {
+    const byDay = new Map<number, { income: number; expense: number }>();
+    let totalMonthIncome = 0;
+    let totalMonthExpense = 0;
+    for (const tx of monthTransactions) {
+      const d = new Date(tx.date).getDate();
+      const cur = byDay.get(d) ?? { income: 0, expense: 0 };
+      const amount = Math.abs(getTransactionAmount(tx));
+      if (tx.type === 'income') {
+        cur.income += amount;
+        totalMonthIncome += amount;
+      } else {
+        cur.expense += amount;
+        totalMonthExpense += amount;
+      }
+      byDay.set(d, cur);
+    }
+    return Array.from(byDay.entries())
+      .filter(([, v]) => v.income !== v.expense)
+      .map(([day, v]) => {
+        const direction = v.income > v.expense ? ('income' as const) : ('expense' as const);
+        const dayAmount = direction === 'income' ? v.income : v.expense;
+        const total = direction === 'income' ? totalMonthIncome : totalMonthExpense;
+        const percent = total > 0 ? (dayAmount / total) * 100 : undefined;
+        return {
+          date: new Date(year, month, day),
+          direction,
+          percent,
+        };
+      });
+  }, [monthTransactions, year, month]);
+
+  const incomeByCategory = useMemo((): IncomeCategoryItem[] => {
+    const byCat = new Map<string, number>();
+    for (const tx of monthTransactions) {
+      if (tx.type !== 'income') continue;
+      const cat = tx.category || 'Другое';
+      byCat.set(cat, (byCat.get(cat) ?? 0) + Math.abs(getTransactionAmount(tx)));
+    }
+    return Array.from(byCat.entries()).map(([category, value]) => ({
+      name: getCategoryLabel(t, 'income', category),
+      value,
+    }));
+  }, [monthTransactions, t]);
 
   const futurePlans = plans.filter((p) => p.dayOfMonth >= today);
   const plansTotal = futurePlans.reduce((s, p) => s + p.amount, 0);
@@ -84,6 +145,7 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector 
           roomId={roomId}
           currency={currency}
           additionalMarkedDates={markedDatesWithColors}
+          dayBalance={dayBalance}
           viewDate={currentDate}
           onMonthChange={(y, m) => setCurrentDate(new Date(y, m, 1))}
           pinnable
@@ -91,7 +153,7 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector 
         />
       </div>
 
-      <CollapsibleSection id="incomeExpenses" title={t('home.expenses')} defaultExpanded>
+      <CollapsibleSection id="incomeExpenses" title={t('home.finances', 'Финансы')} defaultExpanded>
         <IncomeExpensesBlock
           roomId={roomId}
           year={year}
@@ -100,7 +162,19 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector 
       </CollapsibleSection>
 
       <CollapsibleSection id="distribution" title={t('statistics.planner.distribution')} defaultExpanded>
+        <div className={styles['planner__distribution-toggle']}>
+          <Toggle
+            options={[
+              { value: 'expense', label: t('common.expense') },
+              { value: 'income', label: t('common.income') },
+            ]}
+            value={distributionView}
+            onChange={(v) => setDistributionView(v as 'expense' | 'income')}
+          />
+        </div>
         <DistributionRadialChart
+          mode={distributionView}
+          incomeItems={incomeByCategory}
           savingsAmount={savingsAmount}
           investmentsAmount={investmentsAmount}
           purchasesAmount={purchasesAmount}

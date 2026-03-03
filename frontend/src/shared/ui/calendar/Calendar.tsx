@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiChevronLeft, FiChevronRight, FiTrendingUp, FiTrendingDown } from 'react-icons/fi';
 import styles from './Calendar.module.scss';
 
 export interface MarkedDateWithColor {
   date: Date;
   color: string;
+}
+
+export type DayBalanceDirection = 'income' | 'expense';
+
+export interface DayBalance {
+  date: Date;
+  direction: DayBalanceDirection;
+  percent?: number;
 }
 
 interface CalendarProps {
@@ -17,6 +25,7 @@ interface CalendarProps {
   onMonthChange?: (year: number, month: number) => void;
   markedDates?: Date[];
   markedDatesWithColors?: MarkedDateWithColor[];
+  dayBalance?: DayBalance[];
   minDate?: Date;
   maxDate?: Date;
   className?: string;
@@ -31,6 +40,7 @@ export const Calendar: React.FC<CalendarProps> = ({
   onMonthChange,
   markedDates = [],
   markedDatesWithColors = [],
+  dayBalance = [],
   minDate,
   maxDate,
   className,
@@ -130,6 +140,17 @@ export const Calendar: React.FC<CalendarProps> = ({
     return found?.color || null;
   };
 
+  const getDayBalance = (date: Date | null): DayBalance | null => {
+    if (!date) return null;
+    const found = dayBalance.find(
+      (d) =>
+        d.date.getDate() === date.getDate() &&
+        d.date.getMonth() === date.getMonth() &&
+        d.date.getFullYear() === date.getFullYear()
+    );
+    return found ?? null;
+  };
+
   const isDateMarked = (date: Date | null) => {
     if (!date) return false;
     if (markedDatesWithColors.length > 0) {
@@ -207,6 +228,8 @@ export const Calendar: React.FC<CalendarProps> = ({
         {days.map((date, index) => {
           const markColor = getMarkColor(date);
           const isMarked = isDateMarked(date);
+          const balance = getDayBalance(date);
+          const balanceDir = balance?.direction ?? null;
           return (
             <button
               key={index}
@@ -217,6 +240,8 @@ export const Calendar: React.FC<CalendarProps> = ({
                 isDateSelected(date) ? styles['calendar__day--selected'] : ''
               } ${isMarked ? styles['calendar__day--marked'] : ''} ${
                 isMarked && markColor ? styles['calendar__day--colored'] : ''
+              } ${balanceDir === 'income' ? styles['calendar__day--balanceIncome'] : ''} ${
+                balanceDir === 'expense' ? styles['calendar__day--balanceExpense'] : ''
               } ${isDateDisabled(date) ? styles['calendar__day--disabled'] : ''}`}
               onClick={() => handleDateClick(date)}
               disabled={!date || isDateDisabled(date)}
@@ -230,7 +255,29 @@ export const Calendar: React.FC<CalendarProps> = ({
                   : undefined
               }
             >
-              {date ? date.getDate() : ''}
+              {date ? (
+                <>
+                  <span className={styles.calendar__dayNum}>{date.getDate()}</span>
+                  {balanceDir === 'income' && (
+                    <span className={styles.calendar__dayBalance}>
+                      <FiTrendingUp className={styles.calendar__dayArrow} size={12} aria-hidden />
+                      {balance?.percent != null && (
+                        <span className={styles.calendar__dayPercent}>+{Math.round(balance.percent)}%</span>
+                      )}
+                    </span>
+                  )}
+                  {balanceDir === 'expense' && (
+                    <span className={styles.calendar__dayBalance}>
+                      <FiTrendingDown className={styles.calendar__dayArrow} size={12} aria-hidden />
+                      {balance?.percent != null && (
+                        <span className={styles.calendar__dayPercent}>−{Math.round(balance.percent)}%</span>
+                      )}
+                    </span>
+                  )}
+                </>
+              ) : (
+                ''
+              )}
             </button>
           );
         })}

@@ -82,8 +82,10 @@
   &__day {
     aspect-ratio: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 0;
     background: transparent;
     border: none;
     border-radius: 8px;
@@ -92,6 +94,8 @@
     cursor: pointer;
     transition: all 0.2s;
     position: relative;
+    min-height: 0;
+    overflow: hidden;
 
     &:hover:not(&--empty):not(&--disabled) {
       background: var(--color-bg);
@@ -143,5 +147,41 @@
     &--weekend:not(&--selected):not(&--colored) {
       color: var(--color-weekend, #c62828);
     }
+  }
+
+  &__dayNum {
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  &__dayBalance {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  &__dayArrow {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+  }
+
+  &__dayPercent {
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  &__day--balanceIncome &__dayArrow,
+  &__day--balanceIncome &__dayPercent {
+    color: var(--color-success, #22c55e);
+  }
+
+  &__day--balanceExpense &__dayArrow,
+  &__day--balanceExpense &__dayPercent {
+    color: var(--color-danger, #ef4444);
   }
 }

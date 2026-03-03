@@ -29,6 +29,10 @@ $modal-width: 500px;
   overflow: auto;
   width: 100%;
   max-width: $modal-width;
+
+  &:has(.modalContent_fill) {
+    min-height: min(70vh, calc(100dvh - 40px));
+  }
 }
 
 .modalAbove {
@@ -56,6 +60,7 @@ $modal-width: 500px;
 
 .modalContent_fill {
   flex: 1 1 0;
+  min-height: min(400px, 60dvh);
 }
 
 .modalHeader {

@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { FiChevronDown, FiChevronUp, FiMapPin } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
-import { Calendar } from '@shared/ui';
+import { Calendar, type DayBalance } from '@shared/ui';
 import { ReminderFormModal } from '../ReminderFormModal';
 import { useReminders } from '@features/reminders/use-reminders';
 import { getMarkedDatesWithColors, DateWithColor } from '@shared/lib/reminders';
@@ -15,6 +15,7 @@ interface CalendarWithRemindersProps {
   roomId?: string;
   currency: Currency;
   additionalMarkedDates?: DateWithColor[];
+  dayBalance?: DayBalance[];
   viewDate?: Date;
   onMonthChange?: (year: number, month: number) => void;
   pinnable?: boolean;
@@ -25,6 +26,7 @@ export const CalendarWithReminders: React.FC<CalendarWithRemindersProps> = ({
   roomId,
   currency,
   additionalMarkedDates = [],
+  dayBalance = [],
   viewDate,
   onMonthChange,
   pinnable = false,
@@ -135,6 +137,7 @@ export const CalendarWithReminders: React.FC<CalendarWithRemindersProps> = ({
           onDateSelect={handleDateSelect}
           onMonthChange={handleMonthChange}
           markedDatesWithColors={markedDatesWithColors}
+          dayBalance={dayBalance}
         />
       <ReminderFormModal
         isOpen={isFormOpen}

@@ -77,12 +77,12 @@ export const IncomeExpensesBlock: React.FC<IncomeExpensesBlockProps> = ({
   }, [incomeTransactions]);
 
   const createIncomeMutation = useMutation({
-    mutationFn: (data: { amount: number; source: string; description?: string; receiptImageUrl?: string }) =>
+    mutationFn: (data: { amount: number; source: string; date: string; description?: string; receiptImageUrl?: string }) =>
       financeAPI.transactions.create({
-        amount: data.amount,
+        amount: Math.abs(data.amount),
         type: 'income',
         category: data.source || t('statistics.planner.incomePayments'),
-        date: new Date(year, month, new Date().getDate()).toISOString().slice(0, 10),
+        date: data.date,
         description: data.description ?? data.source ?? undefined,
         roomId,
         currency,
@@ -207,7 +207,7 @@ export const IncomeExpensesBlock: React.FC<IncomeExpensesBlockProps> = ({
         <Modal
           isOpen
           onClose={handleAddModalClose}
-          title={t('common.add')}
+          title={`${t('common.add')} ${addModalTab === 'expense' ? t('common.expense') : t('common.income')}`}
           aboveContent={
             addModalTab === 'income' ? (
               <div className={styles.addModalSwipeHint}>
@@ -265,6 +265,8 @@ export const IncomeExpensesBlock: React.FC<IncomeExpensesBlockProps> = ({
                     roomId={roomId}
                     categories={EXPENSE_CATEGORIES}
                     currency={currency}
+                    year={year}
+                    month={month}
                     onClose={handleAddModalClose}
                     onSuccess={handleAddSuccess}
                   />
@@ -281,6 +283,8 @@ export const IncomeExpensesBlock: React.FC<IncomeExpensesBlockProps> = ({
                   <AddIncomeForm
                     categories={INCOME_CATEGORIES}
                     currency={currency}
+                    year={year}
+                    month={month}
                     onCreate={createIncomeMutation.mutate}
                     onClose={handleAddModalClose}
                   />
@@ -377,20 +381,33 @@ export const IncomeExpensesBlock: React.FC<IncomeExpensesBlockProps> = ({
 interface AddIncomeFormProps {
   categories: string[];
   currency: string;
-  onCreate: (data: { amount: number; source: string; description?: string; receiptImageUrl?: string }) => void;
+  year: number;
+  month: number;
+  onCreate: (data: { amount: number; source: string; date: string; description?: string; receiptImageUrl?: string }) => void;
   onClose: () => void;
 }
 
 const AddIncomeForm: React.FC<AddIncomeFormProps> = ({
   categories,
   currency,
+  year,
+  month,
   onCreate,
   onClose,
 }) => {
   const { t } = useTranslation();
+  const maxDay = new Date(year, month + 1, 0).getDate();
+  const today = new Date().getDate();
+  const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
+  const dateMin = `${monthStr}-01`;
+  const dateMax = `${monthStr}-${String(maxDay).padStart(2, '0')}`;
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState(categories[0] || '');
   const [description, setDescription] = useState('');
+  const [dateStr, setDateStr] = useState(() => {
+    const d = Math.min(today, maxDay);
+    return `${monthStr}-${String(d).padStart(2, '0')}`;
+  });
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const receiptInputRef = useRef<HTMLInputElement>(null);
 
@@ -411,6 +428,7 @@ const AddIncomeForm: React.FC<AddIncomeFormProps> = ({
     onCreate({
       amount: num,
       source: category || t('statistics.planner.incomePayments'),
+      date: dateStr,
       description: description.trim() || undefined,
       receiptImageUrl: receiptUrl,
     });
@@ -433,6 +451,18 @@ const AddIncomeForm: React.FC<AddIncomeFormProps> = ({
           onChange={setCategory}
           placeholder={t('statistics.planner.sourcePlaceholder')}
           className={styles.addForm__dropdown}
+        />
+      </div>
+      <div className={styles.addForm__row}>
+        <label className={styles.addForm__label}>{t('common.date')}</label>
+        <input
+          type="date"
+          className={styles.addForm__dateInput}
+          value={dateStr}
+          min={dateMin}
+          max={dateMax}
+          onChange={(e) => setDateStr(e.target.value)}
+          aria-label={t('common.date')}
         />
       </div>
       <div className={styles.addForm__row}>
@@ -489,6 +519,8 @@ interface AddExpenseFormProps {
   roomId?: string;
   categories: string[];
   currency: string;
+  year: number;
+  month: number;
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -497,13 +529,24 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
   roomId,
   categories,
   currency,
+  year,
+  month,
   onClose,
   onSuccess,
 }) => {
   const { t } = useTranslation();
+  const maxDay = new Date(year, month + 1, 0).getDate();
+  const today = new Date().getDate();
+  const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
+  const dateMin = `${monthStr}-01`;
+  const dateMax = `${monthStr}-${String(maxDay).padStart(2, '0')}`;
   const [category, setCategory] = useState(categories[0] || '');
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
+  const [dateStr, setDateStr] = useState(() => {
+    const d = Math.min(today, maxDay);
+    return `${monthStr}-${String(d).padStart(2, '0')}`;
+  });
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const receiptInputRef = useRef<HTMLInputElement>(null);
 
@@ -522,11 +565,11 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
     }
     try {
       await financeAPI.transactions.create({
-        amount: num,
+        amount: -Math.abs(num),
         currency,
         type: 'expense',
         category,
-        date: new Date().toISOString().slice(0, 10),
+        date: dateStr,
         description: description.trim() || undefined,
         roomId,
         receiptImageUrl: receiptUrl,
@@ -554,6 +597,18 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
           onChange={setCategory}
           placeholder={t('common.category')}
           className={styles.addForm__dropdown}
+        />
+      </div>
+      <div className={styles.addForm__row}>
+        <label className={styles.addForm__label}>{t('common.date')}</label>
+        <input
+          type="date"
+          className={styles.addForm__dateInput}
+          value={dateStr}
+          min={dateMin}
+          max={dateMax}
+          onChange={(e) => setDateStr(e.target.value)}
+          aria-label={t('common.date')}
         />
       </div>
       <div className={styles.addForm__row}>
