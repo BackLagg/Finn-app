@@ -1,11 +1,13 @@
-import React, { useState, useRef } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiImage, FiX } from 'react-icons/fi';
+import { FiImage, FiX, FiTrendingUp, FiTrendingDown } from 'react-icons/fi';
 import { useTransactions } from '@features/transactions/use-transactions';
 import { CategoryIcon, categoryColorMap } from '@shared/ui';
 import { fileAPI, getReceiptImageUrl } from '@shared/api';
+import { useCurrencyPreference } from '@shared/lib/use-currency-preference';
+import { currencySymbols } from '@shared/lib/currency';
 import { toast } from 'react-toastify';
-import type { Transaction } from '@shared/api';
+import type { Transaction } from '@shared/api/finance-api';
 import styles from './ExpenseList.module.scss';
 
 function getAmount(tx: Transaction): number {
@@ -20,9 +22,28 @@ interface ExpenseListProps {
 
 const ExpenseList: React.FC<ExpenseListProps> = ({ roomId }) => {
   const { t } = useTranslation();
+  const [currency] = useCurrencyPreference();
   const { transactions, update } = useTransactions(roomId);
+  const symbol = currencySymbols[currency as keyof typeof currencySymbols] ?? currency;
   const [expandedReceiptId, setExpandedReceiptId] = useState<string | null>(null);
   const receiptInputRef = useRef<HTMLInputElement>(null);
+
+  const { totalIncome, totalExpense, incomePercent, paymentsPercent } = useMemo(() => {
+    let income = 0;
+    let expense = 0;
+    for (const tx of transactions) {
+      const a = Math.abs(getAmount(tx));
+      if (tx.type === 'income') income += a;
+      else expense += a;
+    }
+    const total = income + expense;
+    return {
+      totalIncome: income,
+      totalExpense: expense,
+      incomePercent: total > 0 ? (income / total) * 100 : 0,
+      paymentsPercent: total > 0 ? (expense / total) * 100 : 0,
+    };
+  }, [transactions]);
 
   const handleAttachReceipt = (txId: string) => {
     receiptInputRef.current?.setAttribute('data-tx-id', txId);
@@ -49,9 +70,40 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ roomId }) => {
     receiptInputRef.current?.removeAttribute('data-tx-id');
   };
 
+  const balanceTotal = totalIncome + totalExpense;
+
   return (
     <section className={styles['expense-list']}>
-      <h2 className={styles['expense-list__title']}>{t('home.expenseList')}</h2>
+      <h2 className={styles['expense-list__title']}>{t('home.financeList')}</h2>
+      {balanceTotal > 0 && (
+        <div className={styles['expense-list__balance']}>
+          <div className={styles['expense-list__balance-label']}>
+            {t('home.scheduledPayments.monthlyBalance')}
+          </div>
+          <div className={styles['expense-list__balance-bar-wrap']}>
+            <div className={styles['expense-list__balance-bar']}>
+              <div
+                className={styles['expense-list__balance-bar-income']}
+                style={{ width: `${incomePercent}%` }}
+              />
+              <div
+                className={styles['expense-list__balance-bar-payments']}
+                style={{ width: `${paymentsPercent}%` }}
+              />
+            </div>
+          </div>
+          <div className={styles['expense-list__balance-legend']}>
+            <span className={styles['expense-list__balance-legend-income']}>
+              <FiTrendingUp size={14} />
+              {t('home.scheduledPayments.incomeShare')} {totalIncome.toLocaleString()} {symbol} ({Math.round(incomePercent)}%)
+            </span>
+            <span className={styles['expense-list__balance-legend-payments']}>
+              <FiTrendingDown size={14} />
+              {t('home.scheduledPayments.paymentsShare')} {totalExpense.toLocaleString()} {symbol} ({Math.round(paymentsPercent)}%)
+            </span>
+          </div>
+        </div>
+      )}
       <input
         ref={receiptInputRef}
         type="file"

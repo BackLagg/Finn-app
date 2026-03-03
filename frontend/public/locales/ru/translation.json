@@ -34,6 +34,7 @@
     "calculator": "Расчёт трат",
     "aiScanner": "Сканер чеков",
     "expenseList": "Список трат",
+    "financeList": "Список финансов",
     "attachReceipt": "Прикрепить чек",
     "shoppingLists": "Списки покупок",
     "goals": "Цели и накопления",
@@ -69,7 +70,12 @@
       "everyMonth": "Каждые 1 месяц",
       "oneTime": "Один раз",
       "card": "Карта",
-      "inDays": "За 3 дней в 20:00"
+      "inDays": "За 3 дней в 20:00",
+      "monthlyBalance": "Месячный баланс",
+      "incomeShare": "Поступления",
+      "paymentsShare": "Платежи",
+      "day": "День",
+      "noPlans": "Нет запланированных платежей и поступлений"
     },
     "goals": {
       "title": "Цели накопления",
@@ -133,6 +139,8 @@
       "plansTotal": "Сумма планов",
       "available": "Доступно",
       "distribution": "Распределение",
+      "resetDistribution": "Сброс",
+      "applyStandard": "Применить стандарт",
       "withInvestments": "С инвестициями",
       "savingsOnly": "Только накопления"
     }
@@ -148,6 +156,17 @@
     "contributions": "Вклады",
     "selectRoom": "Выберите комнату",
     "copied": "Скопировано"
+  },
+  "onboarding": {
+    "namePlaceholder": "Введите ваше полное имя",
+    "salary": "Зарплата",
+    "salaryPlaceholder": "0",
+    "getStarted": "Начать",
+    "starting": "Запуск...",
+    "back": "Назад",
+    "next": "Далее",
+    "complete": "Завершить",
+    "completing": "Завершение..."
   },
   "validation": {
     "required": "Обязательное поле",

@@ -13,3 +13,5 @@ export { Toggle } from './toggle';
 export { CategoryDonutChart } from './category-donut-chart';
 export type { CategoryDataItem } from './category-donut-chart';
 export { CollapsibleSection } from './collapsible-section';
+export { DistributionSliders } from './distribution-sliders';
+export type { DistributionSlidersProps } from './distribution-sliders';

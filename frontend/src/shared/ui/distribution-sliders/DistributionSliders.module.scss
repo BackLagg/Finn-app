@@ -1,0 +1,117 @@
+@use '@shared/styles/variables' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  position: relative;
+}
+
+.header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: -8px;
+}
+
+.resetBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: $color-brand-500;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba($color-brand-500, 0.1);
+    transform: rotate(90deg);
+  }
+
+  &:active {
+    transform: rotate(180deg);
+  }
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rowDisabled {
+  opacity: 0.7;
+
+  .label,
+  .value {
+    color: $color-text-secondary;
+  }
+}
+
+.label {
+  font-family: $font-text;
+  font-size: 14px;
+  color: $color-text-secondary;
+}
+
+.value {
+  font-family: $font-text;
+  font-weight: 600;
+  font-size: 14px;
+  color: $color-text-primary;
+}
+
+.amount {
+  font-weight: 400;
+  color: $color-text-secondary;
+  font-size: 13px;
+}
+
+.slider {
+  width: 100%;
+  height: 8px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: $color-border;
+  border-radius: 4px;
+  outline: none;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: $color-brand-500;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  &::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: $color-brand-500;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+
+    &::-webkit-slider-thumb {
+      cursor: not-allowed;
+    }
+
+    &::-moz-range-thumb {
+      cursor: not-allowed;
+    }
+  }
+}

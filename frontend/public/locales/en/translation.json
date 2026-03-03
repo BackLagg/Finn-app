@@ -34,6 +34,7 @@
     "calculator": "Expense calculator",
     "aiScanner": "Receipt scanner",
     "expenseList": "Expense list",
+    "financeList": "Finance list",
     "attachReceipt": "Attach receipt",
     "shoppingLists": "Shopping lists",
     "goals": "Goals and savings",
@@ -69,7 +70,12 @@
       "everyMonth": "Every 1 month",
       "oneTime": "One time",
       "card": "Card",
-      "inDays": "In 3 days at 20:00"
+      "inDays": "In 3 days at 20:00",
+      "monthlyBalance": "Monthly balance",
+      "incomeShare": "Income",
+      "paymentsShare": "Payments",
+      "day": "Day",
+      "noPlans": "No scheduled payments or income"
     },
     "goals": {
       "title": "Savings Goals",
@@ -133,6 +139,8 @@
       "plansTotal": "Plans total",
       "available": "Available",
       "distribution": "Distribution",
+      "resetDistribution": "Reset",
+      "applyStandard": "Apply standard",
       "withInvestments": "With investments",
       "savingsOnly": "Savings only"
     }
@@ -148,6 +156,17 @@
     "contributions": "Contributions",
     "selectRoom": "Select room",
     "copied": "Copied"
+  },
+  "onboarding": {
+    "namePlaceholder": "Enter your full name",
+    "salary": "Salary",
+    "salaryPlaceholder": "0",
+    "getStarted": "Get Started",
+    "starting": "Starting...",
+    "back": "Back",
+    "next": "Next",
+    "complete": "Complete",
+    "completing": "Completing..."
   },
   "validation": {
     "required": "Required field",

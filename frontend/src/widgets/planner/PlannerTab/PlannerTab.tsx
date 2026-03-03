@@ -4,32 +4,18 @@ import { useTranslation } from 'react-i18next';
 import { FiPlus, FiTrash2 } from 'react-icons/fi';
 import { financeAPI } from '@shared/api';
 import { getTransactionAmount } from '@shared/lib/transaction';
-import { getCategoryLabel } from '@shared/lib/category-labels';
 import { usePlans, useIncomePayments } from '@features/planner';
 import { useCurrencyPreference } from '@shared/lib/use-currency-preference';
-import { useSavingsOnlyPreference } from '@shared/lib/use-savings-only-preference';
 import { currencySymbols } from '@shared/lib/currency';
 import type { DayBalance } from '@shared/ui';
-import { Toggle, CollapsibleSection } from '@shared/ui';
+import { CollapsibleSection } from '@shared/ui';
 import { CalendarWithReminders } from '../CalendarWithReminders';
-import { BudgetSection } from '../BudgetSection';
-import { ScheduledPayments } from '../ScheduledPayments';
-import { GoalsSection } from '../GoalsSection';
 import { ExpenseList } from '../ExpenseList';
 import { IncomeExpensesBlock } from '../IncomeExpensesBlock';
-import { DistributionRadialChart, type IncomeCategoryItem } from '../DistributionRadialChart';
 import { PlanFormModal } from '../PlanFormModal';
 import styles from './PlannerTab.module.scss';
 
 const PLAN_COLORS = ['#8b5cf6', '#ec4899', '#06b6d4', '#f59e0b', '#10b981', '#3b82f6'];
-
-function getProgressiveDistribution(available: number) {
-  if (available <= 0) return { savings: 0, investments: 0, purchases: 100 };
-  if (available < 30000) return { savings: 15, investments: 5, purchases: 80 };
-  if (available < 70000) return { savings: 20, investments: 10, purchases: 70 };
-  if (available < 120000) return { savings: 25, investments: 15, purchases: 60 };
-  return { savings: 30, investments: 20, purchases: 50 };
-}
 
 interface PlannerTabProps {
   roomId?: string;
@@ -39,10 +25,8 @@ interface PlannerTabProps {
 export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector }) => {
   const { t } = useTranslation();
   const [currency] = useCurrencyPreference();
-  const [savingsOnly] = useSavingsOnlyPreference();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showPlanModal, setShowPlanModal] = useState(false);
-  const [distributionView, setDistributionView] = useState<'expense' | 'income'>('expense');
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -93,45 +77,14 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector 
       });
   }, [monthTransactions, year, month]);
 
-  const incomeByCategory = useMemo((): IncomeCategoryItem[] => {
-    const byCat = new Map<string, number>();
-    for (const tx of monthTransactions) {
-      if (tx.type !== 'income') continue;
-      const cat = tx.category || 'Другое';
-      byCat.set(cat, (byCat.get(cat) ?? 0) + Math.abs(getTransactionAmount(tx)));
-    }
-    return Array.from(byCat.entries()).map(([category, value]) => ({
-      name: getCategoryLabel(t, 'income', category),
-      value,
-    }));
-  }, [monthTransactions, t]);
-
-  const futurePlans = plans.filter((p) => p.dayOfMonth >= today);
-  const plansTotal = futurePlans.reduce((s, p) => s + p.amount, 0);
-  const available = Math.max(0, totalIncome - plansTotal);
-
-  const baseDistribution = getProgressiveDistribution(available);
-  const distribution = savingsOnly
-    ? {
-        savings: baseDistribution.savings + baseDistribution.investments,
-        investments: 0,
-        purchases: baseDistribution.purchases,
-      }
-    : baseDistribution;
-
-  const savingsAmount = Math.round((available * distribution.savings) / 100);
-  const investmentsAmount = Math.round((available * distribution.investments) / 100);
-  const purchasesAmount = Math.round((available * distribution.purchases) / 100);
-
   const markedDatesWithColors = plans.map((p, i) => ({
     date: new Date(year, month, p.dayOfMonth),
     color: PLAN_COLORS[i % PLAN_COLORS.length],
   }));
 
-  const toggleOptions = [
-    { value: 'full', label: t('statistics.planner.withInvestments') },
-    { value: 'savings', label: t('statistics.planner.savingsOnly') },
-  ];
+  const futurePlans = plans.filter((p) => p.dayOfMonth >= today);
+  const plansTotal = futurePlans.reduce((s, p) => s + p.amount, 0);
+  const available = Math.max(0, totalIncome - plansTotal);
 
   const handleAddPlan = (name: string, amount: number, dayOfMonth: number, savingFor?: string) => {
     addPlan({ name, amount, dayOfMonth: Math.min(dayOfMonth, 31), savingFor });
@@ -161,44 +114,7 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector 
         />
       </CollapsibleSection>
 
-      <CollapsibleSection id="distribution" title={t('statistics.planner.distribution')} defaultExpanded>
-        <div className={styles['planner__distribution-toggle']}>
-          <Toggle
-            options={[
-              { value: 'expense', label: t('common.expense') },
-              { value: 'income', label: t('common.income') },
-            ]}
-            value={distributionView}
-            onChange={(v) => setDistributionView(v as 'expense' | 'income')}
-          />
-        </div>
-        <DistributionRadialChart
-          mode={distributionView}
-          incomeItems={incomeByCategory}
-          savingsAmount={savingsAmount}
-          investmentsAmount={investmentsAmount}
-          purchasesAmount={purchasesAmount}
-          savingsPercent={distribution.savings}
-          investmentsPercent={distribution.investments}
-          purchasesPercent={distribution.purchases}
-          savingsOnly={savingsOnly}
-          currencySymbol={currencySymbols[currency]}
-        />
-      </CollapsibleSection>
-
-      <CollapsibleSection id="budget" title={t('home.budget.title', 'Бюджет')} defaultExpanded>
-        <BudgetSection roomId={roomId} />
-      </CollapsibleSection>
-
-      <CollapsibleSection id="scheduled" title={t('home.scheduledPayments', 'Платежи')} defaultExpanded>
-        <ScheduledPayments roomId={roomId} />
-      </CollapsibleSection>
-
-      <CollapsibleSection id="goals" title={t('home.goals', 'Цели')} defaultExpanded>
-        <GoalsSection roomId={roomId} />
-      </CollapsibleSection>
-
-      <CollapsibleSection id="expenseList" title={t('home.expenseList', 'Список расходов')} defaultExpanded>
+      <CollapsibleSection id="financeList" title={t('home.financeList', 'Список финансов')} defaultExpanded>
         <ExpenseList roomId={roomId} />
       </CollapsibleSection>
 

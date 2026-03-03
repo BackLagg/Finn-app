@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { StepContent } from '../types';
+import type { Distribution } from '@shared/lib/distribution';
+import type { Currency } from '@shared/lib/currency';
+import { Dropdown, Toggle, DistributionSliders } from '@shared/ui';
+import { currencySymbols } from '@shared/lib/currency';
 import styles from './OnboardingStep.module.scss';
 
 import lockImage from '@shared/assets/onboarding/lock.svg';
@@ -18,6 +23,15 @@ interface OnboardingStepProps {
   isLoading?: boolean;
   fullName?: string;
   onFullNameChange?: (name: string) => void;
+  monthlySalary?: number;
+  onMonthlySalaryChange?: (value: number) => void;
+  currency?: Currency;
+  onCurrencyChange?: (c: Currency) => void;
+  savingsOnly?: boolean;
+  onSavingsOnlyChange?: (value: boolean) => void;
+  distribution?: Distribution;
+  onDistributionChange?: (d: Distribution) => void;
+  onApplyStandard?: () => void;
 }
 
 const getImageSource = (imageName: string): string => {
@@ -43,8 +57,18 @@ const OnboardingStep: React.FC<OnboardingStepProps> = ({
   isLastStep = false,
   isLoading = false,
   fullName = '',
-  onFullNameChange
+  onFullNameChange,
+  monthlySalary = 0,
+  onMonthlySalaryChange,
+  currency = 'USD',
+  onCurrencyChange,
+  savingsOnly = false,
+  onSavingsOnlyChange,
+  distribution,
+  onDistributionChange,
+  onApplyStandard,
 }) => {
+  const { t } = useTranslation();
   const isFirstStep = currentStep === 1;
   const [imageLoading, setImageLoading] = useState(true);
   const isFormStep = stepContent.isForm;
@@ -92,9 +116,11 @@ const OnboardingStep: React.FC<OnboardingStepProps> = ({
   return (
     <div className={styles.onboardingStep}>
       <div className={styles.content}>
-        <div className={styles.imageContainer}>
-          {renderImage()}
-        </div>
+        {!isLastStep && (
+          <div className={styles.imageContainer}>
+            {renderImage()}
+          </div>
+        )}
 
         <div className={styles.textContent}>
           <h2 className={styles.title}>
@@ -105,37 +131,97 @@ const OnboardingStep: React.FC<OnboardingStepProps> = ({
               </React.Fragment>
             ))}
           </h2>
-          
-          {Array.isArray(stepContent.description) ? (
-            <ul className={styles.list}>
-              {stepContent.description.map((item, index) => (
-                <li key={index} className={styles.listItem}>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className={styles.description}>
-              {(stepContent.description as string).split('\n').map((line, index) => (
-                <React.Fragment key={index}>
-                  {line}
-                  {index < (stepContent.description as string).split('\n').length - 1 && <br />}
-                </React.Fragment>
-              ))}
-            </p>
+
+          {!isLastStep && (
+            <>
+              {Array.isArray(stepContent.description) ? (
+                <ul className={styles.list}>
+                  {stepContent.description.map((item, index) => (
+                    <li key={index} className={styles.listItem}>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className={styles.description}>
+                  {(stepContent.description as string).split('\n').map((line, index) => (
+                    <React.Fragment key={index}>
+                      {line}
+                      {index < (stepContent.description as string).split('\n').length - 1 && <br />}
+                    </React.Fragment>
+                  ))}
+                </p>
+              )}
+            </>
           )}
-          
+
           {isFormStep && onFullNameChange && (
             <div className={styles.form}>
               <input
                 type="text"
-                placeholder="Enter your full name"
+                placeholder={t('onboarding.namePlaceholder')}
                 value={fullName}
                 onChange={(e) => onFullNameChange(e.target.value)}
                 onKeyDown={handleKeyDown}
                 className={styles.input}
                 disabled={isLoading}
               />
+              {onMonthlySalaryChange && onCurrencyChange && (
+                <div className={styles.formGroup}>
+                  <span className={styles.formLabel}>{t('onboarding.salary')}</span>
+                  <div className={styles.formRow}>
+                    <input
+                    type="number"
+                    min={0}
+                    step={1}
+                    placeholder={t('onboarding.salaryPlaceholder')}
+                    value={monthlySalary || ''}
+                    onChange={(e) => onMonthlySalaryChange(Number(e.target.value) || 0)}
+                    className={styles.input}
+                    disabled={isLoading}
+                  />
+                  <Dropdown
+                    options={[
+                      { value: 'USD', label: `${currencySymbols.USD} USD` },
+                      { value: 'EUR', label: `${currencySymbols.EUR} EUR` },
+                      { value: 'RUB', label: `${currencySymbols.RUB} RUB` },
+                      { value: 'BYN', label: `${currencySymbols.BYN} BYN` },
+                    ]}
+                    value={currency}
+                    onChange={(v) => onCurrencyChange(v as Currency)}
+                    className={styles.currencyDropdown}
+                  />
+                  </div>
+                </div>
+              )}
+              {onSavingsOnlyChange && (
+                <div className={styles.toggleWrap}>
+                  <Toggle
+                    options={[
+                      { value: 'full', label: t('statistics.planner.withInvestments') },
+                      { value: 'savings', label: t('statistics.planner.savingsOnly') },
+                    ]}
+                    value={savingsOnly ? 'savings' : 'full'}
+                    onChange={(v) => onSavingsOnlyChange(v === 'savings')}
+                  />
+                </div>
+              )}
+              {distribution && onDistributionChange && (
+                <div className={styles.slidersWrap}>
+                  <DistributionSliders
+                    distribution={distribution}
+                    onChange={onDistributionChange}
+                    savingsOnly={!!savingsOnly}
+                    savingsLabel={t('home.savings')}
+                    investmentsLabel={t('home.investments')}
+                    purchasesLabel={t('home.purchases')}
+                    monthlyAmount={monthlySalary}
+                    currencySymbol={currencySymbols[currency]}
+                    onReset={onApplyStandard}
+                    resetLabel={t('statistics.planner.applyStandard')}
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -147,7 +233,7 @@ const OnboardingStep: React.FC<OnboardingStepProps> = ({
               disabled={isLoading}
               className={styles.startButton}
             >
-              {isLoading ? 'Starting...' : 'Get Started'}
+              {isLoading ? t('onboarding.starting') : t('onboarding.getStarted')}
               </button>
           ) : (
             <>
@@ -156,14 +242,14 @@ const OnboardingStep: React.FC<OnboardingStepProps> = ({
                 disabled={isLoading}
                 className={styles.backButton}
               >
-                Back
+                {t('onboarding.back')}
               </button>
               <button
                 onClick={onNext}
                 disabled={isLoading || !isFormValid}
                 className={styles.nextButton}
               >
-                {isLastStep ? (isLoading ? 'Completing...' : 'Complete') : 'Next'}
+                {isLastStep ? (isLoading ? t('onboarding.completing') : t('onboarding.complete')) : t('onboarding.next')}
               </button>
             </>
           )}

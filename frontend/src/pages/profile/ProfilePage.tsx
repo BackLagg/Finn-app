@@ -1,10 +1,16 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
-import { Dropdown, Toggle } from '@shared/ui';
-import { useCurrencyPreference } from '@shared/lib/use-currency-preference';
-import { useSavingsOnlyPreference } from '@shared/lib/use-savings-only-preference';
+import { Dropdown, Toggle, DistributionSliders } from '@shared/ui';
+import {
+  useCurrencyPreference,
+  useSavingsOnlyPreference,
+  useDistributionPreference,
+  useMonthlyIncomePreference,
+  getProgressiveDistribution,
+  normalizeDistribution,
+} from '@shared/lib';
 import { Currency, currencySymbols } from '@shared/lib/currency';
 import styles from './ProfilePage.module.scss';
 
@@ -13,6 +19,30 @@ const ProfilePage: React.FC = () => {
   const user = useSelector((state: RootState) => state.user);
   const [currency, setCurrency] = useCurrencyPreference();
   const [savingsOnly, setSavingsOnly] = useSavingsOnlyPreference();
+  const [distribution, setDistribution] = useDistributionPreference();
+  const [monthlyIncome] = useMonthlyIncomePreference();
+
+  const handleSavingsOnlyChange = useCallback(
+    (value: boolean) => {
+      setSavingsOnly(value);
+      if (value) {
+        setDistribution(
+          normalizeDistribution(
+            distribution.savings + distribution.investments,
+            0,
+            distribution.purchases
+          )
+        );
+      } else {
+        setDistribution(getProgressiveDistribution(monthlyIncome || 0, currency));
+      }
+    },
+    [distribution, monthlyIncome, setDistribution, setSavingsOnly, currency]
+  );
+
+  const handleResetDistribution = useCallback(() => {
+    setDistribution(getProgressiveDistribution(monthlyIncome || 0, currency));
+  }, [monthlyIncome, setDistribution, currency]);
 
   const getProfilePhoto = () => {
     if (window.Telegram?.WebApp?.initDataUnsafe?.user?.photo_url) {
@@ -65,8 +95,27 @@ const ProfilePage: React.FC = () => {
               { value: 'savings', label: t('statistics.planner.savingsOnly') },
             ]}
             value={savingsOnly ? 'savings' : 'full'}
-            onChange={(v) => setSavingsOnly(v === 'savings')}
+            onChange={(v) => handleSavingsOnlyChange(v === 'savings')}
             className={styles['profile-page__toggle']}
+          />
+        </div>
+        <div className={styles['profile-page__setting-item']}>
+          <span className={styles['profile-page__setting-label']}>
+            {t('statistics.planner.distribution')}
+          </span>
+        </div>
+        <div className={styles['profile-page__distribution']}>
+          <DistributionSliders
+            distribution={distribution}
+            onChange={setDistribution}
+            savingsOnly={savingsOnly}
+            savingsLabel={t('home.savings')}
+            investmentsLabel={t('home.investments')}
+            purchasesLabel={t('home.purchases')}
+            monthlyAmount={monthlyIncome}
+            currencySymbol={currencySymbols[currency]}
+            onReset={handleResetDistribution}
+            resetLabel={t('statistics.planner.applyStandard')}
           />
         </div>
       </section>

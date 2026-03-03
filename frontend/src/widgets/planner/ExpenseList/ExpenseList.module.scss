@@ -2,9 +2,7 @@
 
 .expense-list {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  padding: 20px;
   margin-bottom: 16px;
 
   &__file-input {
@@ -16,6 +14,70 @@
     font-weight: 600;
     color: var(--color-text-primary);
     margin: 0 0 16px 0;
+  }
+
+  &__balance {
+    background: var(--color-bg);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  &__balance-label {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  &__balance-bar-wrap {
+    width: 100%;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+    background: var(--color-border);
+    margin-bottom: 10px;
+  }
+
+  &__balance-bar {
+    height: 100%;
+    display: flex;
+    min-width: 0;
+  }
+
+  &__balance-bar-income {
+    background: var(--color-success, #22c55e);
+    flex-shrink: 0;
+    min-width: 2px;
+  }
+
+  &__balance-bar-payments {
+    background: var(--color-danger, #ef4444);
+    flex-shrink: 0;
+    min-width: 2px;
+  }
+
+  &__balance-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    font-size: 12px;
+  }
+
+  &__balance-legend-income {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-success, #22c55e);
+    font-weight: 500;
+  }
+
+  &__balance-legend-payments {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-danger, #ef4444);
+    font-weight: 500;
   }
 
   &__items {
