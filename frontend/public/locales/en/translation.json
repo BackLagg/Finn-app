@@ -121,6 +121,7 @@
       "sourcePlaceholder": "Source (Salary, Investments…)",
       "totalIncome": "Total income",
       "noExpenses": "No expenses",
+      "noIncome": "No income",
       "addPlan": "Add plan",
       "planName": "Name",
       "planNamePlaceholder": "Rent, Birthday...",
@@ -153,5 +154,30 @@
   },
   "errors": {
     "generic": "Something went wrong"
+  },
+  "categories": {
+    "expense": {
+      "family": "Family",
+      "education": "Education",
+      "pets": "Pets",
+      "movies": "Movies",
+      "health": "Health",
+      "transport": "Transport",
+      "clothing": "Clothing",
+      "food": "Food",
+      "games": "Games",
+      "books": "Books",
+      "sport": "Sport",
+      "cafe": "Cafe",
+      "shopping": "Shopping",
+      "other": "Other"
+    },
+    "income": {
+      "salary": "Salary",
+      "sideJob": "Side job",
+      "gifts": "Gifts",
+      "investments": "Investments",
+      "other": "Other"
+    }
   }
 }

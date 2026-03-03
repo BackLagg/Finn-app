@@ -6,10 +6,10 @@ import { CategoryIcon, categoryColorMap } from '@shared/ui';
 import { currencySymbols } from '@shared/lib/currency';
 import { getCategoryLabel } from '@shared/lib/category-labels';
 import type { Transaction } from '@shared/api/finance-api';
-import { ExpenseTransactionItem } from '../ExpenseTransactionItem';
-import styles from './ExpenseCategoryCard.module.scss';
+import { IncomeTransactionItem } from '../IncomeTransactionItem';
+import styles from './IncomeCategoryCard.module.scss';
 
-interface ExpenseCategoryCardProps {
+interface IncomeCategoryCardProps {
   category: string;
   total: number;
   transactions: Transaction[];
@@ -20,7 +20,7 @@ interface ExpenseCategoryCardProps {
   onReceiptAttach: (txId: string) => void;
 }
 
-export const ExpenseCategoryCard: React.FC<ExpenseCategoryCardProps> = ({
+export const IncomeCategoryCard: React.FC<IncomeCategoryCardProps> = ({
   category,
   total,
   transactions,
@@ -31,7 +31,7 @@ export const ExpenseCategoryCard: React.FC<ExpenseCategoryCardProps> = ({
   onReceiptAttach,
 }) => {
   const { t } = useTranslation();
-  const color = categoryColorMap[category] || '#848e9c';
+  const color = categoryColorMap[category] || '#10b981';
 
   return (
     <div className={styles.accordion}>
@@ -44,10 +44,10 @@ export const ExpenseCategoryCard: React.FC<ExpenseCategoryCardProps> = ({
           className={styles.cardIcon}
           style={{ backgroundColor: `${color}20` }}
         >
-          <CategoryIcon category={category} size={24} />
+          <CategoryIcon category={category} size={24} color={color} />
         </div>
         <div className={styles.cardInfo}>
-          <span className={styles.cardCategory}>{getCategoryLabel(t, 'expense', category)}</span>
+          <span className={styles.cardCategory}>{getCategoryLabel(t, 'income', category)}</span>
           <span className={styles.cardAmount}>
             {total.toLocaleString()} {currencySymbols[currency as keyof typeof currencySymbols]}
           </span>
@@ -77,14 +77,14 @@ export const ExpenseCategoryCard: React.FC<ExpenseCategoryCardProps> = ({
           >
             <ul className={styles.list}>
               {transactions.map((tx, i) => (
-              <ExpenseTransactionItem
-                key={tx._id}
-                transaction={tx}
-                currency={currency}
-                onReceiptAttach={onReceiptAttach}
-                onDelete={onDelete}
-                index={i}
-              />
+                <IncomeTransactionItem
+                  key={tx._id}
+                  transaction={tx}
+                  currency={currency}
+                  onReceiptAttach={onReceiptAttach}
+                  onDelete={onDelete}
+                  index={i}
+                />
               ))}
             </ul>
           </motion.div>

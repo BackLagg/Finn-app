@@ -121,6 +121,7 @@
       "sourcePlaceholder": "Источник (ЗП, Инвестиции…)",
       "totalIncome": "Всего доход",
       "noExpenses": "Нет расходов",
+      "noIncome": "Нет доходов",
       "addPlan": "Добавить план",
       "planName": "Название",
       "planNamePlaceholder": "Квартира, День рождения...",
@@ -153,5 +154,30 @@
   },
   "errors": {
     "generic": "Что-то пошло не так"
+  },
+  "categories": {
+    "expense": {
+      "family": "Семья",
+      "education": "Образование",
+      "pets": "Питомцы",
+      "movies": "Кино",
+      "health": "Здоровье",
+      "transport": "Транспорт",
+      "clothing": "Одежда",
+      "food": "Еда",
+      "games": "Игры",
+      "books": "Книги",
+      "sport": "Спорт",
+      "cafe": "Кафе",
+      "shopping": "Покупки",
+      "other": "Другое"
+    },
+    "income": {
+      "salary": "Зарплата",
+      "sideJob": "Подработка",
+      "gifts": "Подарки",
+      "investments": "Инвестиции",
+      "other": "Другое"
+    }
   }
 }

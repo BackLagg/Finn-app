@@ -13,6 +13,7 @@ i18n
   .init({
     fallbackLng: 'ru',
     lng: storedLng === 'en' || storedLng === 'ru' ? storedLng : 'ru',
+    preload: ['ru', 'en'],
     ns: ['translation'],
     defaultNS: 'translation',
     backend: {

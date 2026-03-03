@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FiPlus, FiTrash2, FiChevronUp, FiChevronDown, FiImage } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -7,11 +7,14 @@ import { financeAPI, fileAPI } from '@shared/api';
 import { useCurrencyPreference } from '@shared/lib/use-currency-preference';
 import { currencySymbols } from '@shared/lib/currency';
 import { getTransactionAmount } from '@shared/lib/transaction';
+import { getCategoryLabel } from '@shared/lib/category-labels';
 import { Dropdown, Modal } from '@shared/ui';
 import { useTransactionStats } from '@features/transactions/use-transaction-stats';
 import { useExpenseCategoryAccordion } from '@features/expense-category';
+import { useIncomeCategoryAccordion } from '@features/income-category';
 import { toast } from 'react-toastify';
 import { ExpenseCategoryCard } from '../ExpenseCategoryCard';
+import { IncomeCategoryCard } from '../IncomeCategoryCard';
 import styles from './IncomeExpensesBlock.module.scss';
 
 const SWIPE_THRESHOLD = 50;
@@ -19,7 +22,11 @@ type AddModalTab = 'expense' | 'income';
 
 const EXPENSE_CATEGORIES = [
   'Семья', 'Образование', 'Питомцы', 'Кино', 'Здоровье', 'Транспорт',
-  'Одежда', 'Еда', 'Игры', 'Книги', 'Спорт', 'Кафе', 'Покупки',
+  'Одежда', 'Еда', 'Игры', 'Книги', 'Спорт', 'Кафе', 'Покупки', 'Другое',
+];
+
+const INCOME_CATEGORIES = [
+  'Зарплата', 'Подработка', 'Подарки', 'Инвестиции', 'Другое',
 ];
 
 interface IncomeExpensesBlockProps {
@@ -38,6 +45,7 @@ export const IncomeExpensesBlock: React.FC<IncomeExpensesBlockProps> = ({
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'expense' | 'income'>('expense');
   const { toggleCategory, isExpanded } = useExpenseCategoryAccordion();
+  const { toggleCategory: toggleIncomeCategory, isExpanded: isIncomeExpanded } = useIncomeCategoryAccordion();
   const [showAddModal, setShowAddModal] = useState(false);
   const [addModalTab, setAddModalTab] = useState<AddModalTab>('expense');
   const receiptInputRef = useRef<HTMLInputElement>(null);
@@ -59,16 +67,26 @@ export const IncomeExpensesBlock: React.FC<IncomeExpensesBlockProps> = ({
   const incomeTransactions = transactions.filter((tx) => tx.type === 'income');
   const totalIncome = incomeTransactions.reduce((s, tx) => s + getTransactionAmount(tx), 0);
 
+  const incomeStats = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const tx of incomeTransactions) {
+      const cat = tx.category || 'Другое';
+      m.set(cat, (m.get(cat) || 0) + getTransactionAmount(tx));
+    }
+    return Array.from(m.entries()).map(([category, total]) => ({ category, total }));
+  }, [incomeTransactions]);
+
   const createIncomeMutation = useMutation({
-    mutationFn: (data: { amount: number; source: string }) =>
+    mutationFn: (data: { amount: number; source: string; description?: string; receiptImageUrl?: string }) =>
       financeAPI.transactions.create({
         amount: data.amount,
         type: 'income',
         category: data.source || t('statistics.planner.incomePayments'),
         date: new Date(year, month, new Date().getDate()).toISOString().slice(0, 10),
-        description: data.source || undefined,
+        description: data.description ?? data.source ?? undefined,
         roomId,
         currency,
+        receiptImageUrl: data.receiptImageUrl,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions', roomId] });
@@ -103,16 +121,6 @@ export const IncomeExpensesBlock: React.FC<IncomeExpensesBlockProps> = ({
     []
   );
 
-  const formatDate = (iso: string) => {
-    const d = new Date(iso);
-    return d.toLocaleDateString(undefined, {
-      day: 'numeric',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
   return (
     <div className={styles.block}>
       <div className={styles.block__summary}>
@@ -143,7 +151,7 @@ export const IncomeExpensesBlock: React.FC<IncomeExpensesBlockProps> = ({
       </div>
 
       {activeTab === 'income' && (
-        <div className={styles.block__income}>
+        <div className={styles.block__expenses}>
           <button
             type="button"
             className={styles.block__addExpenseBtn}
@@ -155,28 +163,42 @@ export const IncomeExpensesBlock: React.FC<IncomeExpensesBlockProps> = ({
             <FiPlus size={20} />
             {t('common.add')} {t('common.income')}
           </button>
-          <div className={styles.block__incomeList}>
-            {incomeTransactions
-              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-              .map((tx) => (
-                <div key={tx._id} className={styles.block__incomeItem}>
-                  <div className={styles.block__incomeItemInfo}>
-                    <span className={styles.block__incomeAmount}>
-                      +{getTransactionAmount(tx).toLocaleString()} {currencySymbols[currency]}
-                    </span>
-                    <span className={styles.block__incomeSource}>{tx.category}</span>
-                    <span className={styles.block__incomeDate}>{formatDate(tx.date)}</span>
-                  </div>
-                  <button
-                    type="button"
-                    className={styles.block__removeBtn}
-                    onClick={() => deleteTransactionMutation.mutate(tx._id)}
-                    title={t('common.delete')}
-                  >
-                    <FiTrash2 size={16} />
-                  </button>
-                </div>
-              ))}
+          <div className={styles.block__grid}>
+            {incomeStats.map((stat) => (
+              <motion.div
+                key={stat.category}
+                className={isIncomeExpanded(stat.category) ? styles.block__expandedCard : undefined}
+                layout
+                transition={{
+                  layout: {
+                    type: 'spring',
+                    damping: 28,
+                    stiffness: 320,
+                  },
+                }}
+              >
+                <IncomeCategoryCard
+                  category={stat.category}
+                  total={stat.total}
+                  transactions={incomeTransactions.filter((tx) => (tx.category || 'Другое') === stat.category)}
+                  isExpanded={isIncomeExpanded(stat.category)}
+                  onToggle={() => toggleIncomeCategory(stat.category)}
+                  currency={currency}
+                  onDelete={(id) => {
+                    deleteTransactionMutation.mutate(id);
+                    queryClient.invalidateQueries({ queryKey: ['transactions', roomId] });
+                    queryClient.invalidateQueries({ queryKey: ['transaction-stats', roomId] });
+                  }}
+                  onReceiptAttach={(txId) => {
+                    receiptInputRef.current?.setAttribute('data-tx-id', txId);
+                    receiptInputRef.current?.click();
+                  }}
+                />
+              </motion.div>
+            ))}
+            {incomeStats.length === 0 && (
+              <p className={styles.block__empty}>{t('statistics.planner.noIncome', 'Нет доходов')}</p>
+            )}
           </div>
         </div>
       )}
@@ -257,6 +279,7 @@ export const IncomeExpensesBlock: React.FC<IncomeExpensesBlockProps> = ({
                   transition={{ type: 'spring', damping: 28, stiffness: 320 }}
                 >
                   <AddIncomeForm
+                    categories={INCOME_CATEGORIES}
                     currency={currency}
                     onCreate={createIncomeMutation.mutate}
                     onClose={handleAddModalClose}
@@ -352,38 +375,66 @@ export const IncomeExpensesBlock: React.FC<IncomeExpensesBlockProps> = ({
 };
 
 interface AddIncomeFormProps {
+  categories: string[];
   currency: string;
-  onCreate: (data: { amount: number; source: string }) => void;
+  onCreate: (data: { amount: number; source: string; description?: string; receiptImageUrl?: string }) => void;
   onClose: () => void;
 }
 
 const AddIncomeForm: React.FC<AddIncomeFormProps> = ({
+  categories,
   currency,
   onCreate,
   onClose,
 }) => {
   const { t } = useTranslation();
   const [amount, setAmount] = useState('');
-  const [source, setSource] = useState('');
+  const [category, setCategory] = useState(categories[0] || '');
+  const [description, setDescription] = useState('');
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const receiptInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const num = Math.max(0, parseFloat(amount.replace(',', '.')) || 0);
-    if (num > 0) {
-      onCreate({
-        amount: num,
-        source: source.trim() || t('statistics.planner.incomePayments'),
-      });
-      setAmount('');
-      setSource('');
-      onClose();
+    if (num <= 0) return;
+    let receiptUrl: string | undefined;
+    if (receiptFile) {
+      try {
+        const res = await fileAPI.uploadReceipt(receiptFile);
+        receiptUrl = res.data?.imageUrl;
+      } catch {
+        toast.error(t('errors.generic'));
+        return;
+      }
     }
+    onCreate({
+      amount: num,
+      source: category || t('statistics.planner.incomePayments'),
+      description: description.trim() || undefined,
+      receiptImageUrl: receiptUrl,
+    });
+    setAmount('');
+    setDescription('');
+    setCategory(categories[0] || '');
+    setReceiptFile(null);
+    onClose();
   };
 
   const valid = amount && (parseFloat(amount.replace(',', '.')) || 0) > 0;
+  const categoryOptions = categories.map((c) => ({ value: c, label: getCategoryLabel(t, 'income', c) }));
 
   return (
     <form className={styles.addForm} onSubmit={handleSubmit}>
+      <div className={styles.addForm__row}>
+        <Dropdown
+          options={categoryOptions}
+          value={category}
+          onChange={setCategory}
+          placeholder={t('statistics.planner.sourcePlaceholder')}
+          className={styles.addForm__dropdown}
+        />
+      </div>
       <div className={styles.addForm__row}>
         <input
           type="text"
@@ -399,10 +450,28 @@ const AddIncomeForm: React.FC<AddIncomeFormProps> = ({
         <input
           type="text"
           className={styles.addForm__input}
-          value={source}
-          onChange={(e) => setSource(e.target.value)}
-          placeholder={t('statistics.planner.sourcePlaceholder')}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder={t('common.description')}
         />
+      </div>
+      <div className={styles.addForm__receipt}>
+        <input
+          ref={receiptInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className={styles.addForm__fileInput}
+          onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
+        />
+        <button
+          type="button"
+          className={styles.addForm__receiptBtn}
+          onClick={() => receiptInputRef.current?.click()}
+        >
+          <FiImage size={18} />
+          {receiptFile ? receiptFile.name : t('home.attachReceipt')}
+        </button>
       </div>
       <div className={styles.addForm__actions}>
         <button type="button" className={styles.addForm__cancel} onClick={onClose}>
@@ -468,7 +537,7 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
     }
   };
 
-  const categoryOptions = categories.map((c) => ({ value: c, label: c }));
+  const categoryOptions = categories.map((c) => ({ value: c, label: getCategoryLabel(t, 'expense', c) }));
 
   return (
     <form

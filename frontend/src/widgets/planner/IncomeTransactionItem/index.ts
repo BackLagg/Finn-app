@@ -1,0 +1,1 @@
+export { IncomeTransactionItem } from './IncomeTransactionItem';

@@ -6,9 +6,9 @@ import { getReceiptImageUrl } from '@shared/api/file-api';
 import { getTransactionAmount } from '@shared/lib/transaction';
 import type { Transaction } from '@shared/api/finance-api';
 import { currencySymbols } from '@shared/lib/currency';
-import styles from './ExpenseTransactionItem.module.scss';
+import styles from './IncomeTransactionItem.module.scss';
 
-interface ExpenseTransactionItemProps {
+interface IncomeTransactionItemProps {
   transaction: Transaction;
   currency: string;
   onReceiptAttach: (txId: string) => void;
@@ -18,7 +18,7 @@ interface ExpenseTransactionItemProps {
 
 const STAGGER_DELAY = 0.05;
 
-export const ExpenseTransactionItem: React.FC<ExpenseTransactionItemProps> = ({
+export const IncomeTransactionItem: React.FC<IncomeTransactionItemProps> = ({
   transaction,
   currency,
   onReceiptAttach,
@@ -37,9 +37,9 @@ export const ExpenseTransactionItem: React.FC<ExpenseTransactionItemProps> = ({
     >
       <div className={styles.itemContent}>
         <span className={styles.itemAmount}>
-          −{amount.toLocaleString()} {currencySymbols[currency as keyof typeof currencySymbols]}
+          +{amount.toLocaleString()} {currencySymbols[currency as keyof typeof currencySymbols]}
         </span>
-        <span className={styles.itemDesc}>{transaction.description || '-'}</span>
+        <span className={styles.itemDesc}>{transaction.description || transaction.category || '-'}</span>
         <span className={styles.itemDate}>
           {new Date(transaction.date).toLocaleDateString(undefined, {
             day: 'numeric',
