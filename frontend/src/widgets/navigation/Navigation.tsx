@@ -1,7 +1,6 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import WalletIcon from '@shared/assets/navigation/wallet.svg';
 import CalendarIcon from '@shared/assets/navigation/calendar.svg';
 import ChartIcon from '@shared/assets/navigation/chart.svg';
 import UserIcon from '@shared/assets/navigation/user.svg';
@@ -9,7 +8,6 @@ import UsersIcon from '@shared/assets/navigation/users.svg';
 import styles from './Navigation.module.scss';
 
 const navItems = [
-  { path: '/home', icon: WalletIcon, labelKey: 'home.title' },
   { path: '/planner', icon: CalendarIcon, labelKey: 'statistics.planner.title' },
   { path: '/statistics', icon: ChartIcon, labelKey: 'statistics.title' },
   { path: '/profile', icon: UserIcon, labelKey: 'profile.title' },

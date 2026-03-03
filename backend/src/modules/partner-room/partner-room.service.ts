@@ -64,7 +64,7 @@ export class PartnerRoomService {
       .lean()
       .exec();
 
-    return this.enrichMembersWithUsernames(rooms as PartnerRoomDocument[]);
+    return this.enrichMembersWithUsernames(rooms as unknown as PartnerRoomDocument[]);
   }
 
   async findById(
@@ -81,7 +81,7 @@ export class PartnerRoomService {
       .exec();
 
     if (!room) return null;
-    const [enriched] = await this.enrichMembersWithUsernames([room as PartnerRoomDocument]);
+    const [enriched] = await this.enrichMembersWithUsernames([room as unknown as PartnerRoomDocument]);
     return enriched;
   }
 
@@ -118,7 +118,7 @@ export class PartnerRoomService {
             : (m.userId as Types.ObjectId).toString();
         const displayName = profileMap.get(id);
         if (displayName) {
-          (m.userId as Record<string, unknown>).username = displayName;
+          (m.userId as unknown as Record<string, unknown>).username = displayName;
         }
       }
     }

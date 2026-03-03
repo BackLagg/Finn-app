@@ -9,7 +9,6 @@ import { ErrorScreen, Onboarding } from '@shared/ui';
 import { MainLayout } from './layouts';
 import { LoadingPage } from '@pages/loading';
 import { EmptyPage } from '@pages/empty';
-import { HomePage } from '@pages/home';
 import { ProfilePage } from '@pages/profile';
 import { PartnersPage } from '@pages/partners';
 import { PlannerPage } from '@pages/planner';
@@ -49,8 +48,7 @@ const App: React.FC = () => {
     <ErrorBoundary>
       <MainLayout>
         <Routes>
-          <Route path="/" element={<Navigate to="/home" replace />} />
-          <Route path="/home" element={<HomePage />} />
+          <Route path="/" element={<Navigate to="/planner" replace />} />
           <Route path="/planner" element={<PlannerPage />} />
           <Route path="/statistics" element={<StatisticsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
