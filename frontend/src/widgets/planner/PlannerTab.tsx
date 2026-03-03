@@ -50,9 +50,14 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId }) => {
   const plansTotal = futurePlans.reduce((s, p) => s + p.amount, 0);
   const available = Math.max(0, totalIncome - plansTotal);
 
+  const baseDistribution = getProgressiveDistribution(available);
   const distribution = savingsOnly
-    ? { savings: 100, investments: 0, purchases: 0 }
-    : getProgressiveDistribution(available);
+    ? {
+        savings: baseDistribution.savings + baseDistribution.investments,
+        investments: 0,
+        purchases: baseDistribution.purchases,
+      }
+    : baseDistribution;
 
   const savingsAmount = Math.round((available * distribution.savings) / 100);
   const investmentsAmount = Math.round((available * distribution.investments) / 100);

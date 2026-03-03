@@ -35,7 +35,7 @@ const PartnersPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['partnerRooms'] });
       setInviteCode('');
-      toast.success(t('partners.invite'));
+      toast.success(t('partners.joinedSuccess'));
     },
     onError: () => toast.error(t('errors.generic')),
   });
@@ -60,8 +60,6 @@ const PartnersPage: React.FC = () => {
 
   return (
     <div className={styles['partners-page']}>
-      <h1 className={styles['partners-page__title']}>{t('partners.title')}</h1>
-      
       <section className={styles['partners-page__actions']}>
         <div className={styles['partners-page__action-group']}>
           <input
@@ -92,7 +90,7 @@ const PartnersPage: React.FC = () => {
             disabled={joinMutation.isPending}
             className={styles['partners-page__btn']}
           >
-            {t('partners.invite')}
+            {t('partners.join')}
           </button>
         </div>
       </section>
@@ -114,52 +112,40 @@ const PartnersPage: React.FC = () => {
 
           {activeRoom && (
             <div className={styles['partners-page__room-detail']}>
-              <div className={styles['partners-page__room-header']}>
-                <h2 className={styles['partners-page__room-name']}>{activeRoom.name}</h2>
-              </div>
-              
-              <div className={styles['partners-page__room-info']}>
-                <div className={styles['partners-page__info-item']}>
-                  <span className={styles['partners-page__info-label']}>
-                    {t('partners.inviteCode')}:
-                  </span>
-                  <span className={styles['partners-page__info-value']}>
-                    {activeRoom.inviteCode}
-                  </span>
-                </div>
-                <div className={styles['partners-page__info-item']}>
-                  <span className={styles['partners-page__info-label']}>
-                    {t('partners.members')}:
-                  </span>
-                  <span className={styles['partners-page__info-value']}>
-                    {activeRoom.members?.length ?? 0}
-                  </span>
-                </div>
-              </div>
-
-              {activeRoom.members && activeRoom.members.length > 0 && (
-                <div className={styles['partners-page__members']}>
-                  <h3 className={styles['partners-page__members-title']}>
-                    {t('partners.members')}
-                  </h3>
-                  <ul className={styles['partners-page__members-list']}>
-                    {activeRoom.members.map((member, idx) => (
-                      <li key={idx} className={styles['partners-page__member']}>
-                        <span className={styles['partners-page__member-name']}>
-                          {typeof member.userId === 'object' 
-                            ? member.userId?.telegramID || member.userId?._id || 'User'
-                            : member.userId || 'User'}
+              <div className={styles['partners-page__members']}>
+                <div className={styles['partners-page__members-list']}>
+                  <button
+                    type="button"
+                    className={styles['partners-page__member']}
+                    onClick={() => {
+                      navigator.clipboard.writeText(activeRoom.inviteCode);
+                      toast.success(t('partners.copied'));
+                    }}
+                    title={t('partners.inviteCode')}
+                  >
+                    <span className={styles['partners-page__member-name']}>
+                      {t('partners.inviteCode')}: {activeRoom.inviteCode}
+                    </span>
+                  </button>
+                  {activeRoom.members?.map((member, idx) => (
+                    <div key={idx} className={`${styles['partners-page__member']} ${styles['partners-page__member--static']}`}>
+                      <span className={styles['partners-page__member-name']}>
+                        {typeof member.userId === 'object'
+                          ? (member.userId as { username?: string; name?: string; telegramID?: string }).username
+                            || (member.userId as { username?: string; name?: string }).name
+                            || (member.userId as { telegramID?: string }).telegramID
+                            || 'User'
+                          : String(member.userId)}
+                      </span>
+                      {member.contributionPercent != null && (
+                        <span className={styles['partners-page__member-contribution']}>
+                          {member.contributionPercent}%
                         </span>
-                        {member.contributionPercent && (
-                          <span className={styles['partners-page__member-contribution']}>
-                            {member.contributionPercent}%
-                          </span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              )}
+              </div>
             </div>
           )}
         </section>

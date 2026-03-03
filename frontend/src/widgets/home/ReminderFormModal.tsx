@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { FiX, FiChevronUp, FiChevronDown } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Currency, currencySymbols } from '@shared/lib/currency';
-import { Reminder, saveReminder, getRemindersForDate, deleteReminder } from '@shared/lib/reminders';
+import { getRemindersForDate } from '@shared/lib/reminders';
+import type { Reminder } from '@shared/api';
 import { Modal, Toggle } from '@shared/ui';
 import styles from './ReminderFormModal.module.scss';
 
@@ -15,9 +16,9 @@ interface ReminderFormModalProps {
   selectedDate: Date;
   currency: Currency;
   roomId?: string;
-  reminders: Reminder[];
-  onCreated: (reminder: Reminder) => void;
-  onDeleted: (id: string) => void;
+  reminders: (Reminder & { id: string })[];
+  onCreate: (data: { amount: number; currency?: string; description?: string; date: string; dayOfMonth: number; isRecurring?: boolean; roomId?: string }) => void;
+  onDelete: (id: string) => void;
 }
 
 const SWIPE_THRESHOLD = 40;
@@ -29,8 +30,8 @@ export const ReminderFormModal: React.FC<ReminderFormModalProps> = ({
   currency,
   roomId,
   reminders,
-  onCreated,
-  onDeleted,
+  onCreate,
+  onDelete,
 }) => {
   const { t } = useTranslation();
   const [amount, setAmount] = useState('');
@@ -56,10 +57,9 @@ export const ReminderFormModal: React.FC<ReminderFormModalProps> = ({
 
   const handleDelete = useCallback(
     (id: string) => {
-      deleteReminder(id);
-      onDeleted(id);
+      onDelete(id);
     },
-    [onDeleted]
+    [onDelete]
   );
 
   const toggleOptions = [
@@ -69,20 +69,18 @@ export const ReminderFormModal: React.FC<ReminderFormModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const numAmount = parseFloat(amount);
+    const numAmount = parseFloat(amount.replace(',', '.'));
     if (isNaN(numAmount) || numAmount <= 0) return;
 
-    const reminder = saveReminder({
+    onCreate({
       amount: numAmount,
       currency,
-      description: description.trim(),
+      description: description.trim() || undefined,
       date: selectedDate.toISOString().slice(0, 10),
       dayOfMonth,
       isRecurring,
       roomId,
     });
-
-    onCreated(reminder);
     setAmount('');
     setDescription('');
     setIsRecurring(false);

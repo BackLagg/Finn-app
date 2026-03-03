@@ -8,6 +8,7 @@ import { BudgetModule } from './modules/budget/budget.module';
 import { GoalModule } from './modules/goal/goal.module';
 import { ShoppingListModule } from './modules/shopping-list/shopping-list.module';
 import { PartnerRoomModule } from './modules/partner-room/partner-room.module';
+import { ReminderModule } from './modules/reminder/reminder.module';
 import { ReceiptAIModule } from './modules/receipt-ai/receipt-ai.module';
 import { CacheModule } from './modules/cache/cache.module';
 import { CurrencyModule } from './modules/currency/currency.module';
@@ -53,6 +54,7 @@ import { RouteConstants } from './constants/routes.constants';
     GoalModule,
     ShoppingListModule,
     PartnerRoomModule,
+    ReminderModule,
     ReceiptAIModule,
   ],
 })

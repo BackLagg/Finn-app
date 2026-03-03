@@ -41,11 +41,23 @@ export interface ShoppingList {
   order: number;
 }
 
+export interface Reminder {
+  _id: string;
+  amount: number;
+  currency: string;
+  description: string;
+  date: string;
+  dayOfMonth: number;
+  isRecurring: boolean;
+  roomId?: string;
+  createdAt: string;
+}
+
 export interface PartnerRoom {
   _id: string;
   name: string;
   inviteCode: string;
-  members: { userId: { telegramID?: string }; role: string; contributionPercent: number }[];
+  members: { userId: { telegramID?: string; username?: string; name?: string }; role: string; contributionPercent: number }[];
 }
 
 export const financeAPI = {
@@ -87,6 +99,13 @@ export const financeAPI = {
     update: (id: string, data: Partial<{ title: string; items: ShoppingListItem[]; isPinned: boolean; order: number }>) =>
       apiClient.put<ShoppingList>(`/shopping-list/${id}`, data),
     delete: (id: string) => apiClient.delete(`/shopping-list/${id}`),
+  },
+  reminders: {
+    list: (params?: { roomId?: string; from?: string; to?: string }) =>
+      apiClient.get<Reminder[]>('/reminder', { params }),
+    create: (data: { amount: number; currency?: string; description?: string; date: string; dayOfMonth: number; isRecurring?: boolean; roomId?: string }) =>
+      apiClient.post<Reminder>('/reminder', data),
+    delete: (id: string) => apiClient.delete(`/reminder/${id}`),
   },
   partnerRooms: {
     list: () => apiClient.get<PartnerRoom[]>('/partner-room'),

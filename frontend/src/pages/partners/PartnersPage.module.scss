@@ -7,14 +7,6 @@
   background: var(--color-bg);
   box-sizing: border-box;
 
-  &__title {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--color-text-primary);
-    margin: 0 0 24px 0;
-    letter-spacing: -0.02em;
-  }
-
   &__actions {
     display: flex;
     flex-direction: column;
@@ -163,19 +155,10 @@
   }
 
   &__members {
-    border-top: 1px solid var(--color-border);
-    padding-top: 20px;
-  }
-
-  &__members-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--color-text-primary);
-    margin: 0 0 12px 0;
+    margin-top: 20px;
   }
 
   &__members-list {
-    list-style: none;
     padding: 0;
     margin: 0;
     display: flex;
@@ -192,10 +175,21 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
     transition: border-color 0.2s;
+    font: inherit;
+    text-align: left;
+    width: 100%;
 
     &:hover {
       border-color: var(--color-accent);
     }
+
+    &:not(&--static) {
+      cursor: pointer;
+    }
+  }
+
+  &__member--static {
+    cursor: default;
   }
 
   &__member-name {

@@ -3,7 +3,8 @@ import { FiChevronDown, FiChevronUp, FiMapPin } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
 import { Calendar } from '@shared/ui';
 import { ReminderFormModal } from './ReminderFormModal';
-import { getReminders, getMarkedDatesWithColors, Reminder, DateWithColor } from '@shared/lib/reminders';
+import { useReminders } from '@features/reminders/use-reminders';
+import { getMarkedDatesWithColors, DateWithColor } from '@shared/lib/reminders';
 import { Currency } from '@shared/lib/currency';
 import { useCollapsedStorage } from '@shared/lib/use-collapsed-storage';
 import styles from './CalendarWithReminders.module.scss';
@@ -66,13 +67,11 @@ export const CalendarWithReminders: React.FC<CalendarWithRemindersProps> = ({
   const viewYear = viewDate ? viewDate.getFullYear() : new Date().getFullYear();
   const viewMonth = viewDate ? viewDate.getMonth() : new Date().getMonth();
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [reminders, setReminders] = useState<Reminder[]>(() =>
-    getReminders(roomId)
+  const { reminders, create: createReminder, deleteReminder } = useReminders(
+    roomId,
+    viewYear,
+    viewMonth
   );
-
-  useEffect(() => {
-    setReminders(getReminders(roomId));
-  }, [roomId]);
 
   const handleMonthChange = useCallback(
     (year: number, month: number) => {
@@ -94,18 +93,9 @@ export const CalendarWithReminders: React.FC<CalendarWithRemindersProps> = ({
     setIsFormOpen(true);
   }, []);
 
-  const handleReminderCreated = useCallback((reminder: Reminder) => {
-    setReminders((prev) => [...prev, reminder]);
-  }, []);
-
-  const handleReminderDeleted = useCallback((id: string) => {
-    setReminders((prev) => prev.filter((r) => r.id !== id));
-  }, []);
-
   const handleFormClose = useCallback(() => {
     setIsFormOpen(false);
-    setReminders(getReminders(roomId));
-  }, [roomId]);
+  }, []);
 
   return (
     <>
@@ -154,8 +144,8 @@ export const CalendarWithReminders: React.FC<CalendarWithRemindersProps> = ({
         currency={currency}
         roomId={roomId}
         reminders={reminders}
-        onCreated={handleReminderCreated}
-        onDeleted={handleReminderDeleted}
+        onCreate={createReminder}
+        onDelete={deleteReminder}
       />
       </div>
       {isPinned && (

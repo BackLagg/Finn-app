@@ -139,10 +139,13 @@
     "title": "Партнёры",
     "createRoom": "Создать комнату",
     "invite": "Пригласить",
+    "join": "Присоединиться",
+    "joinedSuccess": "Вы присоединились к комнате",
     "inviteCode": "Код приглашения",
     "members": "Участники",
     "contributions": "Вклады",
-    "selectRoom": "Выберите комнату"
+    "selectRoom": "Выберите комнату",
+    "copied": "Скопировано"
   },
   "validation": {
     "required": "Обязательное поле",

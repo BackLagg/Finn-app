@@ -12,6 +12,8 @@ export const RouteConstants = {
     'shopping-list/*',
     'partner-room',
     'partner-room/*',
+    'reminder',
+    'reminder/*',
     'receipt-ai',
     'receipt-ai/*',
   ],

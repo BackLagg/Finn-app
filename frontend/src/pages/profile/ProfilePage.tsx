@@ -2,9 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
-import { useTheme } from '@features/theme';
-import { useLanguage } from '@features/i18n';
-import { Switch, Dropdown, Toggle } from '@shared/ui';
+import { Dropdown, Toggle } from '@shared/ui';
 import { useCurrencyPreference } from '@shared/lib/use-currency-preference';
 import { useSavingsOnlyPreference } from '@shared/lib/use-savings-only-preference';
 import { Currency, currencySymbols } from '@shared/lib/currency';
@@ -13,8 +11,6 @@ import styles from './ProfilePage.module.scss';
 const ProfilePage: React.FC = () => {
   const { t } = useTranslation();
   const user = useSelector((state: RootState) => state.user);
-  const { theme, toggleTheme } = useTheme();
-  const { language, setLanguage } = useLanguage();
   const [currency, setCurrency] = useCurrencyPreference();
   const [savingsOnly, setSavingsOnly] = useSavingsOnlyPreference();
 
@@ -63,17 +59,6 @@ const ProfilePage: React.FC = () => {
           />
         </div>
         <div className={styles['profile-page__setting-item']}>
-          <span className={styles['profile-page__setting-label']}>{t('profile.language')}</span>
-          <Switch
-            checked={language === 'en'}
-            onChange={() => setLanguage(language === 'ru' ? 'en' : 'ru')}
-            leftLabel="RU"
-            rightLabel="EN"
-            size="md"
-          />
-        </div>
-        <div className={styles['profile-page__setting-item']}>
-          <span className={styles['profile-page__setting-label']}>{t('profile.distributionMode')}</span>
           <Toggle
             options={[
               { value: 'full', label: t('statistics.planner.withInvestments') },
@@ -82,16 +67,6 @@ const ProfilePage: React.FC = () => {
             value={savingsOnly ? 'savings' : 'full'}
             onChange={(v) => setSavingsOnly(v === 'savings')}
             className={styles['profile-page__toggle']}
-          />
-        </div>
-        <div className={styles['profile-page__setting-item']}>
-          <span className={styles['profile-page__setting-label']}>{t('profile.theme')}</span>
-          <Switch
-            checked={theme === 'dark'}
-            onChange={toggleTheme}
-            leftLabel={t('profile.themeLight')}
-            rightLabel={t('profile.themeDark')}
-            size="md"
           />
         </div>
       </section>

@@ -53,11 +53,18 @@ export class PartnerRoomService {
   }
 
   async findForUser(userId: Types.ObjectId): Promise<PartnerRoomDocument[]> {
-    return this.partnerRoomModel
+    const rooms = await this.partnerRoomModel
       .find({ 'members.userId': userId })
-      .populate('members.userId', 'telegramID')
+      .populate({
+        path: 'members.userId',
+        select: 'telegramID',
+        model: 'User',
+      })
       .sort({ createdAt: -1 })
+      .lean()
       .exec();
+
+    return this.enrichMembersWithUsernames(rooms as PartnerRoomDocument[]);
   }
 
   async findById(
@@ -70,7 +77,51 @@ export class PartnerRoomService {
         'members.userId': userId,
       })
       .populate('members.userId', 'telegramID')
+      .lean()
       .exec();
-    return room;
+
+    if (!room) return null;
+    const [enriched] = await this.enrichMembersWithUsernames([room as PartnerRoomDocument]);
+    return enriched;
+  }
+
+  private async enrichMembersWithUsernames(
+    rooms: PartnerRoomDocument[],
+  ): Promise<PartnerRoomDocument[]> {
+    const userIds: Types.ObjectId[] = [];
+    for (const room of rooms) {
+      for (const m of room.members || []) {
+        const id =
+          typeof m.userId === 'object' && (m.userId as { _id?: Types.ObjectId })?._id
+            ? (m.userId as { _id: Types.ObjectId })._id
+            : (m.userId as Types.ObjectId);
+        userIds.push(id);
+      }
+    }
+    const profiles = await this.partnerRoomModel.db
+      .collection('userprofiles')
+      .find({ userId: { $in: userIds } })
+      .project({ userId: 1, username: 1, name: 1 })
+      .toArray();
+
+    const profileMap = new Map<string, string>();
+    for (const p of profiles as { userId: Types.ObjectId; username?: string; name?: string }[]) {
+      const name = p.username || p.name;
+      if (name) profileMap.set(p.userId.toString(), name);
+    }
+
+    for (const room of rooms) {
+      for (const m of room.members || []) {
+        const id =
+          typeof m.userId === 'object' && (m.userId as { _id?: Types.ObjectId })?._id
+            ? (m.userId as { _id: Types.ObjectId })._id.toString()
+            : (m.userId as Types.ObjectId).toString();
+        const displayName = profileMap.get(id);
+        if (displayName) {
+          (m.userId as Record<string, unknown>).username = displayName;
+        }
+      }
+    }
+    return rooms;
   }
 }

@@ -139,10 +139,13 @@
     "title": "Partners",
     "createRoom": "Create room",
     "invite": "Invite",
+    "join": "Join",
+    "joinedSuccess": "You joined the room",
     "inviteCode": "Invite code",
     "members": "Members",
     "contributions": "Contributions",
-    "selectRoom": "Select room"
+    "selectRoom": "Select room",
+    "copied": "Copied"
   },
   "validation": {
     "required": "Required field",

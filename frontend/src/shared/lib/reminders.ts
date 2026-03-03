@@ -3,51 +3,17 @@ import type { Currency } from './currency';
 
 export type { Currency };
 
-export interface Reminder {
-  id: string;
+export interface ReminderLike {
+  id?: string;
+  _id?: string;
   amount: number;
-  currency: Currency;
+  currency: string;
   description: string;
   date: string;
   dayOfMonth: number;
   isRecurring: boolean;
   roomId?: string;
-  createdAt: string;
 }
-
-const STORAGE_KEY = 'finance_reminders';
-
-export const getReminders = (roomId?: string): Reminder[] => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const all: Reminder[] = raw ? JSON.parse(raw) : [];
-    return roomId
-      ? all.filter((r) => r.roomId === roomId)
-      : all.filter((r) => !r.roomId);
-  } catch {
-    return [];
-  }
-};
-
-export const saveReminder = (reminder: Omit<Reminder, 'id' | 'createdAt'>): Reminder => {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  const all: Reminder[] = raw ? JSON.parse(raw) : [];
-  const newReminder: Reminder = {
-    ...reminder,
-    id: crypto.randomUUID(),
-    createdAt: new Date().toISOString(),
-  };
-  all.push(newReminder);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
-  return newReminder;
-};
-
-export const deleteReminder = (id: string): void => {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  const all: Reminder[] = raw ? JSON.parse(raw) : [];
-  const filtered = all.filter((r) => r.id !== id);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-};
 
 const getDaysInMonth = (year: number, month: number): number => {
   return new Date(year, month + 1, 0).getDate();
@@ -59,11 +25,11 @@ export const getEffectiveDay = (dayOfMonth: number, year: number, month: number)
 };
 
 export const getRemindersForDate = (
-  reminders: Reminder[],
+  reminders: ReminderLike[],
   year: number,
   month: number,
   day: number
-): Reminder[] => {
+): ReminderLike[] => {
   return reminders.filter((r) => {
     if (r.isRecurring) {
       const effectiveDay = getEffectiveDay(r.dayOfMonth, year, month);
@@ -80,7 +46,7 @@ export interface DateWithColor {
 }
 
 export const getMarkedDatesWithColors = (
-  reminders: Reminder[],
+  reminders: ReminderLike[],
   year: number,
   month: number
 ): DateWithColor[] => {

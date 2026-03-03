@@ -31,7 +31,10 @@ export const DistributionRadialChart: React.FC<DistributionRadialChartProps> = (
   const { t } = useTranslation();
 
   const items = savingsOnly
-    ? [{ name: t('home.savings'), value: savingsAmount, fill: SAVINGS_COLOR, percent: savingsPercent }]
+    ? [
+        { name: t('home.savings'), value: savingsAmount, fill: SAVINGS_COLOR, percent: savingsPercent },
+        { name: t('home.purchases'), value: purchasesAmount, fill: PURCHASES_COLOR, percent: purchasesPercent },
+      ]
     : [
         { name: t('home.savings'), value: savingsAmount, fill: SAVINGS_COLOR, percent: savingsPercent },
         { name: t('home.investments'), value: investmentsAmount, fill: INVESTMENTS_COLOR, percent: investmentsPercent },
