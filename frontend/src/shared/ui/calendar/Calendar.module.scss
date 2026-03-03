@@ -67,6 +67,10 @@
     font-weight: 500;
     color: var(--color-text-tertiary);
     padding: 8px 0;
+
+    &--weekend {
+      color: var(--color-weekend, #c62828);
+    }
   }
 
   &__days {
@@ -134,6 +138,10 @@
       &:hover {
         background: transparent;
       }
+    }
+
+    &--weekend:not(&--selected):not(&--colored) {
+      color: var(--color-weekend, #c62828);
     }
   }
 }

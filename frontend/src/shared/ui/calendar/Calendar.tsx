@@ -68,6 +68,36 @@ export const Calendar: React.FC<CalendarProps> = ({
     return days;
   };
 
+  const getCurrentWeekDates = (): Date[] => {
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + mondayOffset);
+    const out: Date[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      out.push(d);
+    }
+    return out;
+  };
+
+  const isWeekend = (date: Date | null) => {
+    if (!date) return false;
+    const d = date.getDay();
+    return d === 0 || d === 6;
+  };
+
+  const formatWeekRange = (dates: Date[]) => {
+    if (dates.length < 2) return '';
+    const first = dates[0];
+    const last = dates[dates.length - 1];
+    const mon = first.getMonth();
+    const monName = monthNames[mon];
+    return `${first.getDate()} – ${last.getDate()} ${monName}`;
+  };
+
   const handlePrevMonth = () => {
     const next = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1);
     if (!viewDate) setInternalMonth(next);
@@ -127,7 +157,9 @@ export const Calendar: React.FC<CalendarProps> = ({
   };
 
   const allDays = getDaysInMonth(currentMonth);
-  const days = collapsed ? allDays.slice(0, 7) : allDays;
+  const currentWeekDays = getCurrentWeekDates();
+  const days = collapsed ? currentWeekDays : allDays;
+  const weekRangeTitle = collapsed ? formatWeekRange(currentWeekDays) : null;
 
   return (
     <div className={`${styles.calendar} ${className || ''}`}>
@@ -141,7 +173,7 @@ export const Calendar: React.FC<CalendarProps> = ({
             <FiChevronLeft />
           </button>
           <div className={styles.calendar__title}>
-            {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+            {weekRangeTitle ?? `${monthNames[currentMonth.getMonth()]} ${currentMonth.getFullYear()}`}
           </div>
           <button
             type="button"
@@ -161,8 +193,11 @@ export const Calendar: React.FC<CalendarProps> = ({
         transition={{ type: 'spring', stiffness: 400, damping: 30 }}
       >
         <div className={styles.calendar__weekdays}>
-          {weekDays.map((day) => (
-            <div key={day} className={styles.calendar__weekday}>
+          {weekDays.map((day, i) => (
+            <div
+              key={day}
+              className={`${styles.calendar__weekday} ${i >= 5 ? styles['calendar__weekday--weekend'] : ''}`}
+            >
               {day}
             </div>
           ))}
@@ -178,11 +213,11 @@ export const Calendar: React.FC<CalendarProps> = ({
               type="button"
               className={`${styles.calendar__day} ${
                 !date ? styles['calendar__day--empty'] : ''
-              } ${isDateSelected(date) ? styles['calendar__day--selected'] : ''} ${
-                isMarked ? styles['calendar__day--marked'] : ''
-              } ${isMarked && markColor ? styles['calendar__day--colored'] : ''} ${
-                isDateDisabled(date) ? styles['calendar__day--disabled'] : ''
-              }`}
+              } ${date && isWeekend(date) ? styles['calendar__day--weekend'] : ''} ${
+                isDateSelected(date) ? styles['calendar__day--selected'] : ''
+              } ${isMarked ? styles['calendar__day--marked'] : ''} ${
+                isMarked && markColor ? styles['calendar__day--colored'] : ''
+              } ${isDateDisabled(date) ? styles['calendar__day--disabled'] : ''}`}
               onClick={() => handleDateClick(date)}
               disabled={!date || isDateDisabled(date)}
               style={

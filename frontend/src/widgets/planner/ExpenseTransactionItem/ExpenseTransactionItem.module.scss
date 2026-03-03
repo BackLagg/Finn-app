@@ -1,0 +1,84 @@
+@use '@shared/styles/variables' as *;
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 12px;
+  background: var(--color-bg);
+  border-radius: 14px;
+  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s;
+}
+
+.itemIcon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.itemContent {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.itemAmount {
+  font-weight: 700;
+  color: var(--color-danger);
+  font-size: 16px;
+}
+
+.itemDesc {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.itemDate {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+.attachBtn {
+  padding: 8px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  border-radius: 8px;
+  flex-shrink: 0;
+
+  &:hover {
+    color: var(--color-accent);
+    background: rgba(232, 93, 4, 0.1);
+  }
+}
+
+.removeBtn {
+  padding: 8px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  border-radius: 8px;
+  flex-shrink: 0;
+
+  &:hover {
+    color: var(--color-danger);
+    background: rgba(239, 68, 68, 0.1);
+  }
+}
+
+.receiptThumb {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 6px;
+}

@@ -71,7 +71,7 @@ const PlannerPage: React.FC = () => {
         </div>
       </div>
       <div className={styles['planner-page__header-spacer']} aria-hidden />
-      <PlannerTab roomId={currentRoomId} />
+      <PlannerTab roomId={currentRoomId} hasRoomSelector={context === 'partner' && rooms.length > 0} />
     </div>
   );
 };

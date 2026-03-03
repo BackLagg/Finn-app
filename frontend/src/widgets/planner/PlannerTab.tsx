@@ -30,9 +30,10 @@ function getProgressiveDistribution(available: number) {
 
 interface PlannerTabProps {
   roomId?: string;
+  hasRoomSelector?: boolean;
 }
 
-export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId }) => {
+export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector }) => {
   const { t } = useTranslation();
   const [currency] = useCurrencyPreference();
   const [savingsOnly] = useSavingsOnlyPreference();
@@ -80,7 +81,7 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId }) => {
 
   return (
     <div className={styles.planner}>
-      <div className={styles.planner__calendar}>
+      <div className={`${styles.planner__calendar} ${hasRoomSelector ? styles['planner__calendar--withRoomSelector'] : ''}`}>
         <CalendarWithReminders
           roomId={roomId}
           currency={currency}
@@ -88,6 +89,7 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId }) => {
           viewDate={currentDate}
           onMonthChange={(y, m) => setCurrentDate(new Date(y, m, 1))}
           pinnable
+          pinTopOffsetExtra={hasRoomSelector ? 40 : 0}
         />
       </div>
 

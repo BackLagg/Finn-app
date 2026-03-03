@@ -3,17 +3,16 @@
 .block {
   width: 100%;
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  padding: 20px;
-  margin-bottom: 16px;
+  padding: 12px 0 0 0;
+  margin-bottom: 0;
   box-sizing: border-box;
-
+  
   &__summary {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 20px;
+    gap: 10px;
+    margin-bottom: 12px;
   }
 
   &__summaryCard {
@@ -21,40 +20,41 @@
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    padding: 16px;
+    padding: 12px 14px;
     min-width: 0;
     background: var(--color-bg);
-    border: 2px solid var(--color-border);
+    border: none;
     border-radius: 16px;
     cursor: pointer;
     transition: all 0.2s;
+    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
 
     &--active {
       background: var(--color-surface);
-      border-color: var(--color-accent);
-      box-shadow: var(--shadow);
+      box-shadow: 0 0 0 2px var(--color-accent), 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
     &:hover:not(&--active) {
-      border-color: var(--color-accent);
-      opacity: 0.9;
+      box-shadow: 0 0 0 1px var(--color-accent), 0 2px 6px rgba(0, 0, 0, 0.06);
+      opacity: 0.95;
     }
   }
 
   &__summaryLabel {
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 600;
     color: var(--color-text-secondary);
   }
 
   &__summaryValueExpense {
-    font-size: 20px;
-    font-weight: 700;
+    font-size: 22px;
+    font-weight: 800;
     color: var(--color-danger);
   }
 
   &__summaryValueIncome {
-    font-size: 20px;
-    font-weight: 700;
+    font-size: 22px;
+    font-weight: 800;
     color: var(--color-success);
   }
 
@@ -73,7 +73,7 @@
   &__input {
     padding: 12px 16px;
     background: var(--color-bg);
-    border: 2px solid var(--color-border);
+    border: 1px solid var(--color-border);
     border-radius: 12px;
     color: var(--color-text-primary);
     font-size: 16px;
@@ -122,7 +122,7 @@
     padding: 12px;
     background: var(--color-bg);
     border-radius: 10px;
-    border: 1px solid var(--color-border);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   }
 
   &__incomeItemInfo {
@@ -164,57 +164,68 @@
   &__expenses {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 10px;
+  }
+
+  &__detailWrap {
+    min-width: 0;
   }
 
   &__addExpenseBtn {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 12px;
+    gap: 10px;
+    padding: 14px 20px;
     background: var(--color-accent);
     color: #0a0a0a;
     border: none;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 14px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 16px;
     cursor: pointer;
     transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(232, 93, 4, 0.25);
 
     &:hover {
       background: var(--color-accent-hover);
+      box-shadow: 0 4px 12px rgba(232, 93, 4, 0.3);
     }
+  }
+
+  &__expandedCard {
+    grid-column: 1 / -1;
   }
 
   &__grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
   }
 
   &__card {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 16px;
+    gap: 10px;
+    padding: 10px 12px;
+    min-width: 0;
     background: var(--color-bg);
-    border: 1px solid var(--color-border);
+    border: none;
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.2s;
     text-align: left;
+    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
 
     &:hover {
-      border-color: var(--color-accent);
-      box-shadow: var(--shadow);
+      box-shadow: 0 0 0 2px var(--color-accent), 0 4px 12px rgba(0, 0, 0, 0.08);
       transform: translateY(-2px);
     }
   }
 
   &__cardIcon {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -231,21 +242,28 @@
     display: block;
     font-size: 13px;
     color: var(--color-text-secondary);
-    margin-bottom: 4px;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   &__cardAmount {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   &__empty {
     grid-column: 1 / -1;
     text-align: center;
-    color: var(--color-text-tertiary);
-    font-size: 14px;
-    padding: 24px 0;
+    color: var(--color-text-secondary);
+    font-size: 17px;
+    font-weight: 700;
+    padding: 16px 0;
   }
 
   &__fileInput {
@@ -274,7 +292,7 @@
     flex: 1;
     padding: 12px 16px;
     background: var(--color-bg);
-    border: 2px solid var(--color-border);
+    border: 1px solid var(--color-border);
     border-radius: 12px;
     color: var(--color-text-primary);
     font-size: 14px;
@@ -305,7 +323,7 @@
     gap: 8px;
     padding: 10px 14px;
     background: var(--color-bg);
-    border: 2px dashed var(--color-border);
+    border: 1px dashed var(--color-border);
     border-radius: 12px;
     color: var(--color-text-secondary);
     font-size: 14px;
@@ -331,7 +349,7 @@
     border: 1px solid var(--color-border);
     border-radius: 12px;
     color: var(--color-text-secondary);
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
 
     &:hover {
@@ -364,12 +382,13 @@
 .detail {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 
   &__header {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
+    padding-bottom: 4px;
   }
 
   &__back {
@@ -390,8 +409,8 @@
   }
 
   &__total {
-    font-size: 18px;
-    font-weight: 700;
+    font-size: 20px;
+    font-weight: 800;
     color: var(--color-danger);
   }
 
@@ -401,26 +420,27 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
   }
 
   &__item {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px;
+    padding: 14px 12px;
     background: var(--color-bg);
-    border-radius: 10px;
-    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s;
   }
 
   &__itemIcon {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 10px;
+    border-radius: 12px;
     flex-shrink: 0;
   }
 
@@ -429,22 +449,23 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
   }
 
   &__itemAmount {
-    font-weight: 600;
+    font-weight: 700;
     color: var(--color-danger);
-    font-size: 14px;
+    font-size: 16px;
   }
 
   &__itemDesc {
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 600;
     color: var(--color-text-secondary);
   }
 
   &__itemDate {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--color-text-tertiary);
   }
 
@@ -455,10 +476,26 @@
     color: var(--color-text-tertiary);
     cursor: pointer;
     border-radius: 8px;
+    flex-shrink: 0;
 
     &:hover {
       color: var(--color-accent);
       background: rgba(232, 93, 4, 0.1);
+    }
+  }
+
+  &__removeBtn {
+    padding: 8px;
+    background: transparent;
+    border: none;
+    color: var(--color-text-tertiary);
+    cursor: pointer;
+    border-radius: 8px;
+    flex-shrink: 0;
+
+    &:hover {
+      color: var(--color-danger);
+      background: rgba(239, 68, 68, 0.1);
     }
   }
 
@@ -467,5 +504,51 @@
     height: 32px;
     object-fit: cover;
     border-radius: 6px;
+  }
+}
+
+.addModalSwipeHint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.addModalSwipeHint__btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  color: var(--color-accent);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  text-align: center;
+  justify-content: center;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+.addModalSwipe {
+  touch-action: none;
+  padding-top: 4px;
+
+  &__handle {
+    width: 40px;
+    height: 4px;
+    margin: 0 auto 16px;
+    background: var(--color-border);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  &__panel {
+    min-height: 0;
+    width: 100%;
   }
 }

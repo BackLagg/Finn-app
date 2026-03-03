@@ -18,6 +18,7 @@ interface CalendarWithRemindersProps {
   viewDate?: Date;
   onMonthChange?: (year: number, month: number) => void;
   pinnable?: boolean;
+  pinTopOffsetExtra?: number;
 }
 
 export const CalendarWithReminders: React.FC<CalendarWithRemindersProps> = ({
@@ -27,6 +28,7 @@ export const CalendarWithReminders: React.FC<CalendarWithRemindersProps> = ({
   viewDate,
   onMonthChange,
   pinnable = false,
+  pinTopOffsetExtra = 0,
 }) => {
   const { t } = useTranslation();
   const [isCollapsed, toggleCollapsed] = useCollapsedStorage('calendar', true);
@@ -101,7 +103,7 @@ export const CalendarWithReminders: React.FC<CalendarWithRemindersProps> = ({
     <>
       <div
         className={`${styles['calendar-reminders']} ${isPinned ? styles['calendar-reminders--pinned'] : ''}`}
-        style={isPinned ? { top: PIN_TOP_OFFSET } : undefined}
+        style={isPinned ? { top: PIN_TOP_OFFSET + pinTopOffsetExtra } : undefined}
       >
         <Calendar
           selectedDate={selectedDate}
