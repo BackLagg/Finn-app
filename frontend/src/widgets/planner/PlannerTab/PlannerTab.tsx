@@ -6,16 +6,14 @@ import { useCurrencyPreference } from '@shared/lib/use-currency-preference';
 import { useSavingsOnlyPreference } from '@shared/lib/use-savings-only-preference';
 import { currencySymbols } from '@shared/lib/currency';
 import { Toggle, CollapsibleSection } from '@shared/ui';
-import {
-  CalendarWithReminders,
-  BudgetSection,
-  ScheduledPayments,
-  GoalsSection,
-  ExpenseList,
-} from '@widgets/home';
-import { IncomeExpensesBlock } from './IncomeExpensesBlock';
-import { DistributionRadialChart } from './DistributionRadialChart';
-import { PlanFormModal } from './PlanFormModal';
+import { CalendarWithReminders } from '../CalendarWithReminders';
+import { BudgetSection } from '../BudgetSection';
+import { ScheduledPayments } from '../ScheduledPayments';
+import { GoalsSection } from '../GoalsSection';
+import { ExpenseList } from '../ExpenseList';
+import { IncomeExpensesBlock } from '../IncomeExpensesBlock';
+import { DistributionRadialChart } from '../DistributionRadialChart';
+import { PlanFormModal } from '../PlanFormModal';
 import styles from './PlannerTab.module.scss';
 
 const PLAN_COLORS = ['#8b5cf6', '#ec4899', '#06b6d4', '#f59e0b', '#10b981', '#3b82f6'];

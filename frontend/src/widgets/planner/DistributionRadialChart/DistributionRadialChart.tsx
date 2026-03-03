@@ -45,8 +45,6 @@ export const DistributionRadialChart: React.FC<DistributionRadialChartProps> = (
     .filter((d) => d.percent > 0)
     .map((d) => ({ ...d, chartValue: d.value > 0 ? d.value : d.percent }));
 
-  const total = chartData.reduce((s, d) => s + d.value, 0);
-
   const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ payload: typeof chartData[0] }> }) => {
     if (!active || !payload?.[0]) return null;
     const p = payload[0].payload;

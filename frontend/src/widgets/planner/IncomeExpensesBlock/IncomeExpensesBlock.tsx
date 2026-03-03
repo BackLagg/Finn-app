@@ -11,7 +11,7 @@ import { Dropdown, Modal } from '@shared/ui';
 import { useTransactionStats } from '@features/transactions/use-transaction-stats';
 import { useExpenseCategoryAccordion } from '@features/expense-category';
 import { toast } from 'react-toastify';
-import { ExpenseCategoryCard } from './ExpenseCategoryCard';
+import { ExpenseCategoryCard } from '../ExpenseCategoryCard';
 import styles from './IncomeExpensesBlock.module.scss';
 
 const SWIPE_THRESHOLD = 50;
@@ -540,4 +540,3 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
     </form>
   );
 };
-

@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { FiChevronDown, FiChevronUp, FiMapPin } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
 import { Calendar } from '@shared/ui';
-import { ReminderFormModal } from './ReminderFormModal';
+import { ReminderFormModal } from '../ReminderFormModal';
 import { useReminders } from '@features/reminders/use-reminders';
 import { getMarkedDatesWithColors, DateWithColor } from '@shared/lib/reminders';
 import { Currency } from '@shared/lib/currency';
@@ -82,11 +82,8 @@ export const CalendarWithReminders: React.FC<CalendarWithRemindersProps> = ({
     [onMonthChange]
   );
 
-  const year = viewYear;
-  const month = viewMonth;
-
   const markedDatesWithColors = [
-    ...getMarkedDatesWithColors(reminders, year, month),
+    ...getMarkedDatesWithColors(reminders, viewYear, viewMonth),
     ...additionalMarkedDates,
   ];
 
@@ -158,5 +155,3 @@ export const CalendarWithReminders: React.FC<CalendarWithRemindersProps> = ({
     </>
   );
 };
-
-export default CalendarWithReminders;

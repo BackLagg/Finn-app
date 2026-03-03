@@ -296,5 +296,3 @@ export const ReminderFormModal: React.FC<ReminderFormModalProps> = ({
     </Modal>
   );
 };
-
-export default ReminderFormModal;

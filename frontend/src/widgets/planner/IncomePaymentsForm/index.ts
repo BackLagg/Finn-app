@@ -1,0 +1,1 @@
+export { IncomePaymentsForm } from './IncomePaymentsForm';
