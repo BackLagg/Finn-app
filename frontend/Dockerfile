@@ -33,8 +33,9 @@ RUN addgroup -g 1001 -S nginx-user && \
 # Копируем собранное приложение
 COPY --from=builder --chown=nginx-user:nginx-user /app/dist /usr/share/nginx/html
 
-# Копируем конфигурацию Nginx
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx.conf.template /etc/nginx/nginx.conf.template
+COPY scripts/start-nginx.sh /start-nginx.sh
+RUN chmod +x /start-nginx.sh
 
 # Создаем директории и устанавливаем права
 RUN mkdir -p /var/log/nginx /var/cache/nginx && \
@@ -43,11 +44,5 @@ RUN mkdir -p /var/log/nginx /var/cache/nginx && \
     chown -R nginx-user:nginx-user /etc/nginx/conf.d && \
     chown -R nginx-user:nginx-user /tmp
 
-# Переключаемся на пользователя nginx-user
-USER nginx-user
-
-# Открываем порт
 EXPOSE 80
-
-# Запускаем Nginx
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/start-nginx.sh"]

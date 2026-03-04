@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: finn-backend
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: finn-file-service
+    runtime: docker
+    rootDir: file-service
+    dockerfilePath: Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: finn-frontend
+    runtime: docker
+    rootDir: frontend
+    dockerfilePath: Dockerfile
+
+  - type: worker
+    name: finn-bot
+    runtime: docker
+    rootDir: Bot_API
+    dockerfilePath: Dockerfile
