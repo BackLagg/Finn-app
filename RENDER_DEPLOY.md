@@ -1,15 +1,27 @@
 # Деплой на Render.com
 
-Проект подготовлен к деплою через Render Blueprint (`render.yaml`): бэкенд, файловый сервис, фронтенд и бот заданы как отдельные сервисы.
+Проект подготовлен к деплою через Render Blueprint (`render.yaml`): бэкенд, файловый сервис, фронтенд, бот и Redis заданы в конфиге.
 
 ## Сервисы в Blueprint
 
-| Сервис           | Тип    | rootDir     | Описание                          |
-|------------------|--------|-------------|-----------------------------------|
-| finn-backend     | web    | backend     | NestJS API                        |
-| finn-file-service | web  | file-service| Файловый сервис (Express)         |
-| finn-frontend    | web    | frontend    | SPA на React + Nginx              |
-| finn-bot         | worker | Bot_API     | Telegram-бот (Python)            |
+| Сервис           | Тип       | rootDir     | Описание                          |
+|------------------|-----------|-------------|-----------------------------------|
+| finn-redis       | keyvalue  | —           | Redis-совместимый кэш (Render Key Value) |
+| finn-backend     | web       | backend     | NestJS API                        |
+| finn-file-service | web     | file-service| Файловый сервис (Express)         |
+| finn-frontend    | web       | frontend    | SPA на React + Nginx              |
+| finn-bot         | worker    | Bot_API     | Telegram-бот (Python)            |
+
+## База данных (MongoDB) и Redis
+
+**MongoDB** на Render управляемого сервиса нет. Нужно использовать один из вариантов:
+
+- **MongoDB Atlas** (рекомендуется) — создать кластер на [atlas.mongodb.com](https://www.mongodb.com/cloud/atlas), взять connection string и задать переменную **`MONGO_URI`** в Dashboard для **finn-backend** и **finn-bot**.
+- Либо развернуть свой MongoDB (например, через Docker на отдельном сервере) и прописать его URL в **`MONGO_URI`**.
+
+В Blueprint MongoDB **не добавляется** — только переменная окружения вручную.
+
+**Redis** уже описан в `render.yaml` как сервис **finn-redis** (тип `keyvalue`). Render создаёт инстанс Redis (Valkey), а в **finn-backend** автоматически подставляются **`REDIS_HOST`** и **`REDIS_PORT`** через `fromService`. Отдельно задавать их не нужно. Пароль для внутреннего подключения обычно не используется.
 
 ## Шаги деплоя
 
@@ -23,12 +35,14 @@
 
 ### Backend (finn-backend)
 
-- `MONGO_URI` (или настройки БД из Render PostgreSQL/MongoDB Atlas)
+- **`MONGO_URI`** — строка подключения к MongoDB (Atlas или свой инстанс). Обязательно.
 - `BOT_TOKEN`, `BOT_USERNAME`
-- `FILE_SERVICE_URL` — внутренний URL файлового сервиса (например `https://finn-file-service.onrender.com`)
+- `FILE_SERVICE_URL` — URL файлового сервиса (например `https://finn-file-service.onrender.com`)
 - `FILE_API_KEY` — ключ для запросов к файловому сервису
 - `ALLOWED_ORIGINS` — через запятую, например: `https://your-frontend.onrender.com,https://your-domain.com`
-- Остальные по необходимости: `PAYMENT_SERVICE_URL`, `OPENAI_API_KEY`, Redis и т.д.
+- Остальные по необходимости: `PAYMENT_SERVICE_URL`, `OPENAI_API_KEY` и т.д.
+
+**Redis**: `REDIS_HOST` и `REDIS_PORT` задаются автоматически из сервиса **finn-redis** через Blueprint; вручную не указывать.
 
 `PORT` на Render выставляется автоматически; бэкенд его использует.
 

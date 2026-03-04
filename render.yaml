@@ -1,4 +1,8 @@
 services:
+  - type: keyvalue
+    name: finn-redis
+    plan: starter
+
   - type: web
     name: finn-backend
     runtime: docker
@@ -7,6 +11,16 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: REDIS_HOST
+        fromService:
+          type: keyvalue
+          name: finn-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: keyvalue
+          name: finn-redis
+          property: port
 
   - type: web
     name: finn-file-service
