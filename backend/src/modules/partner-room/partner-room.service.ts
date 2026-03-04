@@ -117,6 +117,7 @@ export class PartnerRoomService {
             ? (m.userId as { _id: Types.ObjectId })._id.toString()
             : (m.userId as Types.ObjectId).toString();
         const displayName = profileMap.get(id);
+        (m as unknown as Record<string, unknown>).displayName = displayName || null;
         if (displayName) {
           (m.userId as unknown as Record<string, unknown>).username = displayName;
         }

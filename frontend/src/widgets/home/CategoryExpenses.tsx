@@ -27,7 +27,7 @@ const CategoryExpenses: React.FC<CategoryExpensesProps> = ({ roomId }) => {
     },
   });
 
-  const sortedStats = [...stats].sort((a, b) => b.total - a.total);
+  const sortedStats = [...stats].sort((a, b) => Math.abs(b.total) - Math.abs(a.total));
 
   return (
     <section className={styles['category-expenses']}>
@@ -42,7 +42,7 @@ const CategoryExpenses: React.FC<CategoryExpensesProps> = ({ roomId }) => {
             </div>
             <div className={styles['category-expenses__info']}>
               <div className={styles['category-expenses__category']}>{stat.category}</div>
-              <div className={styles['category-expenses__amount']}>{stat.total} $</div>
+              <div className={styles['category-expenses__amount']}>{Math.abs(stat.total)} $</div>
             </div>
           </div>
         ))}

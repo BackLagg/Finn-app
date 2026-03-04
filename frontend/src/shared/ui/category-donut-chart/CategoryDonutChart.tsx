@@ -14,6 +14,8 @@ interface CategoryDonutChartProps {
   currencySymbol?: string;
   title?: string;
   showLegend?: boolean;
+  getCategoryLabel?: (category: string) => string;
+  emptyMessage?: string;
 }
 
 const DEFAULT_COLORS = ['#8b5cf6', '#ec4899', '#06b6d4', '#f59e0b', '#10b981', '#3b82f6', '#f97316', '#84cc16'];
@@ -27,6 +29,8 @@ export const CategoryDonutChart: React.FC<CategoryDonutChartProps> = ({
   currencySymbol = '$',
   title,
   showLegend = true,
+  getCategoryLabel,
+  emptyMessage,
 }) => {
   const total = data.reduce((s, d) => s + d.value, 0);
   const chartData = data.map((d, i) => ({
@@ -35,14 +39,22 @@ export const CategoryDonutChart: React.FC<CategoryDonutChartProps> = ({
     percentage: total > 0 ? ((d.value / total) * 100).toFixed(1) : '0',
   }));
 
+  const labelOf = (category: string) => {
+    if (!category) return '';
+    const label = getCategoryLabel ? getCategoryLabel(category) : category;
+    return label && !label.startsWith('categories.') ? label : category;
+  };
+
   const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ payload: CategoryDataItem & { fill: string; percentage: string } }> }) => {
-    if (!active || !payload?.[0]) return null;
-    const p = payload[0].payload;
+    if (!active || !payload?.length) return null;
+    const p = payload[0]?.payload;
+    if (!p) return null;
+    const name = labelOf(p.category);
     return (
       <div className={styles['donut-chart__tooltip']}>
         <div className={styles['donut-chart__tooltip-row']}>
           <CategoryIcon category={p.category} size={16} />
-          <span>{p.category}</span>
+          <span>{name || p.category}</span>
         </div>
         <div className={styles['donut-chart__tooltip-value']}>
           {p.value.toLocaleString()} {currencySymbol} ({p.percentage}%)
@@ -50,6 +62,15 @@ export const CategoryDonutChart: React.FC<CategoryDonutChartProps> = ({
       </div>
     );
   };
+
+  if (data.length === 0 && emptyMessage) {
+    return (
+      <div className={styles['donut-chart']}>
+        {title && <h3 className={styles['donut-chart__title']}>{title}</h3>}
+        <div className={styles['donut-chart__empty']}>{emptyMessage}</div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles['donut-chart']}>
@@ -76,10 +97,11 @@ export const CategoryDonutChart: React.FC<CategoryDonutChartProps> = ({
               <Legend
                 formatter={(value, entry) => {
                   const item = chartData.find((d) => d.category === value);
+                  const name = labelOf(String(value));
                   return (
                     <span className={styles['donut-chart__legend-item']}>
                       <span className={styles['donut-chart__legend-dot']} style={{ backgroundColor: (entry as { color?: string }).color }} />
-                      {value} {item ? `${item.value.toLocaleString()} ${currencySymbol}` : ''} ({item?.percentage}%)
+                      {name || value} {item ? `${item.value.toLocaleString()} ${currencySymbol}` : ''} ({item?.percentage ?? '0'}%)
                     </span>
                   );
                 }}

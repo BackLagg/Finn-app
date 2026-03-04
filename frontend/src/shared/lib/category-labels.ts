@@ -1,3 +1,5 @@
+const EXPENSE_KEYS = ['family', 'education', 'pets', 'movies', 'health', 'transport', 'clothing', 'food', 'games', 'books', 'sport', 'cafe', 'shopping', 'other'] as const;
+
 const EXPENSE_CATEGORY_KEYS: Record<string, string> = {
   Семья: 'family',
   Образование: 'education',
@@ -27,7 +29,10 @@ const EXPENSE_CATEGORY_KEYS: Record<string, string> = {
   Cafe: 'cafe',
   Shopping: 'shopping',
   Other: 'other',
+  ...Object.fromEntries(EXPENSE_KEYS.map((k) => [k, k])),
 };
+
+const INCOME_KEYS = ['salary', 'sideJob', 'gifts', 'investments', 'other'] as const;
 
 const INCOME_CATEGORY_KEYS: Record<string, string> = {
   Зарплата: 'salary',
@@ -40,6 +45,7 @@ const INCOME_CATEGORY_KEYS: Record<string, string> = {
   Gifts: 'gifts',
   Investments: 'investments',
   Other: 'other',
+  ...Object.fromEntries(INCOME_KEYS.map((k) => [k, k])),
 };
 
 export function getExpenseCategoryKey(category: string): string {
@@ -60,11 +66,10 @@ export function getCategoryLabel(
   type: 'expense' | 'income',
   category: string
 ): string {
-  const translationKey =
-    category.startsWith('categories.')
-      ? category
-      : `categories.${type}.${type === 'expense' ? getExpenseCategoryKey(category) : getIncomeCategoryKey(category)}`;
+  if (!category || typeof category !== 'string') return '';
+  const key = type === 'expense' ? getExpenseCategoryKey(category) : getIncomeCategoryKey(category);
+  const translationKey = category.startsWith('categories.') ? category : `categories.${type}.${key}`;
   const result = t(translationKey, { defaultValue: category });
-  if (result.startsWith('categories.')) return fallbackFromKey(result);
+  if (!result || result.startsWith('categories.')) return fallbackFromKey(result || translationKey);
   return result;
 }

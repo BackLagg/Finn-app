@@ -57,7 +57,7 @@ export interface PartnerRoom {
   _id: string;
   name: string;
   inviteCode: string;
-  members: { userId: { telegramID?: string; username?: string; name?: string }; role: string; contributionPercent: number }[];
+  members: { userId: { telegramID?: string; username?: string; name?: string }; role: string; contributionPercent: number; displayName?: string | null }[];
 }
 
 export const financeAPI = {

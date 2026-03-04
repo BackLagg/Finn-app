@@ -3,6 +3,34 @@
 .chart {
   margin-bottom: 20px;
 
+  &__room {
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+  }
+
+  &__roomName {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: 4px;
+  }
+
+  &__members {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+  }
+
+  &__membersLabel {
+    margin-right: 6px;
+  }
+
+  &__membersList {
+    font-weight: 500;
+  }
+
   &__tabs {
     display: flex;
     gap: 8px;
@@ -29,5 +57,55 @@
       border-color: var(--color-accent);
       color: #0a0a0a;
     }
+  }
+
+  &__barRow {
+    margin-top: 16px;
+  }
+
+  &__barRowTrack {
+    display: flex;
+    width: 100%;
+    height: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--color-border);
+    margin-bottom: 10px;
+  }
+
+  &__barRowSegment {
+    min-width: 2px;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 0.85;
+    }
+  }
+
+  &__barRowLegend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+  }
+
+  &__barRowLegendItem {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  &__barRowLegendDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  &__empty {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    padding: 16px;
+    text-align: center;
   }
 }

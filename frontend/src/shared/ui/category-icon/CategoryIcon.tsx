@@ -51,6 +51,24 @@ export const categoryIconMap: Record<string, React.ReactNode> = {
   'Sport': <FiHeart />,
   'Cafe': <FiCoffee />,
   'Shopping': <FiShoppingBag />,
+  'family': <FiUsers />,
+  'education': <FiBook />,
+  'pets': <FiHeart />,
+  'movies': <FiFilm />,
+  'health': <FiHeart />,
+  'transport': <FiTruck />,
+  'clothing': <FiPackage />,
+  'food': <FiUmbrella />,
+  'games': <FiTarget />,
+  'books': <FiBook />,
+  'sport': <FiHeart />,
+  'cafe': <FiCoffee />,
+  'shopping': <FiShoppingBag />,
+  'other': <FiDollarSign />,
+  'salary': <FiDollarSign />,
+  'sideJob': <FiDollarSign />,
+  'gifts': <FiPackage />,
+  'investments': <FiTarget />,
 };
 
 export const categoryColorMap: Record<string, string> = {
@@ -85,12 +103,30 @@ export const categoryColorMap: Record<string, string> = {
   'Sport': '#ec4899',
   'Cafe': '#f97316',
   'Shopping': '#848e9c',
+  'family': '#8b5cf6',
+  'education': '#ec4899',
+  'pets': '#3b82f6',
+  'movies': '#f97316',
+  'health': '#06b6d4',
+  'transport': '#10b981',
+  'clothing': '#06b6d4',
+  'food': '#84cc16',
+  'games': '#f43f5e',
+  'books': '#f59e0b',
+  'sport': '#ec4899',
+  'cafe': '#f97316',
+  'shopping': '#848e9c',
+  'other': '#848e9c',
+  'salary': '#10b981',
+  'sideJob': '#3b82f6',
+  'gifts': '#ec4899',
+  'investments': '#f59e0b',
 };
 
-export const CategoryIcon: React.FC<CategoryIconProps> = ({ 
-  category, 
-  size = 24, 
-  color 
+export const CategoryIcon: React.FC<CategoryIconProps> = ({
+  category,
+  size = 24,
+  color,
 }) => {
   const icon = categoryIconMap[category] || <FiDollarSign />;
   const iconColor = color || categoryColorMap[category] || '#848e9c';

@@ -12,9 +12,13 @@ import { ExpenseIncomeDonutChart } from './ExpenseIncomeDonutChart';
 import styles from './StatisticsTab.module.scss';
 
 function getAmount(tx: { amount: number | { USD?: number; EUR?: number; RUB?: number; BYN?: number } }): number {
-  if (typeof tx.amount === 'number') return tx.amount;
-  const a = tx.amount as { USD?: number; EUR?: number; RUB?: number; BYN?: number };
-  return a.USD ?? a.EUR ?? a.RUB ?? a.BYN ?? 0;
+  let n: number;
+  if (typeof tx.amount === 'number') n = tx.amount;
+  else {
+    const a = tx.amount as { USD?: number; EUR?: number; RUB?: number; BYN?: number };
+    n = a.USD ?? a.EUR ?? a.RUB ?? a.BYN ?? 0;
+  }
+  return Math.abs(n);
 }
 
 interface StatisticsTabProps {
@@ -49,7 +53,7 @@ export const StatisticsTab: React.FC<StatisticsTabProps> = ({ roomId }) => {
   const { payments } = useIncomePayments(y, m);
 
   const mostExpensive = expenseStats.length
-    ? expenseStats.reduce((a, b) => (a.total >= b.total ? a : b))
+    ? expenseStats.reduce((a, b) => (Math.abs(a.total) >= Math.abs(b.total) ? a : b))
     : null;
 
   const incomeByCategory = transactions
@@ -67,10 +71,10 @@ export const StatisticsTab: React.FC<StatisticsTabProps> = ({ roomId }) => {
   });
 
   const topIncomeEntry = Object.entries(incomeByCategory).length
-    ? Object.entries(incomeByCategory).reduce((a, b) => (a[1] >= b[1] ? a : b))
+    ? Object.entries(incomeByCategory).reduce((a, b) => (Math.abs(a[1]) >= Math.abs(b[1]) ? a : b))
     : null;
   const mostProfitable = topIncomeEntry
-    ? { category: topIncomeEntry[0], total: topIncomeEntry[1] }
+    ? { category: topIncomeEntry[0], total: Math.abs(topIncomeEntry[1]) }
     : null;
 
   const symbol = currencySymbols[currency];
@@ -97,7 +101,7 @@ export const StatisticsTab: React.FC<StatisticsTabProps> = ({ roomId }) => {
                     {getCategoryLabel(t, 'expense', mostExpensive.category)}
                   </div>
                   <div className={styles.statistics__cardAmount}>
-                    −{mostExpensive.total.toLocaleString()} {symbol}
+                    −{Math.abs(mostExpensive.total).toLocaleString()} {symbol}
                   </div>
                 </div>
               </div>
@@ -124,7 +128,7 @@ export const StatisticsTab: React.FC<StatisticsTabProps> = ({ roomId }) => {
                     {getCategoryLabel(t, 'income', mostProfitable.category)}
                   </div>
                   <div className={styles.statistics__cardAmount}>
-                    +{mostProfitable.total.toLocaleString()} {symbol}
+                    +{Math.abs(mostProfitable.total).toLocaleString()} {symbol}
                   </div>
                 </div>
               </div>
