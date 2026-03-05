@@ -10,6 +10,7 @@ export interface Transaction {
   source?: string;
   receiptImageUrl?: string;
   userId?: string;
+  savingsAmount?: number;
 }
 
 export interface BudgetSettings {
@@ -74,6 +75,8 @@ export const financeAPI = {
       apiClient.get<{ category: string; total: number }[]>('/transaction/stats', { params }),
     statsByMember: (params: { roomId: string; from?: string; to?: string }) =>
       apiClient.get<{ userId: string; total: number }[]>('/transaction/stats/by-member', { params }),
+    totalSavings: (params?: { roomId?: string }) =>
+      apiClient.get<{ totalSavings: number }>('/transaction/total-savings', { params }),
   },
   budget: {
     get: (roomId?: string) => apiClient.get<BudgetSettings | null>('/budget', { params: { roomId } }),

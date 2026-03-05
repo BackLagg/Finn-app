@@ -1,7 +1,14 @@
 @use '@shared/styles/variables' as *;
 
 .chart {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 
   &__room {
     margin-bottom: 12px;

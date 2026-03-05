@@ -9,13 +9,14 @@ export interface CategoryDataItem {
   type: 'income' | 'expense';
 }
 
-interface CategoryDonutChartProps {
+export interface CategoryDonutChartProps {
   data: CategoryDataItem[];
   currencySymbol?: string;
   title?: string;
   showLegend?: boolean;
   getCategoryLabel?: (category: string) => string;
   emptyMessage?: string;
+  hideWrapper?: boolean;
 }
 
 const DEFAULT_COLORS = ['#8b5cf6', '#ec4899', '#06b6d4', '#f59e0b', '#10b981', '#3b82f6', '#f97316', '#84cc16'];
@@ -31,6 +32,7 @@ export const CategoryDonutChart: React.FC<CategoryDonutChartProps> = ({
   showLegend = true,
   getCategoryLabel,
   emptyMessage,
+  hideWrapper = false,
 }) => {
   const total = data.reduce((s, d) => s + d.value, 0);
   const chartData = data.map((d, i) => ({
@@ -63,9 +65,11 @@ export const CategoryDonutChart: React.FC<CategoryDonutChartProps> = ({
     );
   };
 
+  const rootClass = hideWrapper ? `${styles['donut-chart']} ${styles['donut-chart--noWrapper']}` : styles['donut-chart'];
+
   if (data.length === 0 && emptyMessage) {
     return (
-      <div className={styles['donut-chart']}>
+      <div className={rootClass}>
         {title && <h3 className={styles['donut-chart__title']}>{title}</h3>}
         <div className={styles['donut-chart__empty']}>{emptyMessage}</div>
       </div>
@@ -73,7 +77,7 @@ export const CategoryDonutChart: React.FC<CategoryDonutChartProps> = ({
   }
 
   return (
-    <div className={styles['donut-chart']}>
+    <div className={rootClass}>
       {title && <h3 className={styles['donut-chart__title']}>{title}</h3>}
       <div className={styles['donut-chart__wrap']}>
         <ResponsiveContainer width="100%" height={240}>

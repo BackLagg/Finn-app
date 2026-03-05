@@ -4,6 +4,16 @@ import { Model, Types } from 'mongoose';
 import { TransactionDocument } from '../../schemas/transaction.schema';
 import { MultiCurrencyAmount } from '../../schemas/multi-currency-amount.schema';
 import { PartnerRoomService } from '../partner-room/partner-room.service';
+import { BudgetService } from '../budget/budget.service';
+
+function getAmountValue(amount: MultiCurrencyAmount, currency: string): number {
+  const c = (currency || 'USD').toUpperCase();
+  if (c === 'USD') return amount.USD ?? 0;
+  if (c === 'EUR') return amount.EUR ?? 0;
+  if (c === 'RUB') return amount.RUB ?? 0;
+  if (c === 'BYN') return amount.BYN ?? 0;
+  return amount.USD ?? amount.EUR ?? amount.RUB ?? amount.BYN ?? 0;
+}
 
 @Injectable()
 export class TransactionService {
@@ -11,6 +21,7 @@ export class TransactionService {
     @Inject('TransactionModel')
     private transactionModel: Model<TransactionDocument>,
     private partnerRoomService: PartnerRoomService,
+    private budgetService: BudgetService,
   ) {}
 
   async create(
@@ -27,12 +38,20 @@ export class TransactionService {
       receiptImageUrl?: string;
     },
   ): Promise<TransactionDocument> {
+    let savingsAmount: number | undefined;
+    if (data.type === 'income') {
+      const budget = await this.budgetService.findForUser(userId, data.roomId);
+      const savingsPercent = budget?.distribution?.savings ?? 20;
+      const amountNum = Math.abs(getAmountValue(data.amount, data.inputCurrency ?? 'USD'));
+      savingsAmount = Math.round((amountNum * savingsPercent) / 100 * 100) / 100;
+    }
     const doc = await this.transactionModel.create({
       ...data,
       userId,
       date: data.date ?? new Date(),
       source: data.source ?? 'manual',
       inputCurrency: data.inputCurrency ?? 'USD',
+      ...(savingsAmount !== undefined && { savingsAmount }),
     });
     return doc;
   }
@@ -123,6 +142,25 @@ export class TransactionService {
       { $sort: { total: -1 } },
     ]).exec();
     return result.map((r) => ({ category: r._id, total: r.total }));
+  }
+
+  async getTotalSavings(
+    userId: Types.ObjectId,
+    roomId?: Types.ObjectId,
+  ): Promise<number> {
+    const match = await this.buildRoomMatch(userId, { roomId });
+    if (!match) return 0;
+    (match as Record<string, unknown>).type = 'income';
+    const result = await this.transactionModel.aggregate<{ total: number }>([
+      { $match: match },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: { $ifNull: ['$savingsAmount', 0] } },
+        },
+      },
+    ]).exec();
+    return result[0]?.total ?? 0;
   }
 
   async getStatsByMember(

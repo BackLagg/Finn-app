@@ -121,6 +121,7 @@
   "statistics": {
     "title": "Статистика",
     "tabTitle": "Аналитика",
+    "heroTitle": "Смотрите, куда уходят ваши деньги",
     "mostExpensiveCategory": "Наиболее затратная категория",
     "mostProfitableCategory": "Наиболее прибыльная категория",
     "planner": {
@@ -137,6 +138,8 @@
       "dayOfMonth": "День месяца",
       "savingFor": "На что копим",
       "savingForPlaceholder": "Оплата аренды, подарок...",
+      "categoryOptional": "— Не выбрано",
+      "categoryOptionalLabel": "Категория (необязательно)",
       "plans": "Планы",
       "plansTotal": "Сумма планов",
       "available": "Доступно",

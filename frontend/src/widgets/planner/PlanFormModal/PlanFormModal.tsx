@@ -1,48 +1,62 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal } from '@shared/ui';
+import { Modal, Dropdown } from '@shared/ui';
+import { getCategoryLabel } from '@shared/lib/category-labels';
 import type { Plan } from '@entities/planner';
 import styles from './PlanFormModal.module.scss';
 
+const EXPENSE_CATEGORIES = [
+  'Семья', 'Образование', 'Питомцы', 'Кино', 'Здоровье', 'Транспорт',
+  'Одежда', 'Еда', 'Игры', 'Книги', 'Спорт', 'Кафе', 'Покупки', 'Другое',
+];
+
 interface PlanFormModalProps {
   initialPlan?: Plan;
-  onSave: (name: string, amount: number, dayOfMonth: number, savingFor?: string) => void;
+  title?: string;
+  onSave: (name: string, amount: number, category?: string, deadline?: string) => void;
   onClose: () => void;
-  maxDay: number;
 }
 
 export const PlanFormModal: React.FC<PlanFormModalProps> = ({
   initialPlan,
+  title,
   onSave,
   onClose,
-  maxDay,
 }) => {
   const { t } = useTranslation();
   const [name, setName] = useState(initialPlan?.name ?? '');
   const [amount, setAmount] = useState(initialPlan?.amount?.toString() ?? '');
-  const [dayOfMonth, setDayOfMonth] = useState(initialPlan?.dayOfMonth ?? 1);
-  const [savingFor, setSavingFor] = useState(initialPlan?.savingFor ?? '');
+  const [category, setCategory] = useState(initialPlan?.category ?? '');
+  const [deadline, setDeadline] = useState(initialPlan?.deadline ?? '');
 
   useEffect(() => {
     if (initialPlan) {
       setName(initialPlan.name);
       setAmount(initialPlan.amount.toString());
-      setDayOfMonth(initialPlan.dayOfMonth);
-      setSavingFor(initialPlan.savingFor ?? '');
+      setCategory(initialPlan.category ?? '');
+      setDeadline(initialPlan.deadline ?? '');
     }
   }, [initialPlan]);
 
   const handleSubmit = () => {
     const num = parseFloat(amount.replace(',', '.'));
-    if (name.trim() && num > 0 && dayOfMonth >= 1 && dayOfMonth <= maxDay) {
-      onSave(name.trim(), num, Math.min(dayOfMonth, maxDay), savingFor.trim() || undefined);
+    if (name.trim() && num > 0) {
+      onSave(name.trim(), num, category.trim() || undefined, deadline.trim() || undefined);
     }
   };
 
   const isValid = name.trim().length > 0 && parseFloat(amount.replace(',', '.')) > 0;
 
+  const categoryOptions = [
+    { value: '', label: t('statistics.planner.categoryOptional', '— Не выбрано') },
+    ...EXPENSE_CATEGORIES.map((cat) => ({
+      value: cat,
+      label: getCategoryLabel(t, 'expense', cat),
+    })),
+  ];
+
   return (
-    <Modal isOpen onClose={onClose} title={t('statistics.planner.addPlan')}>
+    <Modal isOpen onClose={onClose} title={title ?? t('statistics.planner.addPlan')}>
       <form
         className={styles['plan-form']}
         onSubmit={(e) => {
@@ -68,23 +82,20 @@ export const PlanFormModal: React.FC<PlanFormModalProps> = ({
           onChange={(e) => setAmount(e.target.value.replace(/[^\d.,]/g, ''))}
         />
 
-        <label className={styles['plan-form__label']}>{t('statistics.planner.dayOfMonth')}</label>
-        <input
-          type="number"
-          min={1}
-          max={maxDay}
-          className={styles['plan-form__input']}
-          value={dayOfMonth}
-          onChange={(e) => setDayOfMonth(Math.min(maxDay, Math.max(1, parseInt(e.target.value, 10) || 1)))}
+        <label className={styles['plan-form__label']}>{t('statistics.planner.categoryOptionalLabel', 'Категория (необязательно)')}</label>
+        <Dropdown
+          options={categoryOptions}
+          value={category}
+          onChange={setCategory}
+          placeholder={t('statistics.planner.categoryOptional', '— Не выбрано')}
         />
 
-        <label className={styles['plan-form__label']}>{t('statistics.planner.savingFor')}</label>
+        <label className={styles['plan-form__label']}>{t('statistics.planner.deadline', 'Дедлайн (необязательно)')}</label>
         <input
-          type="text"
+          type="date"
           className={styles['plan-form__input']}
-          value={savingFor}
-          onChange={(e) => setSavingFor(e.target.value)}
-          placeholder={t('statistics.planner.savingForPlaceholder')}
+          value={deadline}
+          onChange={(e) => setDeadline(e.target.value)}
         />
 
         <div className={styles['plan-form__actions']}>

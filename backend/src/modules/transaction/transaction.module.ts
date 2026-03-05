@@ -4,6 +4,7 @@ import { Transaction, TransactionSchema } from '../../schemas/transaction.schema
 import { TransactionService } from './transaction.service';
 import { TransactionController } from './transaction.controller';
 import { PartnerRoomModule } from '../partner-room/partner-room.module';
+import { BudgetModule } from '../budget/budget.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { PartnerRoomModule } from '../partner-room/partner-room.module';
       { name: Transaction.name, schema: TransactionSchema },
     ]),
     PartnerRoomModule,
+    BudgetModule,
   ],
   controllers: [TransactionController],
   providers: [TransactionService],

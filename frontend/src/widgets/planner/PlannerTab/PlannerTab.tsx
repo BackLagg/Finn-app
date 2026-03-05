@@ -1,14 +1,16 @@
 import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { FiPlus, FiTrash2 } from 'react-icons/fi';
+import { FiPlus, FiTrash2, FiEdit2 } from 'react-icons/fi';
 import { financeAPI } from '@shared/api';
 import { getTransactionAmount } from '@shared/lib/transaction';
-import { usePlans, useIncomePayments } from '@features/planner';
+import { usePlans } from '@features/planner';
 import { useCurrencyPreference } from '@shared/lib/use-currency-preference';
 import { currencySymbols } from '@shared/lib/currency';
+import { getCategoryLabel } from '@shared/lib/category-labels';
+import type { Plan } from '@entities/planner';
 import type { DayBalance } from '@shared/ui';
-import { CollapsibleSection } from '@shared/ui';
+import { CollapsibleSection, CategoryIcon, categoryColorMap } from '@shared/ui';
 import { CalendarWithReminders } from '../CalendarWithReminders';
 import { ExpenseList } from '../ExpenseList';
 import { IncomeExpensesBlock } from '../IncomeExpensesBlock';
@@ -32,8 +34,8 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector 
   const month = currentDate.getMonth();
   const today = new Date().getDate();
 
-  const { plans, addPlan, removePlan } = usePlans(year, month);
-  const { payments, addPayment, removePayment, totalIncome } = useIncomePayments(year, month);
+  const { plans, addPlan, updatePlan, removePlan } = usePlans(roomId);
+  const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
 
   const firstDay = new Date(year, month, 1).toISOString().slice(0, 10);
   const lastDay = new Date(year, month + 1, 0).toISOString().slice(0, 10);
@@ -41,6 +43,14 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector 
     queryKey: ['transactions', roomId, firstDay, lastDay],
     queryFn: async () => {
       const res = await financeAPI.transactions.list({ roomId, from: firstDay, to: lastDay });
+      return res.data;
+    },
+  });
+
+  const { data: totalSavingsData } = useQuery({
+    queryKey: ['transactions', 'total-savings', roomId],
+    queryFn: async () => {
+      const res = await financeAPI.transactions.totalSavings({ roomId });
       return res.data;
     },
   });
@@ -77,17 +87,32 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector 
       });
   }, [monthTransactions, year, month]);
 
-  const markedDatesWithColors = plans.map((p, i) => ({
-    date: new Date(year, month, p.dayOfMonth),
-    color: PLAN_COLORS[i % PLAN_COLORS.length],
-  }));
+  const totalSavingsCumulative = totalSavingsData?.totalSavings ?? 0;
+  const planCount = plans.length || 1;
+  const amountPerPlan = totalSavingsCumulative / planCount;
 
-  const futurePlans = plans.filter((p) => p.dayOfMonth >= today);
-  const plansTotal = futurePlans.reduce((s, p) => s + p.amount, 0);
-  const available = Math.max(0, totalIncome - plansTotal);
+  const planDeadlineDates = useMemo(() => {
+    return plans
+      .filter((p) => p.deadline)
+      .map((p) => {
+        const d = new Date(p.deadline!);
+        return { date: d, color: '#ef4444' };
+      })
+      .filter(({ date }) => date.getFullYear() === year && date.getMonth() === month);
+  }, [plans, year, month]);
 
-  const handleAddPlan = (name: string, amount: number, dayOfMonth: number, savingFor?: string) => {
-    addPlan({ name, amount, dayOfMonth: Math.min(dayOfMonth, 31), savingFor });
+  const markedDatesWithColors = [...planDeadlineDates];
+
+  const handleAddPlan = (name: string, amount: number, category?: string, deadline?: string) => {
+    addPlan({ name, amount, category, deadline });
+    setShowPlanModal(false);
+  };
+
+  const handleUpdatePlan = (name: string, amount: number, category?: string, deadline?: string) => {
+    if (editingPlan) {
+      updatePlan(editingPlan.id, { name, amount, category, deadline });
+      setEditingPlan(null);
+    }
     setShowPlanModal(false);
   };
 
@@ -103,6 +128,7 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector 
           onMonthChange={(y, m) => setCurrentDate(new Date(y, m, 1))}
           pinnable
           pinTopOffsetExtra={hasRoomSelector ? 40 : 0}
+          plansWithDeadline={plans.filter((p) => p.deadline)}
         />
       </div>
 
@@ -135,67 +161,83 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector 
       >
       <div className={styles['planner__plans']}>
         <div className={styles['planner__plans-list']}>
-          {plans
-            .sort((a, b) => a.dayOfMonth - b.dayOfMonth)
-            .map((plan, idx) => {
-              const color = PLAN_COLORS[idx % PLAN_COLORS.length];
-              const isPast = plan.dayOfMonth < today;
-              const allocated =
-                available > 0 && plansTotal > 0
-                  ? Math.round((plan.amount / plansTotal) * available)
-                  : 0;
-              const progress = plan.amount > 0 ? Math.min(100, (allocated / plan.amount) * 100) : 0;
+          {plans.map((plan, idx) => {
+            const color = plan.category
+              ? (categoryColorMap[plan.category] || PLAN_COLORS[idx % PLAN_COLORS.length])
+              : PLAN_COLORS[idx % PLAN_COLORS.length];
+            const current = Math.min(amountPerPlan, plan.amount);
+            const remaining = Math.max(0, plan.amount - current);
+            const progress = plan.amount > 0 ? (current / plan.amount) * 100 : 0;
+            const isOverdue = plan.deadline ? new Date(plan.deadline).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0) : false;
 
-              return (
-                <div key={plan.id} className={styles['planner__plan']}>
-                  <div
-                    className={styles['planner__plan-icon']}
-                    style={{ backgroundColor: `${color}25` }}
-                  >
-                    <span style={{ color, fontWeight: 700 }}>{plan.dayOfMonth}</span>
-                  </div>
-                  <div className={styles['planner__plan-content']}>
-                    <div className={styles['planner__plan-header']}>
-                      <span className={styles['planner__plan-name']}>{plan.name}</span>
-                      <span className={styles['planner__plan-amount']}>
-                        {plan.amount.toLocaleString()} {currencySymbols[currency]}
-                      </span>
-                    </div>
-                    {plan.savingFor && (
-                      <div className={styles['planner__plan-saving']}>{plan.savingFor}</div>
-                    )}
-                    <div className={styles['planner__plan-progress']}>
-                      <div
-                        className={styles['planner__plan-progressFill']}
-                        style={{ width: `${progress}%`, backgroundColor: color }}
-                      />
-                    </div>
-                    {!isPast && (
-                      <div className={styles['planner__plan-allocated']}>
-                        {allocated.toLocaleString()} / {plan.amount.toLocaleString()} {currencySymbols[currency]}
-                      </div>
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    className={styles['planner__plan-remove']}
-                    onClick={() => removePlan(plan.id)}
-                    title={t('common.delete')}
-                  >
-                    <FiTrash2 size={16} />
-                  </button>
+            return (
+              <div
+                key={plan.id}
+                className={`${styles['planner__plan']} ${isOverdue ? styles['planner__plan--overdue'] : ''}`}
+              >
+                <div
+                  className={styles['planner__plan-icon']}
+                  style={{ backgroundColor: `${color}20` }}
+                >
+                  {plan.category ? (
+                    <CategoryIcon category={plan.category} size={24} />
+                  ) : (
+                    <span style={{ color, fontWeight: 700, fontSize: 14 }}>?</span>
+                  )}
                 </div>
-              );
-            })}
+                <div className={styles['planner__plan-content']}>
+                  <div className={styles['planner__plan-header']}>
+                    <span className={styles['planner__plan-name']}>{plan.name}</span>
+                    <div className={styles['planner__plan-actions']}>
+                      <button
+                        type="button"
+                        className={styles['planner__plan-edit']}
+                        onClick={() => { setEditingPlan(plan); setShowPlanModal(true); }}
+                        title={t('common.edit', 'Редактировать')}
+                      >
+                        <FiEdit2 size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        className={styles['planner__plan-remove']}
+                        onClick={() => removePlan(plan.id)}
+                        title={t('common.delete')}
+                      >
+                        <FiTrash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  {plan.category && (
+                    <div className={styles['planner__plan-category']}>
+                      {getCategoryLabel(t, 'expense', plan.category)}
+                    </div>
+                  )}
+                  <div className={styles['planner__plan-currentTarget']}>
+                    {Math.round(current).toLocaleString()} {currencySymbols[currency]} / {plan.amount.toLocaleString()} {currencySymbols[currency]}
+                  </div>
+                  <div className={styles['planner__plan-progress']}>
+                    <div
+                      className={styles['planner__plan-progressFill']}
+                      style={{ width: `${progress}%`, backgroundColor: color }}
+                    />
+                  </div>
+                  <div className={styles['planner__plan-remaining']}>
+                    {Math.round(remaining).toLocaleString()} {currencySymbols[currency]}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
       </CollapsibleSection>
 
       {showPlanModal && (
         <PlanFormModal
-          onSave={handleAddPlan}
-          onClose={() => setShowPlanModal(false)}
-          maxDay={new Date(year, month + 1, 0).getDate()}
+          initialPlan={editingPlan ?? undefined}
+          title={editingPlan ? t('statistics.planner.editPlan', 'Редактировать план') : t('statistics.planner.addPlan')}
+          onSave={editingPlan ? handleUpdatePlan : handleAddPlan}
+          onClose={() => { setShowPlanModal(false); setEditingPlan(null); }}
         />
       )}
     </div>

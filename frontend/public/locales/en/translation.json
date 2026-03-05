@@ -121,6 +121,7 @@
   "statistics": {
     "title": "Statistics",
     "tabTitle": "Analytics",
+    "heroTitle": "See where your money goes",
     "mostExpensiveCategory": "Most expensive category",
     "mostProfitableCategory": "Most profitable category",
     "planner": {
@@ -137,6 +138,8 @@
       "dayOfMonth": "Day of month",
       "savingFor": "Saving for",
       "savingForPlaceholder": "Rent payment, gift...",
+      "categoryOptional": "— Not selected",
+      "categoryOptionalLabel": "Category (optional)",
       "plans": "Plans",
       "plansTotal": "Plans total",
       "available": "Available",

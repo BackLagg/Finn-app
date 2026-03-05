@@ -83,7 +83,6 @@ export const ExpenseIncomeDonutChart: React.FC<ExpenseIncomeDonutChartProps> = (
 
   const { payments } = useIncomePayments(y, m);
 
-  const memberNames = room?.members?.map(getMemberDisplayName).filter(Boolean) ?? [];
   const userIdToName: Record<string, string> =
     room?.members?.reduce<Record<string, string>>((acc, m) => {
       const id = getMemberId(m);
@@ -162,17 +161,6 @@ export const ExpenseIncomeDonutChart: React.FC<ExpenseIncomeDonutChartProps> = (
 
   return (
     <div className={styles.chart}>
-      {roomId && room && (
-        <div className={styles.chart__room}>
-          <div className={styles.chart__roomName}>{room.name}</div>
-          {memberNames.length > 0 && (
-            <div className={styles.chart__members}>
-              <span className={styles.chart__membersLabel}>{t('partners.members')}:</span>
-              <span className={styles.chart__membersList}>{memberNames.join(', ')}</span>
-            </div>
-          )}
-        </div>
-      )}
       <div className={styles.chart__tabs}>
         <Toggle
           options={toggleOptions}
@@ -184,9 +172,10 @@ export const ExpenseIncomeDonutChart: React.FC<ExpenseIncomeDonutChartProps> = (
         data={data}
         currencySymbol={currencySymbols[currency]}
         title={t('home.charts.categoryBreakdown')}
-        showLegend
+        showLegend={false}
         getCategoryLabel={getChartLabel}
         emptyMessage={data.length === 0 ? (activeTab === 'income' ? t('statistics.planner.noIncome') : t('statistics.planner.noExpenses')) : undefined}
+        hideWrapper
       />
       {dataWithPct.length > 0 ? (
         <div className={styles.chart__barRow}>

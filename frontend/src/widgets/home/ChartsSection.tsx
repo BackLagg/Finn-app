@@ -35,6 +35,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ roomId }) => {
     },
   });
 
+  const monthShort = new Date(now.getFullYear(), now.getMonth(), 1).toLocaleString(undefined, { month: 'short' });
   const dailyData = Array.from({ length: 31 }, (_, i) => {
     const day = i + 1;
     const dayTransactions = transactions.filter(tx => {
@@ -42,7 +43,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ roomId }) => {
       return txDay === day && tx.type === 'expense';
     });
     const total = dayTransactions.reduce((s, tx) => s + getTxAmount(tx), 0);
-    return { day, amount: total };
+    return { day, amount: total, label: `${day} ${monthShort}` };
   });
 
   const monthlyIncomeExpenseData = Array.from({ length: 31 }, (_, i) => {
@@ -57,7 +58,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ roomId }) => {
       return txDay === day && tx.type === 'expense';
     }).reduce((s, tx) => s + getTxAmount(tx), 0);
 
-    return { day, income: dayIncome, expense: dayExpense };
+    return { day, income: dayIncome, expense: dayExpense, label: `${day} ${monthShort}` };
   });
 
   return (
@@ -68,27 +69,34 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ roomId }) => {
         <div className={styles['charts-section__card']}>
           <h3 className={styles['charts-section__card-title']}>{t('home.charts.dailyExpenses')}</h3>
           <div className={styles['charts-section__wrapper']}>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={dailyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                <XAxis 
-                  dataKey="day" 
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={dailyData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+                <XAxis
+                  dataKey="day"
+                  tickFormatter={(_, i) => (i === 0 || i === 30 ? dailyData[i]?.label ?? '' : '')}
                   stroke="var(--color-text-tertiary)"
                   tick={{ fontSize: 11 }}
-                  interval="preserveStartEnd"
+                  axisLine={false}
+                  tickLine={false}
                 />
-                <YAxis 
+                <YAxis
                   stroke="var(--color-text-tertiary)"
                   tick={{ fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={32}
                 />
-                <Tooltip 
-                  contentStyle={{ 
-                    background: 'var(--color-surface)', 
+                <Tooltip
+                  contentStyle={{
+                    background: 'var(--color-surface)',
                     border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius)'
+                    borderRadius: 12,
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                   }}
+                  labelFormatter={(_, payload) => payload?.[0]?.payload?.label ?? ''}
                 />
-                <Bar dataKey="amount" fill="var(--color-success)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="amount" fill="var(--color-success)" radius={[8, 8, 0, 0]} maxBarSize={24} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -97,41 +105,50 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ roomId }) => {
         <div className={styles['charts-section__card']}>
           <h3 className={styles['charts-section__card-title']}>{t('home.charts.incomeVsExpense')}</h3>
           <div className={styles['charts-section__wrapper']}>
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={monthlyIncomeExpenseData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                <XAxis 
-                  dataKey="day" 
+            <ResponsiveContainer width="100%" height={220}>
+              <LineChart data={monthlyIncomeExpenseData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+                <XAxis
+                  dataKey="day"
+                  tickFormatter={(_, i) => (i === 0 || i === 30 ? monthlyIncomeExpenseData[i]?.label ?? '' : '')}
                   stroke="var(--color-text-tertiary)"
                   tick={{ fontSize: 11 }}
-                  interval="preserveStartEnd"
+                  axisLine={false}
+                  tickLine={false}
                 />
-                <YAxis 
+                <YAxis
                   stroke="var(--color-text-tertiary)"
                   tick={{ fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={32}
                 />
-                <Tooltip 
-                  contentStyle={{ 
-                    background: 'var(--color-surface)', 
+                <Tooltip
+                  contentStyle={{
+                    background: 'var(--color-surface)',
                     border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius)'
+                    borderRadius: 12,
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                   }}
+                  labelFormatter={(_, payload) => payload?.[0]?.payload?.label ?? ''}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="income" 
-                  stroke="var(--color-success)" 
+                <Line
+                  type="monotone"
+                  dataKey="income"
+                  stroke="var(--color-success)"
                   strokeWidth={2}
+                  dot={false}
                   name={t('common.income')}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="expense" 
-                  stroke="var(--color-danger)" 
+                <Line
+                  type="monotone"
+                  dataKey="expense"
+                  stroke="var(--color-danger)"
                   strokeWidth={2}
+                  dot={false}
                   name={t('common.expense')}
                 />
-                <Legend />
+                <Legend wrapperStyle={{ paddingTop: 12 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>

@@ -2,8 +2,11 @@ export interface Plan {
   id: string;
   name: string;
   amount: number;
-  dayOfMonth: number;
+  dayOfMonth?: number;
   savingFor?: string;
+  category?: string;
+  roomId?: string;
+  deadline?: string;
 }
 
 export interface IncomePayment {

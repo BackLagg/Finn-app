@@ -42,6 +42,9 @@ export class Transaction {
 
   @Prop({ required: true, default: 'USD' })
   inputCurrency!: string;
+
+  @Prop({ required: false })
+  savingsAmount?: number;
 }
 
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);

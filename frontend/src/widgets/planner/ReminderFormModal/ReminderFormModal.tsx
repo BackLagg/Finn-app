@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Currency, currencySymbols } from '@shared/lib/currency';
 import { getRemindersForDate } from '@shared/lib/reminders';
 import type { Reminder } from '@shared/api';
+import type { Plan } from '@entities/planner';
 import { Modal, Toggle } from '@shared/ui';
 import styles from './ReminderFormModal.module.scss';
 
@@ -19,6 +20,7 @@ interface ReminderFormModalProps {
   reminders: (Reminder & { id: string })[];
   onCreate: (data: { amount: number; currency?: string; description?: string; date: string; dayOfMonth: number; isRecurring?: boolean; roomId?: string }) => void;
   onDelete: (id: string) => void;
+  plansWithDeadline?: Plan[];
 }
 
 const SWIPE_THRESHOLD = 40;
@@ -32,6 +34,7 @@ export const ReminderFormModal: React.FC<ReminderFormModalProps> = ({
   reminders,
   onCreate,
   onDelete,
+  plansWithDeadline = [],
 }) => {
   const { t } = useTranslation();
   const [amount, setAmount] = useState('');
@@ -48,7 +51,17 @@ export const ReminderFormModal: React.FC<ReminderFormModalProps> = ({
     [reminders, year, month, day]
   );
 
-  const hasReminders = remindersForDate.length > 0;
+  const plansForDate = useMemo(
+    () =>
+      plansWithDeadline.filter((p) => {
+        if (!p.deadline) return false;
+        const d = new Date(p.deadline);
+        return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
+      }),
+    [plansWithDeadline, year, month, day]
+  );
+
+  const hasReminders = remindersForDate.length > 0 || plansForDate.length > 0;
 
   const [view, setView] = useState<ViewMode>('form');
   useEffect(() => {
@@ -265,8 +278,16 @@ export const ReminderFormModal: React.FC<ReminderFormModalProps> = ({
               exit={{ opacity: 0, y: 60 }}
               transition={{ type: 'spring', damping: 28, stiffness: 320 }}
             >
-              {remindersForDate.length > 0 ? (
+              {remindersForDate.length > 0 || plansForDate.length > 0 ? (
                 <ul className={styles.form__reminderList}>
+                  {plansForDate.map((p) => (
+                    <li key={p.id} className={`${styles.form__reminderItem} ${styles['form__reminderItem--planDeadline']}`}>
+                      <span className={styles.form__reminderText}>
+                        {t('statistics.planner.planDeadline', 'План')}: {p.name}
+                        {p.amount > 0 && ` — ${p.amount.toLocaleString()} ${currencySymbols[currency]}`}
+                      </span>
+                    </li>
+                  ))}
                   {remindersForDate.map((r) => (
                     <li key={r.id} className={styles.form__reminderItem}>
                       <span className={styles.form__reminderText}>

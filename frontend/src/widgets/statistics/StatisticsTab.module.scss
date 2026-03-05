@@ -5,6 +5,15 @@
   padding-bottom: 24px;
   box-sizing: border-box;
 
+  &__hero {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 0 0 24px 0;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
   &__context {
     margin-bottom: 16px;
   }
@@ -18,27 +27,37 @@
     gap: 12px;
     margin-bottom: 20px;
     flex-wrap: wrap;
+    align-items: stretch;
   }
 
   &__card {
     flex: 1;
     min-width: 160px;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius);
+    border-radius: 16px;
     padding: 16px;
+    box-sizing: border-box;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   }
 
   &__cardLabel {
+    flex-shrink: 0;
     font-size: 13px;
     color: var(--color-text-secondary);
     margin-bottom: 10px;
+    line-height: 1.3;
   }
 
   &__cardRow {
     display: flex;
     align-items: center;
     gap: 12px;
+    flex: 1;
+    min-height: 0;
   }
 
   &__cardIcon {
@@ -53,17 +72,23 @@
 
   &__cardContent {
     min-width: 0;
+    overflow: hidden;
   }
 
   &__cardValue {
     font-size: 16px;
     font-weight: 600;
     color: var(--color-text-primary);
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &__cardAmount {
     font-size: 15px;
     font-weight: 600;
     margin-top: 4px;
+    line-height: 1.3;
   }
 }

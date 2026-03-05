@@ -87,6 +87,19 @@ export class TransactionController {
     });
   }
 
+  @Get('total-savings')
+  async getTotalSavings(
+    @Query('roomId') roomId: string | undefined,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = this.getUserId(req);
+    const total = await this.transactionService.getTotalSavings(
+      userId,
+      roomId ? new Types.ObjectId(roomId) : undefined,
+    );
+    return { totalSavings: total };
+  }
+
   @Get('stats/by-member')
   async getStatsByMember(
     @Query('roomId') roomId: string,

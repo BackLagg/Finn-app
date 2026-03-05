@@ -135,6 +135,11 @@
     background: var(--color-bg);
     border: 1px solid var(--color-border);
     border-radius: 12px;
+
+    &--planDeadline {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+    }
   }
 
   &__reminderText {

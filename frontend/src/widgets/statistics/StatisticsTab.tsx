@@ -82,6 +82,7 @@ export const StatisticsTab: React.FC<StatisticsTabProps> = ({ roomId }) => {
 
   return (
     <div className={styles.statistics}>
+      <h1 className={styles.statistics__hero}>{t('statistics.heroTitle')}</h1>
       <div className={styles.statistics__summary}>
         <div className={styles.statistics__card}>
           <div className={styles.statistics__cardLabel}>

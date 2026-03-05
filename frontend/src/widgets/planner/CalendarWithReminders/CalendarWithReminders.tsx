@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { FiChevronDown, FiChevronUp, FiMapPin } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
 import { Calendar, type DayBalance } from '@shared/ui';
+import type { Plan } from '@entities/planner';
 import { ReminderFormModal } from '../ReminderFormModal';
 import { useReminders } from '@features/reminders/use-reminders';
 import { getMarkedDatesWithColors, DateWithColor } from '@shared/lib/reminders';
@@ -20,6 +21,7 @@ interface CalendarWithRemindersProps {
   onMonthChange?: (year: number, month: number) => void;
   pinnable?: boolean;
   pinTopOffsetExtra?: number;
+  plansWithDeadline?: Plan[];
 }
 
 export const CalendarWithReminders: React.FC<CalendarWithRemindersProps> = ({
@@ -31,6 +33,7 @@ export const CalendarWithReminders: React.FC<CalendarWithRemindersProps> = ({
   onMonthChange,
   pinnable = false,
   pinTopOffsetExtra = 0,
+  plansWithDeadline = [],
 }) => {
   const { t } = useTranslation();
   const [isCollapsed, toggleCollapsed] = useCollapsedStorage('calendar', true);
@@ -148,6 +151,7 @@ export const CalendarWithReminders: React.FC<CalendarWithRemindersProps> = ({
         reminders={reminders}
         onCreate={createReminder}
         onDelete={deleteReminder}
+        plansWithDeadline={plansWithDeadline}
       />
       </div>
       {isPinned && (
