@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { FiPlus, FiTrash2, FiEdit2 } from 'react-icons/fi';
+import { FiPlus, FiTrash2, FiEdit2, FiCheck } from 'react-icons/fi';
 import { financeAPI } from '@shared/api';
 import { getTransactionAmount } from '@shared/lib/transaction';
 import { usePlans } from '@features/planner';
@@ -10,7 +10,7 @@ import { currencySymbols } from '@shared/lib/currency';
 import { getCategoryLabel } from '@shared/lib/category-labels';
 import type { Plan } from '@entities/planner';
 import type { DayBalance } from '@shared/ui';
-import { CollapsibleSection, CategoryIcon, categoryColorMap } from '@shared/ui';
+import { CollapsibleSection, CategoryIcon, categoryColorMap, Slider, Toggle } from '@shared/ui';
 import { CalendarWithReminders } from '../CalendarWithReminders';
 import { ExpenseList } from '../ExpenseList';
 import { IncomeExpensesBlock } from '../IncomeExpensesBlock';
@@ -34,8 +34,15 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector 
   const month = currentDate.getMonth();
   const today = new Date().getDate();
 
-  const { plans, addPlan, updatePlan, removePlan } = usePlans(roomId);
+  const { plans, addPlan, updatePlan, removePlan, setPlanSavingsPercent, completePlan } = usePlans(roomId);
   const [editingPlan, setEditingPlan] = useState<Plan | null>(null);
+  type PlanFilter = 'all' | 'active' | 'completed';
+  const [planFilter, setPlanFilter] = useState<PlanFilter>('all');
+
+  const activePlans = useMemo(() => plans.filter((p) => !p.completedAt), [plans]);
+  const activeCount = activePlans.length;
+  const getSavingsPercent = (plan: Plan) =>
+    plan.savingsPercent ?? (activeCount > 0 ? Math.round(100 / activeCount) : 100);
 
   const firstDay = new Date(year, month, 1).toISOString().slice(0, 10);
   const lastDay = new Date(year, month + 1, 0).toISOString().slice(0, 10);
@@ -88,8 +95,23 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector 
   }, [monthTransactions, year, month]);
 
   const totalSavingsCumulative = totalSavingsData?.totalSavings ?? 0;
-  const planCount = plans.length || 1;
-  const amountPerPlan = totalSavingsCumulative / planCount;
+  const completedTotal = useMemo(
+    () => plans.filter((p) => p.completedAt).reduce((s, p) => s + p.amount, 0),
+    [plans]
+  );
+  const availableSavings = Math.max(0, totalSavingsCumulative - completedTotal);
+
+  const filteredPlans = useMemo(() => {
+    if (planFilter === 'active') return plans.filter((p) => !p.completedAt);
+    if (planFilter === 'completed') return plans.filter((p) => p.completedAt);
+    return plans;
+  }, [plans, planFilter]);
+
+  const planFilterOptions = [
+    { value: 'all' as const, label: t('statistics.planner.filterAll', 'Все') },
+    { value: 'active' as const, label: t('statistics.planner.filterActive', 'Активные') },
+    { value: 'completed' as const, label: t('statistics.planner.filterCompleted', 'Завершённые') },
+  ];
 
   const planDeadlineDates = useMemo(() => {
     return plans
@@ -160,20 +182,35 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector 
         }
       >
       <div className={styles['planner__plans']}>
+        <div className={styles['planner__plans-tabs']}>
+          <Toggle
+            options={planFilterOptions}
+            value={planFilter}
+            onChange={(v) => setPlanFilter(v as PlanFilter)}
+          />
+        </div>
         <div className={styles['planner__plans-list']}>
-          {plans.map((plan, idx) => {
-            const color = plan.category
-              ? (categoryColorMap[plan.category] || PLAN_COLORS[idx % PLAN_COLORS.length])
-              : PLAN_COLORS[idx % PLAN_COLORS.length];
-            const current = Math.min(amountPerPlan, plan.amount);
+          {filteredPlans.map((plan, idx) => {
+            const isCompleted = !!plan.completedAt;
+            const color = isCompleted
+              ? '#10b981'
+              : plan.category
+                ? (categoryColorMap[plan.category] || PLAN_COLORS[idx % PLAN_COLORS.length])
+                : PLAN_COLORS[idx % PLAN_COLORS.length];
+            const savingsPercent = getSavingsPercent(plan);
+            const currentForPlan = isCompleted ? plan.amount : (availableSavings * savingsPercent) / 100;
+            const current = Math.min(currentForPlan, plan.amount);
             const remaining = Math.max(0, plan.amount - current);
             const progress = plan.amount > 0 ? (current / plan.amount) * 100 : 0;
-            const isOverdue = plan.deadline ? new Date(plan.deadline).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0) : false;
+            const isOverdue =
+              !isCompleted &&
+              plan.deadline &&
+              new Date(plan.deadline).setHours(0, 0, 0, 0) < new Date().setHours(0, 0, 0, 0);
 
             return (
               <div
                 key={plan.id}
-                className={`${styles['planner__plan']} ${isOverdue ? styles['planner__plan--overdue'] : ''}`}
+                className={`${styles['planner__plan']} ${isCompleted ? styles['planner__plan--completed'] : ''} ${isOverdue ? styles['planner__plan--overdue'] : ''}`}
               >
                 <div
                   className={styles['planner__plan-icon']}
@@ -189,14 +226,31 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector 
                   <div className={styles['planner__plan-header']}>
                     <span className={styles['planner__plan-name']}>{plan.name}</span>
                     <div className={styles['planner__plan-actions']}>
-                      <button
-                        type="button"
-                        className={styles['planner__plan-edit']}
-                        onClick={() => { setEditingPlan(plan); setShowPlanModal(true); }}
-                        title={t('common.edit', 'Редактировать')}
-                      >
-                        <FiEdit2 size={16} />
-                      </button>
+                      {!isCompleted && progress >= 100 && (
+                        <button
+                          type="button"
+                          className={styles['planner__plan-complete']}
+                          onClick={() => completePlan(plan.id)}
+                          title={t('statistics.planner.markCompleted', 'Отметить выполненным')}
+                        >
+                          <FiCheck size={16} />
+                        </button>
+                      )}
+                      {!isCompleted && (
+                        <button
+                          type="button"
+                          className={styles['planner__plan-edit']}
+                          onClick={() => { setEditingPlan(plan); setShowPlanModal(true); }}
+                          title={t('common.edit', 'Редактировать')}
+                        >
+                          <FiEdit2 size={16} />
+                        </button>
+                      )}
+                      {isCompleted && (
+                        <span className={styles['planner__plan-completedBadge']} title={t('statistics.planner.completed', 'Выполнен')}>
+                          <FiCheck size={16} />
+                        </span>
+                      )}
                       <button
                         type="button"
                         className={styles['planner__plan-remove']}
@@ -215,15 +269,23 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector 
                   <div className={styles['planner__plan-currentTarget']}>
                     {Math.round(current).toLocaleString()} {currencySymbols[currency]} / {plan.amount.toLocaleString()} {currencySymbols[currency]}
                   </div>
-                  <div className={styles['planner__plan-progress']}>
-                    <div
-                      className={styles['planner__plan-progressFill']}
-                      style={{ width: `${progress}%`, backgroundColor: color }}
+                  {!isCompleted && (
+                    <Slider
+                      className={styles['planner__plan-slider']}
+                      label={t('statistics.planner.savingsPercent', '% сбережений')}
+                      value={savingsPercent}
+                      min={0}
+                      max={100}
+                      step={1}
+                      valueSuffix="%"
+                      onChange={(v) => setPlanSavingsPercent(plan.id, v)}
                     />
-                  </div>
-                  <div className={styles['planner__plan-remaining']}>
-                    {Math.round(remaining).toLocaleString()} {currencySymbols[currency]}
-                  </div>
+                  )}
+                  {!isCompleted && (
+                    <div className={styles['planner__plan-remaining']}>
+                      {Math.round(remaining).toLocaleString()} {currencySymbols[currency]}
+                    </div>
+                  )}
                 </div>
               </div>
             );

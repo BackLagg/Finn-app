@@ -114,6 +114,10 @@
     margin: 0;
   }
 
+  &__plans-tabs {
+    margin-bottom: 12px;
+  }
+
   &__plans-add {
     display: flex;
     align-items: center;
@@ -148,10 +152,38 @@
     border: 1px solid var(--color-border);
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 
+    &--completed {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.35);
+    }
+
     &--overdue {
       background: rgba(239, 68, 68, 0.08);
       border-color: rgba(239, 68, 68, 0.4);
     }
+  }
+
+  &__plan-complete {
+    padding: 6px;
+    background: rgba(16, 185, 129, 0.15);
+    border: none;
+    color: #10b981;
+    cursor: pointer;
+    border-radius: 8px;
+
+    &:hover {
+      background: rgba(16, 185, 129, 0.3);
+    }
+  }
+
+  &__plan-completedBadge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 8px;
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
   }
 
   &__plan-icon {
@@ -195,19 +227,8 @@
     margin-bottom: 8px;
   }
 
-  &__plan-progress {
-    width: 100%;
-    height: 8px;
-    background: var(--color-border);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 8px;
-  }
-
-  &__plan-progressFill {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.3s ease;
+  &__plan-slider {
+    margin-bottom: 4px;
   }
 
   &__plan-remaining {

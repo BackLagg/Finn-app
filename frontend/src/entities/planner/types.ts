@@ -7,6 +7,8 @@ export interface Plan {
   category?: string;
   roomId?: string;
   deadline?: string;
+  savingsPercent?: number;
+  completedAt?: string;
 }
 
 export interface IncomePayment {

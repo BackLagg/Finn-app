@@ -9,6 +9,7 @@ import { currencySymbols } from '@shared/lib/currency';
 import { useIncomePayments } from '@features/planner';
 import { ChartsSection, CategoryExpenses } from '@widgets/home';
 import { ExpenseIncomeDonutChart } from './ExpenseIncomeDonutChart';
+import { PlansDisplay } from './PlansDisplay';
 import styles from './StatisticsTab.module.scss';
 
 function getAmount(tx: { amount: number | { USD?: number; EUR?: number; RUB?: number; BYN?: number } }): number {
@@ -141,8 +142,8 @@ export const StatisticsTab: React.FC<StatisticsTabProps> = ({ roomId }) => {
       </div>
 
       <ExpenseIncomeDonutChart roomId={roomId} />
-      <CategoryExpenses roomId={roomId} />
       <ChartsSection roomId={roomId} />
+      <PlansDisplay roomId={roomId} />
     </div>
   );
 };

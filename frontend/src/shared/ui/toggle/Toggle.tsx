@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import styles from './Toggle.module.scss';
 
 export interface ToggleOption {
@@ -21,23 +20,21 @@ export const Toggle: React.FC<ToggleProps> = ({
   onChange,
   className,
 }) => {
-  const selectedIndex = options.findIndex((opt) => opt.value === value);
+  const selectedIndex = Math.max(0, options.findIndex((opt) => opt.value === value));
+  const count = Math.max(1, options.length);
 
   return (
     <div className={`${styles.toggle} ${className || ''}`}>
-      <div className={styles.toggle__track}>
-        <motion.div
-          className={styles.toggle__indicator}
-          initial={false}
-          animate={{
-            x: `${selectedIndex * 100}%`,
-          }}
-          transition={{
-            type: 'spring',
-            stiffness: 300,
-            damping: 30,
-          }}
-        />
+      <div
+        className={styles.toggle__track}
+        style={
+          {
+            '--toggle-count': count,
+            '--toggle-index': selectedIndex,
+          } as React.CSSProperties
+        }
+      >
+        <div className={styles.toggle__indicator} />
         {options.map((option) => (
           <button
             key={option.value}
