@@ -9,6 +9,7 @@ export interface Transaction {
   description?: string;
   source?: string;
   receiptImageUrl?: string;
+  userId?: string;
 }
 
 export interface BudgetSettings {
@@ -71,6 +72,8 @@ export const financeAPI = {
     delete: (id: string) => apiClient.delete(`/transaction/${id}`),
     stats: (params?: { roomId?: string; from?: string; to?: string }) =>
       apiClient.get<{ category: string; total: number }[]>('/transaction/stats', { params }),
+    statsByMember: (params: { roomId: string; from?: string; to?: string }) =>
+      apiClient.get<{ userId: string; total: number }[]>('/transaction/stats/by-member', { params }),
   },
   budget: {
     get: (roomId?: string) => apiClient.get<BudgetSettings | null>('/budget', { params: { roomId } }),

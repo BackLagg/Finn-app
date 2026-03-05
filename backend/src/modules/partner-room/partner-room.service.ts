@@ -106,7 +106,7 @@ export class PartnerRoomService {
 
     const profileMap = new Map<string, string>();
     for (const p of profiles as { userId: Types.ObjectId; username?: string; name?: string }[]) {
-      const name = p.username || p.name;
+      const name = p.name || p.username;
       if (name) profileMap.set(p.userId.toString(), name);
     }
 

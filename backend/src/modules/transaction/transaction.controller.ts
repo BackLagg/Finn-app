@@ -87,6 +87,22 @@ export class TransactionController {
     });
   }
 
+  @Get('stats/by-member')
+  async getStatsByMember(
+    @Query('roomId') roomId: string,
+    @Query('from') from: string | undefined,
+    @Query('to') to: string | undefined,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = this.getUserId(req);
+    if (!roomId) return [];
+    return this.transactionService.getStatsByMember(userId, {
+      roomId: new Types.ObjectId(roomId),
+      from: from ? new Date(from) : undefined,
+      to: to ? new Date(to) : undefined,
+    });
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const userId = this.getUserId(req);

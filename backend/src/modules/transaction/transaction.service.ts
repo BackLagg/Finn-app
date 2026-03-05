@@ -3,12 +3,14 @@ import { Inject } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 import { TransactionDocument } from '../../schemas/transaction.schema';
 import { MultiCurrencyAmount } from '../../schemas/multi-currency-amount.schema';
+import { PartnerRoomService } from '../partner-room/partner-room.service';
 
 @Injectable()
 export class TransactionService {
   constructor(
     @Inject('TransactionModel')
     private transactionModel: Model<TransactionDocument>,
+    private partnerRoomService: PartnerRoomService,
   ) {}
 
   async create(
@@ -39,10 +41,19 @@ export class TransactionService {
     userId: Types.ObjectId,
     options: { roomId?: Types.ObjectId; from?: Date; to?: Date; limit?: number } = {},
   ): Promise<TransactionDocument[]> {
-    const filter: Record<string, unknown> = { userId };
+    const filter: Record<string, unknown> = {};
     if (options.roomId) {
+      const room = await this.partnerRoomService.findById(options.roomId.toString(), userId);
+      if (!room) return [];
+      const memberIds = room.members.map((m) =>
+        typeof m.userId === 'object' && (m.userId as { _id?: Types.ObjectId })?._id
+          ? (m.userId as { _id: Types.ObjectId })._id
+          : (m.userId as Types.ObjectId),
+      );
       filter.roomId = options.roomId;
+      filter.userId = { $in: memberIds };
     } else {
+      filter.userId = userId;
       filter.$or = [{ roomId: { $exists: false } }, { roomId: null }];
     }
     if (options.from || options.to) {
@@ -89,14 +100,9 @@ export class TransactionService {
     userId: Types.ObjectId,
     options: { roomId?: Types.ObjectId; from?: Date; to?: Date },
   ): Promise<{ category: string; total: number }[]> {
-    const match: Record<string, unknown> = { userId, type: 'expense' };
-    if (options.roomId) match.roomId = options.roomId;
-    else match.$or = [{ roomId: { $exists: false } }, { roomId: null }];
-    if (options.from || options.to) {
-      match.date = {};
-      if (options.from) (match.date as Record<string, Date>).$gte = options.from;
-      if (options.to) (match.date as Record<string, Date>).$lte = options.to;
-    }
+    const match = await this.buildRoomMatch(userId, options);
+    if (!match) return [];
+    match.type = 'expense';
     const result = await this.transactionModel.aggregate<{ _id: string; total: number }>([
       { $match: match },
       {
@@ -117,5 +123,61 @@ export class TransactionService {
       { $sort: { total: -1 } },
     ]).exec();
     return result.map((r) => ({ category: r._id, total: r.total }));
+  }
+
+  async getStatsByMember(
+    userId: Types.ObjectId,
+    options: { roomId: Types.ObjectId; from?: Date; to?: Date },
+  ): Promise<{ userId: string; total: number }[]> {
+    const match = await this.buildRoomMatch(userId, options);
+    if (!match) return [];
+    match.type = 'expense';
+    const result = await this.transactionModel.aggregate<{ _id: Types.ObjectId; total: number }>([
+      { $match: match },
+      {
+        $group: {
+          _id: '$userId',
+          total: {
+            $sum: {
+              $add: [
+                { $ifNull: ['$amount.USD', 0] },
+                { $ifNull: ['$amount.EUR', 0] },
+                { $ifNull: ['$amount.RUB', 0] },
+                { $ifNull: ['$amount.BYN', 0] },
+              ],
+            },
+          },
+        },
+      },
+      { $sort: { total: -1 } },
+    ]).exec();
+    return result.map((r) => ({ userId: r._id.toString(), total: r.total }));
+  }
+
+  private async buildRoomMatch(
+    userId: Types.ObjectId,
+    options: { roomId?: Types.ObjectId; from?: Date; to?: Date },
+  ): Promise<Record<string, unknown> | null> {
+    const match: Record<string, unknown> = {};
+    if (options.roomId) {
+      const room = await this.partnerRoomService.findById(options.roomId.toString(), userId);
+      if (!room) return null;
+      const memberIds = room.members.map((m) =>
+        typeof m.userId === 'object' && (m.userId as { _id?: Types.ObjectId })?._id
+          ? (m.userId as { _id: Types.ObjectId })._id
+          : (m.userId as Types.ObjectId),
+      );
+      match.roomId = options.roomId;
+      match.userId = { $in: memberIds };
+    } else {
+      match.userId = userId;
+      match.$or = [{ roomId: { $exists: false } }, { roomId: null }];
+    }
+    if (options.from || options.to) {
+      match.date = {};
+      if (options.from) (match.date as Record<string, Date>).$gte = options.from;
+      if (options.to) (match.date as Record<string, Date>).$lte = options.to;
+    }
+    return match;
   }
 }
