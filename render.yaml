@@ -75,6 +75,8 @@ services:
         value: mongodb://finn-mongo:27017/finn-app
       - key: DB_NAME
         value: finn-app
+      - key: MINIAPP_URL
+        value: https://finn-frontend.onrender.com
       - key: BOT_TOKEN
         fromService:
           type: web
