@@ -4,12 +4,13 @@ import {
   Post,
   Body,
   Param,
+  Patch,
+  Delete,
   UseGuards,
   Req,
 } from '@nestjs/common';
 import { PartnerRoomService } from './partner-room.service';
-import { CreatePartnerRoomDto } from '../../dto/partner-room.dto';
-import { JoinPartnerRoomDto } from '../../dto/partner-room.dto';
+import { CreatePartnerRoomDto, JoinPartnerRoomDto, RemoveMemberDto, UpdatePartnerRoomDto } from '../../dto/partner-room.dto';
 import { UserGuard } from '../../guards/user.guard';
 import { AuthenticatedRequest } from '../../interfaces/request.interface';
 import { Types } from 'mongoose';
@@ -50,5 +51,41 @@ export class PartnerRoomController {
   async findOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const userId = this.getUserId(req);
     return this.partnerRoomService.findById(id, userId);
+  }
+
+  @Delete(':id/members')
+  async removeMember(
+    @Param('id') id: string,
+    @Body() dto: RemoveMemberDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = this.getUserId(req);
+    const ok = await this.partnerRoomService.removeMember(id, userId, dto.memberUserId);
+    if (!ok) throw new Error('Forbidden or member not found');
+    return { removed: true };
+  }
+
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() dto: UpdatePartnerRoomDto, @Req() req: AuthenticatedRequest) {
+    const userId = this.getUserId(req);
+    const ok = await this.partnerRoomService.updateRoom(id, userId, dto.name);
+    if (!ok) throw new Error('Forbidden or room not found');
+    return { updated: true };
+  }
+
+  @Post(':id/regenerate-code')
+  async regenerateCode(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    const userId = this.getUserId(req);
+    const code = await this.partnerRoomService.regenerateInviteCode(id, userId);
+    if (!code) throw new Error('Forbidden or room not found');
+    return { inviteCode: code };
+  }
+
+  @Delete(':id')
+  async deleteRoom(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    const userId = this.getUserId(req);
+    const ok = await this.partnerRoomService.deleteRoom(id, userId);
+    if (!ok) throw new Error('Forbidden or room not found');
+    return { deleted: true };
   }
 }

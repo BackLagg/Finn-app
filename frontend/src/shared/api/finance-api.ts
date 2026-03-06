@@ -59,7 +59,12 @@ export interface PartnerRoom {
   _id: string;
   name: string;
   inviteCode: string;
-  members: { userId: { telegramID?: string; username?: string; name?: string }; role: string; contributionPercent: number; displayName?: string | null }[];
+  members: {
+    userId: { _id?: string; telegramID?: string; username?: string; name?: string };
+    role: string;
+    contributionPercent: number;
+    displayName?: string | null;
+  }[];
 }
 
 export const financeAPI = {
@@ -118,6 +123,15 @@ export const financeAPI = {
     create: (name: string) => apiClient.post<PartnerRoom>('/partner-room', { name }),
     join: (inviteCode: string) => apiClient.post<PartnerRoom>('/partner-room/join', { inviteCode }),
     get: (id: string) => apiClient.get<PartnerRoom>(`/partner-room/${id}`),
+    update: (id: string, name: string) =>
+      apiClient.patch<{ updated: boolean }>(`/partner-room/${id}`, { name }),
+    delete: (id: string) => apiClient.delete<{ deleted: boolean }>(`/partner-room/${id}`),
+    regenerateCode: (id: string) =>
+      apiClient.post<{ inviteCode: string }>(`/partner-room/${id}/regenerate-code`),
+    removeMember: (id: string, memberUserId: string) =>
+      apiClient.delete<{ removed: boolean }>(`/partner-room/${id}/members`, {
+        data: { memberUserId },
+      }),
   },
   receiptScan: (file: File, language?: string, roomId?: string) => {
     const fd = new FormData();

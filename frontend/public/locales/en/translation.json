@@ -160,7 +160,20 @@
     "members": "Members",
     "contributions": "Contributions",
     "selectRoom": "Select room",
-    "copied": "Copied"
+    "copied": "Copied",
+    "deleteRoom": "Delete room",
+    "regenerateCode": "Regenerate code",
+    "removeMember": "Remove member",
+    "inviteCodeQR": "QR to join",
+    "confirmDeleteRoom": "Delete room and all its data?",
+    "roomDeleted": "Room deleted",
+    "codeRegenerated": "Code regenerated",
+    "memberRemoved": "Member removed",
+    "scanQR": "Scan QR",
+    "editRoom": "Edit",
+    "roomNamePlaceholder": "Room name",
+    "roomUpdated": "Room updated",
+    "codeScanned": "Code recognized"
   },
   "onboarding": {
     "namePlaceholder": "Enter your full name",

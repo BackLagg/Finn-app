@@ -160,7 +160,20 @@
     "members": "Участники",
     "contributions": "Вклады",
     "selectRoom": "Выберите комнату",
-    "copied": "Скопировано"
+    "copied": "Скопировано",
+    "deleteRoom": "Удалить комнату",
+    "regenerateCode": "Перевыпустить код",
+    "removeMember": "Удалить участника",
+    "inviteCodeQR": "QR для подключения",
+    "confirmDeleteRoom": "Удалить комнату со всеми данными?",
+    "roomDeleted": "Комната удалена",
+    "codeRegenerated": "Код перевыпущен",
+    "memberRemoved": "Участник удалён",
+    "scanQR": "Сканировать QR",
+    "editRoom": "Редактировать",
+    "roomNamePlaceholder": "Название комнаты",
+    "roomUpdated": "Комната обновлена",
+    "codeScanned": "Код распознан"
   },
   "onboarding": {
     "namePlaceholder": "Введите ваше полное имя",

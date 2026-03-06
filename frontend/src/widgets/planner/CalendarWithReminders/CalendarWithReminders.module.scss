@@ -49,13 +49,15 @@
 
   &__spacer {
     flex-shrink: 0;
+    display: block;
+    margin-bottom: 24px;
 
     &--collapsed {
       height: 160px;
     }
 
     &--expanded {
-      height: 280px;
+      height: 430px;
     }
   }
 }
