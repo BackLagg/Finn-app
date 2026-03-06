@@ -7,13 +7,13 @@ def get_webapp_keyboard(is_admin: bool = False) -> InlineKeyboardMarkup:
     keyboard = [
         [
             InlineKeyboardButton(
-                text="🚀 FABRICBOT ECOSYSTEM APP",
+                text="📱 Открыть Finn",
                 web_app=WebAppInfo(url=MINIAPP_URL)
             )
         ],
         [
             InlineKeyboardButton(
-                text="💬 CONTACT OUR TEAM",
+                text="💬 Поддержка",
                 url="https://t.me/kirbudilovfbc"
             )
         ]
@@ -23,7 +23,7 @@ def get_webapp_keyboard(is_admin: bool = False) -> InlineKeyboardMarkup:
     if is_admin:
         keyboard.append([
             InlineKeyboardButton(
-                text="👑 ADMIN PANEL",
+                text="👑 Панель администратора",
                 callback_data="admin_panel"
             )
         ])

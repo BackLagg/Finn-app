@@ -1,4 +1,5 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@features/auth/api';
 import { OnboardingStep } from './onboarding-step';
 import type { StepContent } from './types';
@@ -12,6 +13,7 @@ interface OnboardingProps {
 }
 
 const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
+  const { t } = useTranslation();
   const { completeOnboarding, isCompletingOnboarding } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [fullName, setFullName] = useState('');
@@ -54,37 +56,41 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     setDistribution(getProgressiveDistribution(monthlySalary || 0, currency));
   }, [monthlySalary, currency]);
 
-  const steps: StepContent[] = [
-    {
-      title: 'WELCOME TO THE\nFABRICBOT ECOSYSTEM',
-      description: 'Your gateway to building\nand monetizing digital products\nwith advanced referral systems',
-      image: 'lock'
-    },
-    {
-      title: 'ALREADY\nAVAILABLE',
-      description: [
-        'Create personal product pages',
-        'Launch a referral system in 60 seconds',
-        'Share payouts with referrals and track statistics'
-      ],
-      image: 'lightning'
-    },
-    {
-      title: 'COMING\nSOON',
-      description: [
-        'Connect your TG wallet and pay in TON',
-        'Integrate the payment system with your services via API',
-        'Enable your clients to pay through P2P'
-      ],
-      image: 'coin'
-    },
-    {
-      title: 'TELL US ABOUT\nYOURSELF',
-      description: 'Help your profile become more recognizable\nby sharing your full name with us',
-      image: 'card',
-      isForm: true
-    }
-  ];
+  const steps: StepContent[] = useMemo(
+    () => [
+      {
+        title: t('onboarding.step1Title'),
+        description: t('onboarding.step1Description'),
+        image: 'lock'
+      },
+      {
+        title: t('onboarding.step2Title'),
+        description: [
+          t('onboarding.step2Line1'),
+          t('onboarding.step2Line2'),
+          t('onboarding.step2Line3'),
+          t('onboarding.step2Line4')
+        ],
+        image: 'lightning'
+      },
+      {
+        title: t('onboarding.step3Title'),
+        description: [
+          t('onboarding.step3Line1'),
+          t('onboarding.step3Line2'),
+          t('onboarding.step3Line3')
+        ],
+        image: 'coin'
+      },
+      {
+        title: t('onboarding.step4Title'),
+        description: t('onboarding.step4Description'),
+        image: 'card',
+        isForm: true
+      }
+    ],
+    [t]
+  );
 
   const totalSteps = steps.length;
   const isLastStep = currentStep === totalSteps;

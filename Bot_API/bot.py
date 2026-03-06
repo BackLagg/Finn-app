@@ -65,7 +65,7 @@ async def init_super_admin():
 
 async def on_startup(bot: Bot) -> None:
     """Функция, выполняемая при запуске бота"""
-    logger.info("Бот mirorai запущен")
+    logger.info("Бот Finn запущен")
     
     # Инициализация супер-админа
     await init_super_admin()
@@ -79,7 +79,7 @@ async def on_startup(bot: Bot) -> None:
 
 async def on_shutdown(bot: Bot) -> None:
     """Функция, выполняемая при остановке бота"""
-    logger.info("Бот mirorai остановлен")
+    logger.info("Бот Finn остановлен")
 
 async def main():
     """Основная функция запуска бота"""

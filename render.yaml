@@ -67,6 +67,17 @@ services:
     envVars:
       - fromGroup: finn-bot-env
 
+  - type: cron
+    name: finn-ping
+    runtime: node
+    rootDir: ping-service
+    schedule: "*/14 * * * *"
+    buildCommand: "true"
+    startCommand: node ping.mjs
+    envVars:
+      - key: PING_URLS
+        value: "https://finn-backend-as35.onrender.com,https://finn-file-service.onrender.com/health,https://finn-frontend.onrender.com"
+
 envVarGroups:
   - name: finn-bot-env
     envVars:

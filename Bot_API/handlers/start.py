@@ -16,23 +16,20 @@ from keyboards.keyboards import get_webapp_keyboard
 start_router = Router(name="start_router")
 
 # Текст приветственного сообщения
-WELCOME_TEXT = """👋 Welcome to FABRICBOT!
+WELCOME_TEXT = """👋 Добро пожаловать в Finn!
 
-We're building a service that lets you launch your own referral system in just 60 seconds — directly inside Telegram — and accept crypto payments in TON. Simple, transparent, and built for real growth.
+Приложение для учёта личных финансов прямо в Telegram: доходы и расходы, бюджеты, цели накоплений и напоминания о платежах.
 
-Here's what you get today:
+Что уже есть:
 
-⚡️ Instant referral system, no code required
-🤝 Fair and easy payouts for your partners
-📊 Clear statistics and tracking, right in the bot
+📊 Учёт расходов и доходов по категориям
+🎯 Цели и накопления с прогрессом
+📅 Напоминания о регулярных платежах
+🧾 Сканер чеков с распознаванием
+👥 Партнёрские комнаты для общих трат
+📈 Планировщик и статистика
 
-What's coming soon:
-
-💎 Direct crypto payments in TON
-🔗 P2P options so your clients can pay the way they want
-🚀 More tools to scale your sales and community
-
-We're not another short-lived "hack." FABRICBOT is built on trust, speed, and simplicity — a solid tool to grow your business in the new digital economy."""
+Откройте приложение по кнопке ниже — укажите доход и настройте распределение бюджета под себя."""
 
 # Инициализация подключения к MongoDB
 client = AsyncIOMotorClient(MONGO_URI)
