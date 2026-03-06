@@ -38,6 +38,10 @@ services:
           property: port
       - key: ALLOWED_ORIGINS
         value: https://finn-frontend.onrender.com
+      - key: FILE_SERVICE_URL
+        value: https://finn-file-service.onrender.com
+      - key: FILE_PUBLIC_URL
+        value: https://finn-file-service.onrender.com
       - fromGroup: finn-bot-env
       - fromGroup: finn-file-api
 
