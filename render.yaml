@@ -67,6 +67,10 @@ services:
     rootDir: Bot_API
     dockerfilePath: Dockerfile
     envVars:
+      - key: MONGO_URI
+        value: mongodb://finn-mongo:27017/finn-app
+      - key: DB_NAME
+        value: finn-app
       - key: BOT_TOKEN
         fromService:
           type: web
