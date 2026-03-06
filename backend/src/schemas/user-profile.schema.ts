@@ -48,6 +48,12 @@ export class UserProfile {
     },
   })
   distribution!: { savings: number; investments: number; purchases: number };
+
+  @Prop({ required: false, default: 'none' })
+  subscriptionTier!: 'none' | 'finn' | 'finn_plus';
+
+  @Prop({ required: false })
+  subscriptionExpiresAt?: Date;
 }
 
 export const UserProfileSchema = SchemaFactory.createForClass(UserProfile);

@@ -64,7 +64,7 @@ export class TransactionService {
     if (options.roomId) {
       const room = await this.partnerRoomService.findById(options.roomId.toString(), userId);
       if (!room) return [];
-      const memberIds = room.members.map((m) =>
+      const memberIds = room.members.map((m: any) =>
         typeof m.userId === 'object' && (m.userId as { _id?: Types.ObjectId })?._id
           ? (m.userId as { _id: Types.ObjectId })._id
           : (m.userId as Types.ObjectId),
@@ -200,7 +200,7 @@ export class TransactionService {
     if (options.roomId) {
       const room = await this.partnerRoomService.findById(options.roomId.toString(), userId);
       if (!room) return null;
-      const memberIds = room.members.map((m) =>
+      const memberIds = room.members.map((m: any) =>
         typeof m.userId === 'object' && (m.userId as { _id?: Types.ObjectId })?._id
           ? (m.userId as { _id: Types.ObjectId })._id
           : (m.userId as Types.ObjectId),

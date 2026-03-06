@@ -11,6 +11,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ReceiptAIService } from './receipt-ai.service';
 import { TransactionService } from '../transaction/transaction.service';
 import { UserGuard } from '../../guards/user.guard';
+import { SubscriptionGuard, RequireSubscription } from '../../guards/subscription.guard';
 import { AuthenticatedRequest } from '../../interfaces/request.interface';
 import { Types } from 'mongoose';
 import { MultiCurrencyAmount } from '../../schemas/multi-currency-amount.schema';
@@ -36,6 +37,22 @@ export class ReceiptAIController {
   private getUserId(req: AuthenticatedRequest): Types.ObjectId {
     const u = req.user as { _id?: Types.ObjectId };
     return u!._id!;
+  }
+
+  @Post('parse')
+  @UseGuards(SubscriptionGuard)
+  @RequireSubscription('finn_plus')
+  @UseInterceptors(FileInterceptor('file'))
+  async parse(
+    @UploadedFile() file: Express.Multer.File | undefined,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    if (!file?.buffer) {
+      throw new BadRequestException('No file uploaded');
+    }
+    const language = (req.query?.language as string) ?? 'ru';
+    const parsed = await this.receiptAIService.parseReceipt(file.buffer, language);
+    return parsed;
   }
 
   @Post('scan')

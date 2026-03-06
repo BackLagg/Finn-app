@@ -37,7 +37,7 @@ import { FileModule } from '../file/file.module';
     UserGuard,
     SuperUserGuard,
   ],
-  exports: [UserProfileService],
+  exports: [AuthService, UserProfileService],
 })
 export class AuthModule {
   configure(consumer: MiddlewareConsumer): void {

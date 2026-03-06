@@ -82,6 +82,10 @@ export class AuthService {
         monthlyIncome: profile?.monthlyIncome,
         savingsOnly: profile?.savingsOnly,
         distribution: profile?.distribution,
+        subscriptionTier: profile?.subscriptionTier || 'none',
+        subscriptionExpiresAt: profile?.subscriptionExpiresAt
+          ? this.formatDate(profile.subscriptionExpiresAt)
+          : undefined,
       },
     };
   }
@@ -126,6 +130,10 @@ export class AuthService {
         monthlyIncome: profile?.monthlyIncome,
         savingsOnly: profile?.savingsOnly,
         distribution: profile?.distribution,
+        subscriptionTier: profile?.subscriptionTier || 'none',
+        subscriptionExpiresAt: profile?.subscriptionExpiresAt
+          ? this.formatDate(profile.subscriptionExpiresAt)
+          : undefined,
       },
     };
   }

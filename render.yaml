@@ -2,6 +2,19 @@ services:
   - type: keyvalue
     name: finn-redis
     plan: starter
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: Allow all (internal Render services use private network)
+
+  - type: pserv
+    name: finn-mongo
+    runtime: docker
+    rootDir: mongo
+    dockerfilePath: Dockerfile
+    disk:
+      name: mongo-data
+      mountPath: /data/db
+      sizeGB: 10
 
   - type: web
     name: finn-backend
@@ -11,6 +24,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: MONGO_URI
+        value: mongodb://finn-mongo:27017/finn-app
       - key: REDIS_HOST
         fromService:
           type: keyvalue

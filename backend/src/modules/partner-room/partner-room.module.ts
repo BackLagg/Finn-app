@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PartnerRoom, PartnerRoomSchema } from '../../schemas/partner-room.schema';
+import { UserProfile, UserProfileSchema } from '../../schemas/user-profile.schema';
 import { Transaction, TransactionSchema } from '../../schemas/transaction.schema';
 import { BudgetSettings, BudgetSettingsSchema } from '../../schemas/budget-settings.schema';
 import { Goal, GoalSchema } from '../../schemas/goal.schema';
@@ -13,6 +14,7 @@ import { PartnerRoomController } from './partner-room.controller';
   imports: [
     MongooseModule.forFeature([
       { name: PartnerRoom.name, schema: PartnerRoomSchema },
+      { name: UserProfile.name, schema: UserProfileSchema },
       { name: Transaction.name, schema: TransactionSchema },
       { name: BudgetSettings.name, schema: BudgetSettingsSchema },
       { name: Goal.name, schema: GoalSchema },

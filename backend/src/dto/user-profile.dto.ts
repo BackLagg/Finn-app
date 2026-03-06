@@ -42,6 +42,13 @@ export class UpdateUserProfileDto {
   @IsOptional()
   @IsObject()
   distribution?: DistributionDto;
+
+  @IsOptional()
+  @IsString()
+  subscriptionTier?: 'none' | 'finn' | 'finn_plus';
+
+  @IsOptional()
+  subscriptionExpiresAt?: Date;
 }
 
 export class UserProfileResponseDto {

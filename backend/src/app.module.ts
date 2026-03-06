@@ -11,6 +11,7 @@ import { ShoppingListModule } from './modules/shopping-list/shopping-list.module
 import { PartnerRoomModule } from './modules/partner-room/partner-room.module';
 import { ReminderModule } from './modules/reminder/reminder.module';
 import { ReceiptAIModule } from './modules/receipt-ai/receipt-ai.module';
+import { SubscriptionModule } from './modules/subscription/subscription.module';
 import { CacheModule } from './modules/cache/cache.module';
 import { CurrencyModule } from './modules/currency/currency.module';
 import { TelegramAuthMiddleware } from './middleware/telegram-auth.middleware';
@@ -58,6 +59,7 @@ import { RouteConstants } from './constants/routes.constants';
     PartnerRoomModule,
     ReminderModule,
     ReceiptAIModule,
+    SubscriptionModule,
   ],
 })
 export class AppModule implements NestModule {

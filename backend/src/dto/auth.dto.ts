@@ -14,6 +14,8 @@ export class AuthResponseDto {
     monthlyIncome?: number;
     savingsOnly?: boolean;
     distribution?: { savings: number; investments: number; purchases: number };
+    subscriptionTier?: 'none' | 'finn' | 'finn_plus';
+    subscriptionExpiresAt?: string;
   };
   error?: string;
 }

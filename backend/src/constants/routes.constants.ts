@@ -18,5 +18,7 @@ export const RouteConstants = {
     'reminder/*',
     'receipt-ai',
     'receipt-ai/*',
+    'subscription',
+    'subscription/*',
   ],
 } as const;

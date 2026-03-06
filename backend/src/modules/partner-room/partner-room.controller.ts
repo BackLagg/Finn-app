@@ -12,6 +12,7 @@ import {
 import { PartnerRoomService } from './partner-room.service';
 import { CreatePartnerRoomDto, JoinPartnerRoomDto, RemoveMemberDto, UpdatePartnerRoomDto } from '../../dto/partner-room.dto';
 import { UserGuard } from '../../guards/user.guard';
+import { SubscriptionGuard, RequireSubscription } from '../../guards/subscription.guard';
 import { AuthenticatedRequest } from '../../interfaces/request.interface';
 import { Types } from 'mongoose';
 
@@ -26,12 +27,16 @@ export class PartnerRoomController {
   }
 
   @Post()
+  @UseGuards(SubscriptionGuard)
+  @RequireSubscription('finn')
   async create(@Body() dto: CreatePartnerRoomDto, @Req() req: AuthenticatedRequest) {
     const userId = this.getUserId(req);
     return this.partnerRoomService.create(userId, dto.name);
   }
 
   @Post('join')
+  @UseGuards(SubscriptionGuard)
+  @RequireSubscription('finn')
   async join(@Body() dto: JoinPartnerRoomDto, @Req() req: AuthenticatedRequest) {
     const userId = this.getUserId(req);
     const room = await this.partnerRoomService.join(userId, dto.inviteCode);

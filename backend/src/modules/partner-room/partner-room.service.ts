@@ -2,11 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { Inject } from '@nestjs/common';
 import { Model, Types } from 'mongoose';
 import { PartnerRoomDocument } from '../../schemas/partner-room.schema';
+import { UserProfileDocument } from '../../schemas/user-profile.schema';
 import { TransactionDocument } from '../../schemas/transaction.schema';
 import { BudgetSettingsDocument } from '../../schemas/budget-settings.schema';
 import { GoalDocument } from '../../schemas/goal.schema';
 import { ShoppingListDocument } from '../../schemas/shopping-list.schema';
 import { ReminderDocument } from '../../schemas/reminder.schema';
+import { hasActiveSubscription } from '../../utils/subscription.util';
 import * as crypto from 'crypto';
 
 @Injectable()
@@ -14,6 +16,8 @@ export class PartnerRoomService {
   constructor(
     @Inject('PartnerRoomModel')
     private partnerRoomModel: Model<PartnerRoomDocument>,
+    @Inject('UserProfileModel')
+    private userProfileModel: Model<UserProfileDocument>,
     @Inject('TransactionModel')
     private transactionModel: Model<TransactionDocument>,
     @Inject('BudgetSettingsModel')
@@ -67,7 +71,7 @@ export class PartnerRoomService {
     return room;
   }
 
-  async findForUser(userId: Types.ObjectId): Promise<PartnerRoomDocument[]> {
+  async findForUser(userId: Types.ObjectId): Promise<any[]> {
     const rooms = await this.partnerRoomModel
       .find({ 'members.userId': userId })
       .populate({
@@ -79,13 +83,14 @@ export class PartnerRoomService {
       .lean()
       .exec();
 
-    return this.enrichMembersWithUsernames(rooms as unknown as PartnerRoomDocument[]);
+    const enriched = await this.enrichMembersWithUsernames(rooms as unknown as PartnerRoomDocument[]);
+    return this.addFrozenStatus(enriched);
   }
 
   async findById(
     id: string,
     userId: Types.ObjectId,
-  ): Promise<PartnerRoomDocument | null> {
+  ): Promise<any | null> {
     const room = await this.partnerRoomModel
       .findOne({
         _id: new Types.ObjectId(id),
@@ -97,7 +102,23 @@ export class PartnerRoomService {
 
     if (!room) return null;
     const [enriched] = await this.enrichMembersWithUsernames([room as unknown as PartnerRoomDocument]);
-    return enriched;
+    const [withFrozen] = await this.addFrozenStatus([enriched]);
+    return withFrozen;
+  }
+
+  private async addFrozenStatus(rooms: any[]): Promise<any[]> {
+    const enrichedRooms = [];
+    for (const room of rooms) {
+      const owner = room.members?.find((m: any) => m.role === 'owner');
+      let isFrozen = false;
+      if (owner) {
+        const ownerUserId = this.getMemberUserId(owner);
+        const profile = await this.userProfileModel.findOne({ userId: ownerUserId }).lean().exec();
+        isFrozen = !hasActiveSubscription(profile as any);
+      }
+      enrichedRooms.push({ ...room, isFrozen });
+    }
+    return enrichedRooms;
   }
 
   private getMemberUserId(m: { userId: Types.ObjectId | { _id?: Types.ObjectId } }): Types.ObjectId {
