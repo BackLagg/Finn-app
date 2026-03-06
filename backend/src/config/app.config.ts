@@ -4,7 +4,10 @@ export default registerAs('app', () => {
   const environment = process.env.NODE_ENV || 'development';
   return {
     port: parseInt(process.env.PORT || process.env.BACKEND_PORT || '8080', 10) || 8080,
-    baseUrl: process.env.BACKEND_BASE_URL || 'http://localhost:8080',
+    baseUrl:
+      process.env.RENDER_EXTERNAL_URL ||
+      process.env.BACKEND_BASE_URL ||
+      'http://localhost:8080',
     environment,
     isDevelopment: environment === 'development',
 

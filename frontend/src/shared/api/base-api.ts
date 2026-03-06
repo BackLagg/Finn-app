@@ -3,7 +3,7 @@ import { handleError } from '../lib/error-handler';
 
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
-  (import.meta.env.DEV ? 'http://localhost:8080/api' : 'https://fabricbot.tech/api');
+  (import.meta.env.DEV ? 'http://localhost:8080/api' : 'https://finn-backend-as35.onrender.com/api');
 
 export const FILE_BASE_URL = API_BASE_URL.replace('/api', '');
 

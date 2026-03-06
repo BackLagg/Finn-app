@@ -36,6 +36,9 @@ services:
           type: keyvalue
           name: finn-redis
           property: port
+      - key: ALLOWED_ORIGINS
+        value: https://finn-frontend.onrender.com
+      - fromGroup: finn-bot-env
 
   - type: web
     name: finn-file-service
@@ -52,9 +55,20 @@ services:
     runtime: docker
     rootDir: frontend
     dockerfilePath: Dockerfile
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://finn-backend-as35.onrender.com/api
 
   - type: worker
     name: finn-bot
     runtime: docker
     rootDir: Bot_API
     dockerfilePath: Dockerfile
+    envVars:
+      - fromGroup: finn-bot-env
+
+envVarGroups:
+  - name: finn-bot-env
+    envVars:
+      - key: BOT_TOKEN
+        sync: false

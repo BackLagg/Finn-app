@@ -17,7 +17,9 @@ RUN npm cache clean --force && \
 # Копируем исходный код
 COPY . .
 
-# Собираем приложение для продакшена
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
 RUN npm run build
 
 # Этап продакшена с Nginx
