@@ -58,5 +58,15 @@ export const authAPI = {
     });
     return response.data;
   },
+
+  activateSubscription: async (
+    initData: string,
+    tier: 'finn' | 'finn_plus'
+  ): Promise<{ success: boolean; user: User }> => {
+    const response = await apiClient.post<{ success: boolean; user: User }>('/subscription/activate', {
+      tier,
+    });
+    return response.data;
+  },
 };
 

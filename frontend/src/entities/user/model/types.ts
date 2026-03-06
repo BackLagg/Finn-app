@@ -24,6 +24,8 @@ export interface User {
   monthlyIncome?: number;
   savingsOnly?: boolean;
   distribution?: UserDistribution;
+  subscriptionTier?: 'none' | 'finn' | 'finn_plus';
+  subscriptionExpiresAt?: string | null;
 }
 
 export interface UserProfile {

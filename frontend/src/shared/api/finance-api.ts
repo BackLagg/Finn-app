@@ -65,6 +65,7 @@ export interface PartnerRoom {
     contributionPercent: number;
     displayName?: string | null;
   }[];
+  isFrozen?: boolean;
 }
 
 export interface PlanResponse {
@@ -180,6 +181,15 @@ export const financeAPI = {
       '/receipt-ai/scan',
       fd,
       { params: { language, roomId }, headers: { 'Content-Type': 'multipart/form-data' } },
+    );
+  },
+  receiptParse: (file: File, language?: string) => {
+    const fd = new FormData();
+    fd.append('file', file);
+    return apiClient.post<{ amount: number; category: string; description: string }>(
+      '/receipt-ai/parse',
+      fd,
+      { params: { language }, headers: { 'Content-Type': 'multipart/form-data' } },
     );
   },
 };

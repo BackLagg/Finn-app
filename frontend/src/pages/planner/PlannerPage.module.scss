@@ -44,4 +44,12 @@
   &__room {
     width: 100%;
   }
+
+  &__no-rooms {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--color-text-secondary);
+    font-size: 16px;
+    font-weight: 500;
+  }
 }

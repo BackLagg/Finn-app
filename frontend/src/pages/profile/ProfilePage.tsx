@@ -13,11 +13,12 @@ import {
   normalizeDistribution,
 } from '@shared/lib';
 import { Currency, currencySymbols } from '@shared/lib/currency';
+import { toast } from 'react-toastify';
 import styles from './ProfilePage.module.scss';
 
 const ProfilePage: React.FC = () => {
   const { t } = useTranslation();
-  const { updateProfile } = useAuth();
+  const { updateProfile, activateSubscription } = useAuth();
   const user = useSelector((state: RootState) => state.user);
   const [currency, setCurrency] = useCurrencyPreference();
   const [savingsOnly, setSavingsOnly] = useSavingsOnlyPreference();
@@ -68,6 +69,20 @@ const ProfilePage: React.FC = () => {
       updateProfile({ distribution: value });
     },
     [setDistribution, updateProfile]
+  );
+
+  const handleActivateSubscription = useCallback(
+    (tier: 'finn' | 'finn_plus') => {
+      activateSubscription(tier, {
+        onSuccess: () => {
+          toast.success(t('profile.subscriptionActivated'));
+        },
+        onError: () => {
+          toast.error(t('errors.generic'));
+        },
+      });
+    },
+    [activateSubscription, t]
   );
 
   const getProfilePhoto = () => {
@@ -168,8 +183,35 @@ const ProfilePage: React.FC = () => {
 
       <section className={styles['profile-page__subscriptions']}>
         <h2 className={styles['profile-page__section-title']}>{t('profile.subscriptions')}</h2>
-        <div className={styles['profile-page__placeholder']}>
-          {t('common.coming_soon')}
+        {user?.subscriptionTier && user.subscriptionTier !== 'none' && (
+          <div className={styles['profile-page__current-subscription']}>
+            <p>
+              {t('profile.currentPlan')}: <strong>{user.subscriptionTier === 'finn_plus' ? 'Finn+' : 'Finn'}</strong>
+            </p>
+            {user.subscriptionExpiresAt && (
+              <p className={styles['profile-page__expiry']}>
+                {t('profile.expiresAt')}: {new Date(user.subscriptionExpiresAt).toLocaleDateString()}
+              </p>
+            )}
+          </div>
+        )}
+        <div className={styles['profile-page__subscription-buttons']}>
+          <button
+            type="button"
+            onClick={() => handleActivateSubscription('finn')}
+            className={styles['profile-page__subscription-btn']}
+            disabled={user?.subscriptionTier === 'finn' || user?.subscriptionTier === 'finn_plus'}
+          >
+            {t('profile.activateFinn')}
+          </button>
+          <button
+            type="button"
+            onClick={() => handleActivateSubscription('finn_plus')}
+            className={`${styles['profile-page__subscription-btn']} ${styles['profile-page__subscription-btn--plus']}`}
+            disabled={user?.subscriptionTier === 'finn_plus'}
+          >
+            {t('profile.activateFinnPlus')}
+          </button>
         </div>
       </section>
     </div>

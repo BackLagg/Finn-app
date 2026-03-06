@@ -116,7 +116,12 @@
     "theme": "Theme",
     "themeLight": "Light",
     "themeDark": "Dark",
-    "subscriptions": "Subscriptions"
+    "subscriptions": "Subscriptions",
+    "currentPlan": "Current plan",
+    "expiresAt": "Expires at",
+    "activateFinn": "Activate Finn",
+    "activateFinnPlus": "Activate Finn+",
+    "subscriptionActivated": "Subscription activated"
   },
   "statistics": {
     "title": "Statistics",
@@ -147,7 +152,12 @@
       "resetDistribution": "Reset",
       "applyStandard": "Apply standard",
       "withInvestments": "With investments",
-      "savingsOnly": "Savings only"
+      "savingsOnly": "Savings only",
+      "scanReceipt": "Scanner",
+      "scanning": "Scanning...",
+      "receiptScanned": "Receipt scanned",
+      "noRooms": "You have no rooms",
+      "finnPlusRequired": "Finn+ subscription required"
     }
   },
   "partners": {
@@ -173,7 +183,10 @@
     "editRoom": "Edit",
     "roomNamePlaceholder": "Room name",
     "roomUpdated": "Room updated",
-    "codeScanned": "Code recognized"
+    "codeScanned": "Code recognized",
+    "subscriptionRequired": "Finn subscription required",
+    "roomFrozen": "Frozen",
+    "roomFrozenMessage": "Room is frozen due to expired owner subscription"
   },
   "onboarding": {
     "namePlaceholder": "Enter your full name",
@@ -191,7 +204,8 @@
     "invalidAmount": "Invalid amount"
   },
   "errors": {
-    "generic": "Something went wrong"
+    "generic": "Something went wrong",
+    "scanFailed": "Failed to scan receipt"
   },
   "categories": {
     "expense": {

@@ -76,6 +76,24 @@ export const useAuth = () => {
     },
   });
 
+  const activateSubscriptionMutation = useMutation({
+    mutationFn: async (tier: 'finn' | 'finn_plus') => {
+      const initData = getInitData();
+      const response = await authAPI.activateSubscription(initData, tier);
+      
+      if (response.success && response.user) {
+        dispatch(setUserData(response.user));
+        queryClient.setQueryData(['auth', 'user'], response.user);
+        return response.user;
+      }
+      
+      throw new Error('Ошибка активации подписки');
+    },
+    onError: (error) => {
+      handleError(error);
+    },
+  });
+
   const user = authQuery.data || null;
   const isAuthenticated = !!user?.id && !authQuery.error;
   const isNewUser = !!(user?.id && user?.isNew);
@@ -89,6 +107,7 @@ export const useAuth = () => {
     refetch: authQuery.refetch,
     completeOnboarding: completeOnboardingMutation.mutate,
     updateProfile: updateProfileMutation.mutate,
+    activateSubscription: activateSubscriptionMutation.mutate,
     isCompletingOnboarding: completeOnboardingMutation.isPending,
     isUpdatingProfile: updateProfileMutation.isPending,
   };

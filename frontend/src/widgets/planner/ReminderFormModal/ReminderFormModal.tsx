@@ -291,13 +291,16 @@ export const ReminderFormModal: React.FC<ReminderFormModalProps> = ({
                   {remindersForDate.map((r) => (
                     <li key={r.id} className={styles.form__reminderItem}>
                       <span className={styles.form__reminderText}>
-                        {r.amount} {currencySymbols[r.currency]}
+                        {r.amount} {currencySymbols[r.currency as Currency]}
                         {r.description && ` — ${r.description}`}
                       </span>
                       <button
                         type="button"
                         className={styles.form__removeBtn}
-                        onClick={() => handleDelete(r.id)}
+                        onClick={() => {
+                          const id = r.id ?? r._id;
+                          if (id) handleDelete(id);
+                        }}
                         aria-label={t('common.delete', 'Удалить')}
                       >
                         <FiX size={18} />

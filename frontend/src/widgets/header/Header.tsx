@@ -1,5 +1,7 @@
 import React, { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { RootState } from '@app/store';
 import { FiSun, FiMoon } from 'react-icons/fi';
 import { useTheme } from '@features/theme';
 import { useLanguage } from '@features/i18n';
@@ -10,13 +12,14 @@ const Header: React.FC = memo(() => {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
+  const user = useSelector((state: RootState) => state.user);
 
   const getUserData = () => {
-    const user = window.Telegram?.WebApp?.initDataUnsafe?.user;
-    if (!user) return { photo: null, name: '' };
-    const name = [user.first_name, user.last_name].filter(Boolean).join(' ') || user.username || '';
+    const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+    if (!telegramUser) return { photo: null, name: '' };
+    const name = [telegramUser.first_name, telegramUser.last_name].filter(Boolean).join(' ') || telegramUser.username || '';
     return {
-      photo: user.photo_url || null,
+      photo: telegramUser.photo_url || null,
       name,
     };
   };
@@ -26,6 +29,14 @@ const Header: React.FC = memo(() => {
   const handleProfileClick = () => {
     navigate('/profile');
   };
+
+  const getSubscriptionBadge = () => {
+    if (user?.subscriptionTier === 'finn_plus') return 'Finn+';
+    if (user?.subscriptionTier === 'finn') return 'Finn';
+    return null;
+  };
+
+  const subscriptionBadge = getSubscriptionBadge();
 
   const languageOptions = [
     { value: 'ru', label: 'RU' },
@@ -54,9 +65,16 @@ const Header: React.FC = memo(() => {
             <div className={styles['header__avatar-placeholder']} />
           )}
         </div>
-        {userName && (
-          <span className={styles.header__name}>{userName}</span>
-        )}
+        <div className={styles['header__user-info']}>
+          {userName && (
+            <span className={styles.header__name}>{userName}</span>
+          )}
+          {subscriptionBadge && (
+            <span className={`${styles['header__subscription-badge']} ${user?.subscriptionTier === 'finn_plus' ? styles['header__subscription-badge--plus'] : ''}`}>
+              {subscriptionBadge}
+            </span>
+          )}
+        </div>
       </div>
       <div className={styles.header__controls}>
         <div title="RU / EN">

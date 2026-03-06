@@ -1,6 +1,8 @@
 import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiPlus, FiTrash2, FiChevronUp, FiChevronDown, FiImage } from 'react-icons/fi';
+import { useSelector } from 'react-redux';
+import { RootState } from '@app/store';
+import { FiPlus, FiTrash2, FiChevronUp, FiChevronDown, FiImage, FiCamera } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { financeAPI, fileAPI } from '@shared/api';
@@ -8,6 +10,7 @@ import { useCurrencyPreference } from '@shared/lib/use-currency-preference';
 import { currencySymbols } from '@shared/lib/currency';
 import { getTransactionAmount } from '@shared/lib/transaction';
 import { getCategoryLabel } from '@shared/lib/category-labels';
+import { hasActiveSubscription } from '@shared/lib/subscription';
 import { Dropdown, Modal } from '@shared/ui';
 import { useTransactionStats } from '@features/transactions/use-transaction-stats';
 import { useExpenseCategoryAccordion } from '@features/expense-category';
@@ -396,6 +399,8 @@ const AddIncomeForm: React.FC<AddIncomeFormProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
+  const user = useSelector((state: RootState) => state.user);
+  const canUseScanner = hasActiveSubscription(user, 'finn_plus');
   const maxDay = new Date(year, month + 1, 0).getDate();
   const today = new Date().getDate();
   const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
@@ -409,7 +414,30 @@ const AddIncomeForm: React.FC<AddIncomeFormProps> = ({
     return `${monthStr}-${String(d).padStart(2, '0')}`;
   });
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
   const receiptInputRef = useRef<HTMLInputElement>(null);
+  const scanInputRef = useRef<HTMLInputElement>(null);
+
+  const handleScan = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setIsScanning(true);
+    try {
+      const res = await financeAPI.receiptParse(file, 'ru');
+      setAmount(String(res.data.amount || ''));
+      setDescription(res.data.description || '');
+      setReceiptFile(file);
+      toast.success(t('statistics.planner.receiptScanned'));
+    } catch {
+      toast.error(t('errors.scanFailed'));
+    } finally {
+      setIsScanning(false);
+      if (scanInputRef.current) {
+        scanInputRef.current.value = '';
+      }
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -494,6 +522,23 @@ const AddIncomeForm: React.FC<AddIncomeFormProps> = ({
           className={styles.addForm__fileInput}
           onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
         />
+        <input
+          ref={scanInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className={styles.addForm__fileInput}
+          onChange={handleScan}
+        />
+        <button
+          type="button"
+          className={styles.addForm__scanBtn}
+          onClick={() => scanInputRef.current?.click()}
+          disabled={!canUseScanner || isScanning}
+          title={!canUseScanner ? t('statistics.planner.finnPlusRequired') : undefined}
+        >
+          {isScanning ? t('statistics.planner.scanning') : t('statistics.planner.scanReceipt')}
+        </button>
         <button
           type="button"
           className={styles.addForm__receiptBtn}
@@ -535,6 +580,8 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
+  const user = useSelector((state: RootState) => state.user);
+  const canUseScanner = hasActiveSubscription(user, 'finn_plus');
   const maxDay = new Date(year, month + 1, 0).getDate();
   const today = new Date().getDate();
   const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
@@ -548,7 +595,31 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
     return `${monthStr}-${String(d).padStart(2, '0')}`;
   });
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
   const receiptInputRef = useRef<HTMLInputElement>(null);
+  const scanInputRef = useRef<HTMLInputElement>(null);
+
+  const handleScan = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setIsScanning(true);
+    try {
+      const res = await financeAPI.receiptParse(file, 'ru');
+      setAmount(String(res.data.amount || ''));
+      setCategory(res.data.category || categories[0] || '');
+      setDescription(res.data.description || '');
+      setReceiptFile(file);
+      toast.success(t('planner.receiptScanned'));
+    } catch {
+      toast.error(t('errors.scanFailed'));
+    } finally {
+      setIsScanning(false);
+      if (scanInputRef.current) {
+        scanInputRef.current.value = '';
+      }
+    }
+  };
 
   const handleSubmit = async () => {
     const num = parseFloat(amount.replace(',', '.'));
@@ -640,6 +711,24 @@ const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
           className={styles.addForm__fileInput}
           onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
         />
+        <input
+          ref={scanInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className={styles.addForm__fileInput}
+          onChange={handleScan}
+        />
+        <button
+          type="button"
+          className={styles.addForm__scanBtn}
+          onClick={() => scanInputRef.current?.click()}
+          disabled={!canUseScanner || isScanning}
+          title={!canUseScanner ? t('statistics.planner.finnPlusRequired') : undefined}
+        >
+          <FiCamera size={18} />
+          {isScanning ? t('statistics.planner.scanning') : t('statistics.planner.scanReceipt')}
+        </button>
         <button
           type="button"
           className={styles.addForm__receiptBtn}

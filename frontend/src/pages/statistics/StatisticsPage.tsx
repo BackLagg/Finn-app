@@ -27,10 +27,12 @@ const StatisticsPage: React.FC = () => {
     }
   }, [context, rooms, selectedRoomId]);
 
-  const roomOptions = rooms.map((room) => ({
-    value: room._id,
-    label: room.name,
-  }));
+  const roomOptions = rooms
+    .filter((room) => !room.isFrozen)
+    .map((room) => ({
+      value: room._id,
+      label: room.name,
+    }));
 
   const toggleOptions = [
     { value: 'personal', label: t('home.personal') },
@@ -48,7 +50,7 @@ const StatisticsPage: React.FC = () => {
               onChange={(val) => setContext(val as 'personal' | 'partner')}
             />
           </div>
-          {context === 'partner' && rooms.length > 0 && (
+          {context === 'partner' && roomOptions.length > 0 && (
             <Dropdown
               options={roomOptions}
               value={selectedRoomId || ''}
@@ -60,11 +62,17 @@ const StatisticsPage: React.FC = () => {
         </div>
       </div>
       <div
-        className={`${styles['statistics-page__header-spacer']} ${context === 'partner' && rooms.length > 0 ? styles['statistics-page__header-spacer--with-room'] : ''}`}
+        className={`${styles['statistics-page__header-spacer']} ${context === 'partner' && roomOptions.length > 0 ? styles['statistics-page__header-spacer--with-room'] : ''}`}
         aria-hidden
       />
       <div className={styles['statistics-page__content']}>
-        <StatisticsTab roomId={currentRoomId} />
+        {context === 'partner' && roomOptions.length === 0 ? (
+          <div className={styles['statistics-page__no-rooms']}>
+            {t('statistics.planner.noRooms')}
+          </div>
+        ) : (
+          <StatisticsTab roomId={currentRoomId} />
+        )}
       </div>
     </div>
   );

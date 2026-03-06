@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@app/store';
 import { financeAPI, type PartnerRoom } from '@shared/api';
+import { hasActiveSubscription } from '@shared/lib/subscription';
 import { toast } from 'react-toastify';
 import QRCode from 'qrcode';
 import jsQR from 'jsqr';
@@ -46,12 +47,15 @@ const PartnersPage: React.FC = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
-  const userId = useSelector((state: RootState) => state.user?.id ?? null);
+  const user = useSelector((state: RootState) => state.user);
+  const userId = user?.id ?? null;
   const [roomName, setRoomName] = useState('');
   const [inviteCode, setInviteCode] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
 
   const scanInputRef = useRef<HTMLInputElement>(null);
+
+  const canCreateJoinRooms = hasActiveSubscription(user, 'finn');
 
   useEffect(() => {
     const invite = searchParams.get('invite');
@@ -207,18 +211,25 @@ const PartnersPage: React.FC = () => {
   return (
     <div className={styles['partners-page']}>
       <section className={styles['partners-page__actions']}>
+        {!canCreateJoinRooms && (
+          <div className={styles['partners-page__warning']}>
+            {t('partners.subscriptionRequired')}
+          </div>
+        )}
         <div className={styles['partners-page__action-group']}>
           <input
             className={styles['partners-page__input']}
             value={roomName}
             onChange={(e) => setRoomName(e.target.value)}
             placeholder={t('partners.createRoom')}
+            disabled={!canCreateJoinRooms}
           />
           <button
             type="button"
             onClick={handleCreate}
-            disabled={createMutation.isPending}
+            disabled={createMutation.isPending || !canCreateJoinRooms}
             className={styles['partners-page__btn']}
+            title={!canCreateJoinRooms ? t('partners.subscriptionRequired') : undefined}
           >
             {t('partners.createRoom')}
           </button>
@@ -229,12 +240,14 @@ const PartnersPage: React.FC = () => {
             value={inviteCode}
             onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
             placeholder={t('partners.inviteCode')}
+            disabled={!canCreateJoinRooms}
           />
           <button
             type="button"
             onClick={handleJoin}
-            disabled={joinMutation.isPending}
+            disabled={joinMutation.isPending || !canCreateJoinRooms}
             className={styles['partners-page__btn']}
+            title={!canCreateJoinRooms ? t('partners.subscriptionRequired') : undefined}
           >
             {t('partners.join')}
           </button>
@@ -253,6 +266,8 @@ const PartnersPage: React.FC = () => {
             type="button"
             onClick={handleScanQR}
             className={styles['partners-page__btn-secondary']}
+            disabled={!canCreateJoinRooms}
+            title={!canCreateJoinRooms ? t('partners.subscriptionRequired') : undefined}
           >
             {t('partners.scanQR')}
           </button>
@@ -267,10 +282,12 @@ const PartnersPage: React.FC = () => {
                 <button
                   key={r._id}
                   type="button"
-                  className={`${styles['partners-page__tab']} ${activeIndex === i ? styles['partners-page__tab--active'] : ''}`}
+                  className={`${styles['partners-page__tab']} ${activeIndex === i ? styles['partners-page__tab--active'] : ''} ${r.isFrozen ? styles['partners-page__tab--frozen'] : ''}`}
                   onClick={() => setActiveIndex(i)}
+                  disabled={r.isFrozen}
+                  title={r.isFrozen ? t('partners.roomFrozen') : undefined}
                 >
-                  {r.name}
+                  {r.name} {r.isFrozen && '(🔒)'}
                 </button>
               ))}
             </div>
@@ -279,6 +296,11 @@ const PartnersPage: React.FC = () => {
           <section className={styles['partners-page__rooms']}>
           {activeRoom && (
             <div className={styles['partners-page__room-detail']}>
+              {activeRoom.isFrozen && (
+                <div className={styles['partners-page__frozen-warning']}>
+                  {t('partners.roomFrozenMessage')}
+                </div>
+              )}
               <div className={styles['partners-page__two-col']}>
                 <div className={styles['partners-page__left-col']}>
                   {isOwner ? (

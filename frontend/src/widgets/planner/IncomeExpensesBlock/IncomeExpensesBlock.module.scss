@@ -344,10 +344,39 @@
 
   &__receipt {
     margin-top: 4px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   &__fileInput {
     display: none;
+  }
+
+  &__scanBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, var(--color-accent), #9333ea);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, var(--color-accent-hover), #a855f7);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
   }
 
   &__receiptBtn {
@@ -362,6 +391,7 @@
     font-size: 14px;
     cursor: pointer;
     transition: all 0.2s;
+    flex: 1;
 
     &:hover {
       border-color: var(--color-accent);

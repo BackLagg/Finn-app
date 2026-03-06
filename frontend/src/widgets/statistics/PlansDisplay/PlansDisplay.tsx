@@ -66,7 +66,7 @@ export const PlansDisplay: React.FC<PlansDisplayProps> = ({ roomId }) => {
       <div className={styles.plans__header}>
         <h2 className={styles.plans__title}>{t('statistics.planner.plans')}</h2>
         <Toggle
-          options={filterOptions}
+          options={[...filterOptions]}
           value={filter}
           onChange={(v) => setFilter(v as PlanFilter)}
         />

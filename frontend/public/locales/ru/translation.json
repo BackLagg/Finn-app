@@ -116,7 +116,12 @@
     "theme": "Тема",
     "themeLight": "Свет",
     "themeDark": "Тёмн",
-    "subscriptions": "Подписки"
+    "subscriptions": "Подписки",
+    "currentPlan": "Текущий план",
+    "expiresAt": "Действует до",
+    "activateFinn": "Активировать Finn",
+    "activateFinnPlus": "Активировать Finn+",
+    "subscriptionActivated": "Подписка активирована"
   },
   "statistics": {
     "title": "Статистика",
@@ -147,7 +152,12 @@
       "resetDistribution": "Сброс",
       "applyStandard": "Применить стандарт",
       "withInvestments": "С инвестициями",
-      "savingsOnly": "Только накопления"
+      "savingsOnly": "Только накопления",
+      "scanReceipt": "Сканер",
+      "scanning": "Сканирую...",
+      "receiptScanned": "Чек отсканирован",
+      "noRooms": "У вас нет комнат",
+      "finnPlusRequired": "Требуется подписка Finn+"
     }
   },
   "partners": {
@@ -173,7 +183,10 @@
     "editRoom": "Редактировать",
     "roomNamePlaceholder": "Название комнаты",
     "roomUpdated": "Комната обновлена",
-    "codeScanned": "Код распознан"
+    "codeScanned": "Код распознан",
+    "subscriptionRequired": "Требуется подписка Finn",
+    "roomFrozen": "Заморожена",
+    "roomFrozenMessage": "Комната заморожена из-за истечения подписки владельца"
   },
   "onboarding": {
     "namePlaceholder": "Введите ваше полное имя",
@@ -191,7 +204,8 @@
     "invalidAmount": "Некорректная сумма"
   },
   "errors": {
-    "generic": "Что-то пошло не так"
+    "generic": "Что-то пошло не так",
+    "scanFailed": "Не удалось отсканировать чек"
   },
   "categories": {
     "expense": {

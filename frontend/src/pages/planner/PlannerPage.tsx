@@ -28,10 +28,12 @@ const PlannerPage: React.FC = () => {
     }
   }, [context, rooms, selectedRoomId]);
 
-  const roomOptions = rooms.map((room) => ({
-    value: room._id,
-    label: room.name,
-  }));
+  const roomOptions = rooms
+    .filter((room) => !room.isFrozen)
+    .map((room) => ({
+      value: room._id,
+      label: room.name,
+    }));
 
   const toggleOptions = [
     { value: 'personal', label: t('home.personal') },
@@ -50,7 +52,7 @@ const PlannerPage: React.FC = () => {
             />
           </div>
           <AnimatePresence initial={false}>
-            {context === 'partner' && rooms.length > 0 && (
+            {context === 'partner' && roomOptions.length > 0 && (
               <motion.div
                 key="room-select"
                 initial={{ opacity: 0, y: -16 }}
@@ -71,7 +73,13 @@ const PlannerPage: React.FC = () => {
         </div>
       </div>
       <div className={styles['planner-page__header-spacer']} aria-hidden />
-      <PlannerTab roomId={currentRoomId} hasRoomSelector={context === 'partner' && rooms.length > 0} />
+      {context === 'partner' && roomOptions.length === 0 ? (
+        <div className={styles['planner-page__no-rooms']}>
+          {t('statistics.planner.noRooms')}
+        </div>
+      ) : (
+        <PlannerTab roomId={currentRoomId} hasRoomSelector={context === 'partner' && roomOptions.length > 0} />
+      )}
     </div>
   );
 };

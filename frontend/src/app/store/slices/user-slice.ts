@@ -11,6 +11,8 @@ const initialState: User = {
   isAccepted: false,
   createdAt: null,
   updatedAt: null,
+  subscriptionTier: 'none',
+  subscriptionExpiresAt: null,
 };
 
 const userSlice = createSlice({
