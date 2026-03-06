@@ -70,6 +70,7 @@ services:
     runtime: docker
     rootDir: Bot_API
     dockerfilePath: Dockerfile
+    numInstances: 1
     envVars:
       - key: MONGO_URI
         value: mongodb://finn-mongo:27017/finn-app
