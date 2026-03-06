@@ -66,8 +66,7 @@ export class AuthController {
     @Req() req: AuthenticatedRequest,
     @Body() updateProfileDto: UpdateUserProfileDto,
   ): Promise<AuthResponseDto> {
-    // Обновляем профиль пользователя, передавая существующий профиль из middleware
-    await this.authService.updateUserProfile(
+    const profile = await this.authService.updateUserProfile(
       req.telegramUser!,
       updateProfileDto,
       req.profile || null,
@@ -76,7 +75,7 @@ export class AuthController {
     return this.authService.buildAuthResponse(
       req.telegramUser!,
       req.user || null,
-      req.profile || null,
+      profile,
       req.superUser || null,
     );
   }

@@ -7,13 +7,6 @@ import type { Currency } from '@shared/lib/currency';
 import { getProgressiveDistribution, normalizeDistribution, useDebounce } from '@shared/lib';
 import styles from './Onboarding.module.scss';
 
-const STORAGE_KEYS = {
-  currency: 'app_currency',
-  savingsOnly: 'app_savings_only',
-  distribution: 'app_distribution',
-  monthlyIncome: 'app_monthly_income',
-};
-
 interface OnboardingProps {
   onComplete: () => void;
 }
@@ -113,15 +106,13 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   const handleComplete = async () => {
     try {
       if (isLastStep && fullName.trim()) {
-        try {
-          localStorage.setItem(STORAGE_KEYS.currency, currency);
-          localStorage.setItem(STORAGE_KEYS.savingsOnly, String(savingsOnly));
-          localStorage.setItem(STORAGE_KEYS.distribution, JSON.stringify(distribution));
-          localStorage.setItem(STORAGE_KEYS.monthlyIncome, String(monthlySalary));
-        } catch {
-          // ignore
-        }
-        completeOnboarding({ fullName: fullName.trim() });
+        completeOnboarding({
+          fullName: fullName.trim(),
+          currency,
+          monthlyIncome: monthlySalary,
+          savingsOnly,
+          distribution,
+        });
       }
       onComplete();
     } catch (error) {

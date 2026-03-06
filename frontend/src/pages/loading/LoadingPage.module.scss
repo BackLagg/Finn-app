@@ -128,42 +128,28 @@
 
   .loadingIndicator {
     display: flex;
-    gap: 4px;
     align-items: center;
     justify-content: center;
   }
 
-  .bar {
-    width: 4px;
-    height: 20px;
-    background: $color-brand-500;
-    border-radius: 2px;
-    animation: loadingBar 1.2s ease-in-out infinite;
-
-    &.bar1 {
-      animation-delay: 0s;
-    }
-
-    &.bar2 {
-      animation-delay: 0.2s;
-    }
-
-    &.bar3 {
-      animation-delay: 0.4s;
-    }
+  .muffinIcon {
+    width: 32px;
+    height: 32px;
+    color: $color-brand-500;
+    animation: muffinPulse 1.2s ease-in-out infinite;
   }
 }
 
-@keyframes loadingBar {
+@keyframes muffinPulse {
 
   0%,
   100% {
-    transform: scaleY(0.5);
-    opacity: 0.5;
+    transform: scale(0.9);
+    opacity: 0.7;
   }
 
   50% {
-    transform: scaleY(1);
+    transform: scale(1.1);
     opacity: 1;
   }
 }

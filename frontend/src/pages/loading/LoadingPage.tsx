@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { BiCake } from 'react-icons/bi';
 import { RootState } from '@app/store';
 import styles from './LoadingPage.module.scss';
 
@@ -67,8 +68,7 @@ const LoadingPage: React.FC<LoadingPageProps> = ({ onComplete }) => {
           <h1 
             className={`${styles.mirror} ${isTransitioning ? styles.fadeOut : styles.fadeIn}`}
           >
-            <span className={styles.titleBrand}>FABRICBOT</span>{' '}
-            <span className={styles.titleText}>ECOSYSTEM</span>
+            <span className={styles.titleBrand}>MuFinn</span>
           </h1>
         ) : (
           <h1 
@@ -82,9 +82,7 @@ const LoadingPage: React.FC<LoadingPageProps> = ({ onComplete }) => {
         <div className={styles.loadingSection}>
           <p className={styles.loadingText}>Loading...</p>
           <div className={styles.loadingIndicator}>
-            <div className={`${styles.bar} ${styles.bar1}`}></div>
-            <div className={`${styles.bar} ${styles.bar2}`}></div>
-            <div className={`${styles.bar} ${styles.bar3}`}></div>
+            <BiCake className={styles.muffinIcon} aria-hidden />
           </div>
         </div>
       </div>

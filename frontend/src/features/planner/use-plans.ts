@@ -1,30 +1,21 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { financeAPI } from '@shared/api';
 import type { Plan } from '@entities/planner';
 
-const STORAGE_KEY = 'finance-planner-plans';
-
-function getStorageKey(roomId?: string): string {
-  return roomId ? `room-${roomId}` : 'personal';
-}
-
-function loadPlans(roomId?: string): Plan[] {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    if (!data) return [];
-    const parsed: Record<string, Plan[]> = JSON.parse(data);
-    return parsed[getStorageKey(roomId)] ?? [];
-  } catch {
-    return [];
-  }
-}
-
-function savePlans(roomId: string | undefined, plans: Plan[]): void {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    const parsed: Record<string, Plan[]> = data ? JSON.parse(data) : {};
-    parsed[getStorageKey(roomId)] = plans;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
-  } catch {}
+function toPlan(r: { _id: string; name: string; amount: number; dayOfMonth?: number; savingFor?: string; category?: string; roomId?: string; deadline?: string; savingsPercent?: number; completedAt?: string }): Plan {
+  return {
+    id: r._id,
+    name: r.name,
+    amount: r.amount,
+    dayOfMonth: r.dayOfMonth,
+    savingFor: r.savingFor,
+    category: r.category,
+    roomId: r.roomId,
+    deadline: r.deadline,
+    savingsPercent: r.savingsPercent,
+    completedAt: r.completedAt,
+  };
 }
 
 function isActive(p: Plan): boolean {
@@ -45,100 +36,108 @@ function redistributePercentAmongActive(plans: Plan[]): Plan[] {
 }
 
 export function usePlans(roomId?: string) {
-  const [plans, setPlans] = useState<Plan[]>(() => loadPlans(roomId));
+  const queryClient = useQueryClient();
+  const queryKey = ['plans', roomId ?? 'personal'];
 
-  useEffect(() => {
-    setPlans(loadPlans(roomId));
-  }, [roomId]);
+  const { data: list = [], isLoading } = useQuery({
+    queryKey,
+    queryFn: async () => {
+      const res = await financeAPI.plans.list(roomId);
+      return (res.data ?? []).map(toPlan);
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (plan: Omit<Plan, 'id'>) =>
+      financeAPI.plans.create({
+        name: plan.name,
+        amount: plan.amount,
+        dayOfMonth: plan.dayOfMonth,
+        savingFor: plan.savingFor,
+        category: plan.category,
+        roomId: plan.roomId ?? roomId,
+        deadline: plan.deadline,
+        savingsPercent: plan.savingsPercent,
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Parameters<typeof financeAPI.plans.update>[1] }) =>
+      financeAPI.plans.update(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => financeAPI.plans.delete(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+  });
+
+  const plans = list;
 
   const addPlan = useCallback(
     (plan: Omit<Plan, 'id'>) => {
-      const newPlan: Plan = {
+      const activeWithNew = [...plans.filter(isActive), { ...plan, id: '', roomId }];
+      const rebalanced = redistributePercentAmongActive(activeWithNew);
+      const newPlan = rebalanced.find((p) => !p.id);
+      const savingsPercent = newPlan?.savingsPercent ?? 100;
+      createMutation.mutate({
         ...plan,
-        id: crypto.randomUUID(),
-        roomId,
-      };
-      setPlans((prev) => {
-        const activeWithNew = [...prev.filter(isActive), newPlan];
-        const rebalanced = redistributePercentAmongActive(activeWithNew);
-        const completed = prev.filter((p) => p.completedAt);
-        const next = [...rebalanced, ...completed];
-        savePlans(roomId, next);
-        return next;
+        roomId: plan.roomId ?? roomId,
+        savingsPercent,
       });
-      return newPlan.id;
+      return '';
     },
-    [roomId]
+    [plans, roomId, createMutation]
   );
 
   const updatePlan = useCallback(
     (id: string, data: Partial<Omit<Plan, 'id'>>) => {
-      setPlans((prev) => {
-        const next = prev.map((p) => (p.id === id ? { ...p, ...data } : p));
-        savePlans(roomId, next);
-        return next;
-      });
+      const payload: Parameters<typeof financeAPI.plans.update>[1] = {};
+      if (data.name !== undefined) payload.name = data.name;
+      if (data.amount !== undefined) payload.amount = data.amount;
+      if (data.dayOfMonth !== undefined) payload.dayOfMonth = data.dayOfMonth;
+      if (data.savingFor !== undefined) payload.savingFor = data.savingFor;
+      if (data.category !== undefined) payload.category = data.category;
+      if (data.deadline !== undefined) payload.deadline = data.deadline;
+      if (data.savingsPercent !== undefined) payload.savingsPercent = data.savingsPercent;
+      updateMutation.mutate({ id, data: payload });
     },
-    [roomId]
+    [updateMutation]
   );
 
   const removePlan = useCallback(
     (id: string) => {
-      setPlans((prev) => {
-        const next = prev.filter((p) => p.id !== id);
-        if (next.length === 0) {
-          savePlans(roomId, next);
-          return next;
-        }
-        const updated = redistributePercentAmongActive(next);
-        savePlans(roomId, updated);
-        return updated;
-      });
+      deleteMutation.mutate(id);
     },
-    [roomId]
+    [deleteMutation]
   );
 
   const setPlanSavingsPercent = useCallback(
     (id: string, percent: number) => {
       const clamped = Math.max(0, Math.min(100, Math.round(percent)));
-      setPlans((prev) => {
-        const active = prev.filter(isActive);
-        if (active.length <= 1) {
-          const next = prev.map((p) => (p.id === id ? { ...p, savingsPercent: 100 } : p));
-          savePlans(roomId, next);
-          return next;
-        }
-        const rest = 100 - clamped;
-        const otherActive = active.filter((q) => q.id !== id);
-        const otherCount = otherActive.length;
-        const perOther = otherCount > 0 ? Math.round(rest / otherCount) : 0;
-        const lastOther = rest - perOther * (otherCount - 1);
-        const next = prev.map((p) => {
-          if (p.id === id) return { ...p, savingsPercent: clamped };
-          if (p.completedAt) return p;
-          const idx = otherActive.indexOf(p);
-          return { ...p, savingsPercent: idx === otherCount - 1 ? lastOther : perOther };
-        });
-        savePlans(roomId, next);
-        return next;
-      });
+      updateMutation.mutate({ id, data: { savingsPercent: clamped } });
     },
-    [roomId]
+    [updateMutation]
   );
 
   const completePlan = useCallback(
     (id: string) => {
-      setPlans((prev) => {
-        const next = prev.map((p) =>
-          p.id === id ? { ...p, completedAt: new Date().toISOString() } : p
-        );
-        const rebalanced = redistributePercentAmongActive(next);
-        savePlans(roomId, rebalanced);
-        return rebalanced;
+      updateMutation.mutate({
+        id,
+        data: { completedAt: new Date().toISOString() },
       });
     },
-    [roomId]
+    [updateMutation]
   );
 
-  return { plans, addPlan, updatePlan, removePlan, setPlanSavingsPercent, completePlan };
+  return {
+    plans,
+    isLoading,
+    addPlan,
+    updatePlan,
+    removePlan,
+    setPlanSavingsPercent,
+    completePlan,
+  };
 }

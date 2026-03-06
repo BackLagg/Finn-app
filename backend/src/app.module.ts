@@ -6,6 +6,7 @@ import { FileModule } from './modules/file/file.module';
 import { TransactionModule } from './modules/transaction/transaction.module';
 import { BudgetModule } from './modules/budget/budget.module';
 import { GoalModule } from './modules/goal/goal.module';
+import { PlanModule } from './modules/plan/plan.module';
 import { ShoppingListModule } from './modules/shopping-list/shopping-list.module';
 import { PartnerRoomModule } from './modules/partner-room/partner-room.module';
 import { ReminderModule } from './modules/reminder/reminder.module';
@@ -52,6 +53,7 @@ import { RouteConstants } from './constants/routes.constants';
     TransactionModule,
     BudgetModule,
     GoalModule,
+    PlanModule,
     ShoppingListModule,
     PartnerRoomModule,
     ReminderModule,

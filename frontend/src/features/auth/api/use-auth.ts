@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authAPI, getInitData } from '@shared/api';
+import type { UpdateProfilePayload } from '@shared/api/auth-api';
 import { handleError } from '@shared/lib';
 import { useDispatch } from 'react-redux';
 import { setUserData } from '@app/store';
@@ -57,9 +58,8 @@ export const useAuth = () => {
     },
   });
 
-  // Обновление профиля
   const updateProfileMutation = useMutation({
-    mutationFn: async (data: { name?: string }) => {
+    mutationFn: async (data: UpdateProfilePayload) => {
       const initData = getInitData();
       const response = await authAPI.updateProfile(initData, data);
       

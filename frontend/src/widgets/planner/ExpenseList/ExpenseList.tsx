@@ -1,6 +1,6 @@
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiImage, FiX, FiTrendingUp, FiTrendingDown } from 'react-icons/fi';
+import { FiImage, FiX, FiTrendingUp, FiTrendingDown, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useTransactions } from '@features/transactions/use-transactions';
 import { CategoryIcon, categoryColorMap } from '@shared/ui';
 import { fileAPI, getReceiptImageUrl } from '@shared/api';
@@ -9,6 +9,8 @@ import { currencySymbols } from '@shared/lib/currency';
 import { toast } from 'react-toastify';
 import type { Transaction } from '@shared/api/finance-api';
 import styles from './ExpenseList.module.scss';
+
+const PAGE_SIZE = 6;
 
 function getAmount(tx: Transaction): number {
   if (typeof tx.amount === 'number') return tx.amount;
@@ -26,7 +28,27 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ roomId }) => {
   const { transactions, update } = useTransactions(roomId);
   const symbol = currencySymbols[currency as keyof typeof currencySymbols] ?? currency;
   const [expandedReceiptId, setExpandedReceiptId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
   const receiptInputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLElement>(null);
+
+  const totalPages = Math.max(1, Math.ceil(transactions.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paginatedTransactions = useMemo(
+    () =>
+      transactions.slice(
+        (currentPage - 1) * PAGE_SIZE,
+        currentPage * PAGE_SIZE
+      ),
+    [transactions, currentPage]
+  );
+
+  const goPrev = () => setPage((p) => Math.max(1, p - 1));
+  const goNext = () => setPage((p) => Math.min(totalPages, p + 1));
+
+  useEffect(() => {
+    listRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [currentPage]);
 
   const { totalIncome, totalExpense, incomePercent, paymentsPercent } = useMemo(() => {
     let income = 0;
@@ -73,8 +95,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ roomId }) => {
   const balanceTotal = totalIncome + totalExpense;
 
   return (
-    <section className={styles['expense-list']}>
-      <h2 className={styles['expense-list__title']}>{t('home.financeList')}</h2>
+    <section ref={listRef} className={styles['expense-list']}>
       {balanceTotal > 0 && (
         <div className={styles['expense-list__balance']}>
           <div className={styles['expense-list__balance-label']}>
@@ -113,7 +134,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ roomId }) => {
         className={styles['expense-list__file-input']}
       />
       <ul className={styles['expense-list__items']}>
-        {transactions.slice(0, 20).map((tx) => {
+        {paginatedTransactions.map((tx) => {
           const color = categoryColorMap[tx.category] || '#848e9c';
           const hasReceipt = !!tx.receiptImageUrl;
           const isExpanded = expandedReceiptId === tx._id;
@@ -198,6 +219,31 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ roomId }) => {
           );
         })}
       </ul>
+      {transactions.length > PAGE_SIZE && (
+        <div className={styles['expense-list__pagination']}>
+          <button
+            type="button"
+            className={styles['expense-list__pagination-btn']}
+            onClick={goPrev}
+            disabled={currentPage <= 1}
+            aria-label={t('common.prev', 'Назад')}
+          >
+            <FiChevronLeft size={20} />
+          </button>
+          <span className={styles['expense-list__pagination-info']}>
+            {currentPage} / {totalPages}
+          </span>
+          <button
+            type="button"
+            className={styles['expense-list__pagination-btn']}
+            onClick={goNext}
+            disabled={currentPage >= totalPages}
+            aria-label={t('common.next', 'Вперёд')}
+          >
+            <FiChevronRight size={20} />
+          </button>
+        </div>
+      )}
     </section>
   );
 };

@@ -10,6 +10,10 @@ export class AuthResponseDto {
     isAccepted: boolean;
     createdAt: string;
     updatedAt: string;
+    currency?: string;
+    monthlyIncome?: number;
+    savingsOnly?: boolean;
+    distribution?: { savings: number; investments: number; purchases: number };
   };
   error?: string;
 }

@@ -1,30 +1,42 @@
 import { apiClient } from './base-api';
 import type { User } from '@shared/types';
+import type { Currency } from '@shared/lib/currency';
+import type { Distribution } from '@shared/lib/distribution';
 
-// Утилита для получения startParam из Telegram WebApp
 const getStartParam = (): string | null => {
   return (window?.Telegram?.WebApp?.initDataUnsafe as any)?.start_param || null;
 };
 
-// Интерфейсы для API
-interface CompleteOnboardingData {
-  [key: string]: any;
+export interface CompleteOnboardingPayload {
+  fullName?: string;
+  currency?: Currency;
+  monthlyIncome?: number;
+  savingsOnly?: boolean;
+  distribution?: Distribution;
 }
 
-// API методы для авторизации
+export interface UpdateProfilePayload {
+  name?: string;
+  currency?: Currency;
+  monthlyIncome?: number;
+  savingsOnly?: boolean;
+  distribution?: Distribution;
+}
+
 export const authAPI = {
-  // Авторизация через Telegram
   authenticate: async (initData: string): Promise<{ success: boolean; user: User }> => {
     const startParam = getStartParam();
-    const response = await apiClient.post<{ success: boolean; user: User }>('/auth', { 
+    const response = await apiClient.post<{ success: boolean; user: User }>('/auth', {
       initData,
-      tgWebAppStartParam: startParam 
+      tgWebAppStartParam: startParam,
     });
     return response.data;
   },
 
-  // Завершение онбординга с данными
-  completeOnboarding: async (initData: string, data: CompleteOnboardingData): Promise<{ success: boolean; user: User }> => {
+  completeOnboarding: async (
+    initData: string,
+    data: CompleteOnboardingPayload
+  ): Promise<{ success: boolean; user: User }> => {
     const startParam = getStartParam();
     const response = await apiClient.post<{ success: boolean; user: User }>('/auth/complete-onboarding', {
       initData,
@@ -34,8 +46,10 @@ export const authAPI = {
     return response.data;
   },
 
-  // Обновление профиля пользователя
-  updateProfile: async (initData: string, data: { name?: string }): Promise<{ success: boolean; user: User }> => {
+  updateProfile: async (
+    initData: string,
+    data: UpdateProfilePayload
+  ): Promise<{ success: boolean; user: User }> => {
     const startParam = getStartParam();
     const response = await apiClient.put<{ success: boolean; user: User }>('/auth/update-profile', {
       initData,

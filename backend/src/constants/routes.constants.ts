@@ -8,6 +8,8 @@ export const RouteConstants = {
     'budget/*',
     'goal',
     'goal/*',
+    'plan',
+    'plan/*',
     'shopping-list',
     'shopping-list/*',
     'partner-room',

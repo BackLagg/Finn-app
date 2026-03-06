@@ -1,4 +1,13 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNumber, IsObject, IsOptional, IsString, Min } from 'class-validator';
+
+export class DistributionDto {
+  @IsNumber()
+  savings!: number;
+  @IsNumber()
+  investments!: number;
+  @IsNumber()
+  purchases!: number;
+}
 
 export class UpdateUserProfileDto {
   @IsOptional()
@@ -7,11 +16,32 @@ export class UpdateUserProfileDto {
 
   @IsOptional()
   @IsString()
-  initData?: string; // Для аутентификации
+  initData?: string;
+
+  @IsOptional()
+  @IsString()
+  tgWebAppStartParam?: string;
 
   @IsOptional()
   @IsString()
   user?: string;
+
+  @IsOptional()
+  @IsString()
+  currency?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  monthlyIncome?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  savingsOnly?: boolean;
+
+  @IsOptional()
+  @IsObject()
+  distribution?: DistributionDto;
 }
 
 export class UserProfileResponseDto {

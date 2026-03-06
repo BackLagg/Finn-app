@@ -29,6 +29,25 @@ export class UserProfile {
 
   @Prop({ required: false })
   avatarPath!: string;
+
+  @Prop({ required: false, default: 'USD' })
+  currency!: string;
+
+  @Prop({ required: false, default: 0 })
+  monthlyIncome!: number;
+
+  @Prop({ required: false, default: false })
+  savingsOnly!: boolean;
+
+  @Prop({
+    required: false,
+    type: {
+      savings: Number,
+      investments: Number,
+      purchases: Number,
+    },
+  })
+  distribution!: { savings: number; investments: number; purchases: number };
 }
 
 export const UserProfileSchema = SchemaFactory.createForClass(UserProfile);

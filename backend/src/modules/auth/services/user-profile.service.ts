@@ -133,7 +133,7 @@ export class UserProfileService {
     telegramUser: TelegramUserData,
     updateProfileDto: UpdateUserProfileDto,
     existingProfile?: UserProfileDocument | null,
-  ): Promise<void> {
+  ): Promise<UserProfileDocument> {
     let profile = existingProfile;
     if (!profile) {
       profile = await this.findOrCreateProfile(telegramUser);
@@ -146,10 +146,26 @@ export class UserProfileService {
       bio?: string;
       avatarPath?: string;
       isNew?: boolean;
+      currency?: string;
+      monthlyIncome?: number;
+      savingsOnly?: boolean;
+      distribution?: { savings: number; investments: number; purchases: number };
     }> = {};
 
     if (updateProfileDto.name !== undefined) {
       updateData.name = updateProfileDto.name;
+    }
+    if (updateProfileDto.currency !== undefined) {
+      updateData.currency = updateProfileDto.currency;
+    }
+    if (updateProfileDto.monthlyIncome !== undefined) {
+      updateData.monthlyIncome = updateProfileDto.monthlyIncome;
+    }
+    if (updateProfileDto.savingsOnly !== undefined) {
+      updateData.savingsOnly = updateProfileDto.savingsOnly;
+    }
+    if (updateProfileDto.distribution !== undefined) {
+      updateData.distribution = updateProfileDto.distribution;
     }
 
     const avatarPath = await this.processUserAvatar(telegramUser, profile);
@@ -158,8 +174,9 @@ export class UserProfileService {
     }
 
     if (Object.keys(updateData).length > 0) {
-      await this.updateProfile(userId, updateData);
+      profile = await this.updateProfile(userId, updateData);
       await this.cacheService.invalidateByTags([`user:${userId}`]);
     }
+    return profile;
   }
 }

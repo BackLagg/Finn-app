@@ -13,6 +13,10 @@ import { OnboardingService } from './services/onboarding.service';
 
 interface CompleteOnboardingData {
   fullName?: string;
+  currency?: string;
+  monthlyIncome?: number;
+  savingsOnly?: boolean;
+  distribution?: { savings: number; investments: number; purchases: number };
 }
 
 @Injectable()
@@ -74,6 +78,10 @@ export class AuthService {
         isAccepted: user?.isAccepted || false,
         createdAt: this.formatDate(profile?.createdAt),
         updatedAt: this.formatDate(profile?.updatedAt),
+        currency: profile?.currency,
+        monthlyIncome: profile?.monthlyIncome,
+        savingsOnly: profile?.savingsOnly,
+        distribution: profile?.distribution,
       },
     };
   }
@@ -114,6 +122,10 @@ export class AuthService {
         isAccepted: user?.isAccepted || false,
         createdAt: this.formatDate(profile?.createdAt),
         updatedAt: this.formatDate(profile?.updatedAt),
+        currency: profile?.currency,
+        monthlyIncome: profile?.monthlyIncome,
+        savingsOnly: profile?.savingsOnly,
+        distribution: profile?.distribution,
       },
     };
   }
@@ -127,8 +139,8 @@ export class AuthService {
     telegramUser: TelegramUserData,
     updateProfileDto: UpdateUserProfileDto,
     existingProfile?: UserProfileDocument | null,
-  ): Promise<void> {
-    await this.userProfileService.updateUserProfile(
+  ): Promise<UserProfileDocument> {
+    return this.userProfileService.updateUserProfile(
       telegramUser,
       updateProfileDto,
       existingProfile,

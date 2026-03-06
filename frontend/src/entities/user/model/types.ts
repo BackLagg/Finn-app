@@ -1,9 +1,14 @@
-// Типы для сущности User
+export interface UserDistribution {
+  savings: number;
+  investments: number;
+  purchases: number;
+}
+
 export interface User {
   id: string | null;
   telegramId: number | null;
-  username: string; // Отображаемое имя пользователя
-  name: string; // Полное имя пользователя
+  username: string;
+  name: string;
   profession?: string;
   description?: string;
   avatarPath?: string;
@@ -13,8 +18,12 @@ export interface User {
   createdAt: string | null;
   updatedAt: string | null;
   lastLoginAt?: string | null;
-  donationLevel?: number; // 0, 2, 3 (0 = нет донатов, 2 = 1-3 TON, 3 = 3+ TON)
-  totalDonated?: number; // Суммарная сумма донатов в TON
+  donationLevel?: number;
+  totalDonated?: number;
+  currency?: string;
+  monthlyIncome?: number;
+  savingsOnly?: boolean;
+  distribution?: UserDistribution;
 }
 
 export interface UserProfile {

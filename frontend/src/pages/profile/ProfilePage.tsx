@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
+import { useAuth } from '@features/auth/api';
 import { Dropdown, Toggle, DistributionSliders } from '@shared/ui';
 import {
   useCurrencyPreference,
@@ -16,33 +17,58 @@ import styles from './ProfilePage.module.scss';
 
 const ProfilePage: React.FC = () => {
   const { t } = useTranslation();
+  const { updateProfile } = useAuth();
   const user = useSelector((state: RootState) => state.user);
   const [currency, setCurrency] = useCurrencyPreference();
   const [savingsOnly, setSavingsOnly] = useSavingsOnlyPreference();
   const [distribution, setDistribution] = useDistributionPreference();
   const [monthlyIncome, setMonthlyIncome] = useMonthlyIncomePreference();
 
+  const handleCurrencyChange = useCallback(
+    (val: Currency) => {
+      setCurrency(val);
+      updateProfile({ currency: val });
+    },
+    [setCurrency, updateProfile]
+  );
+
   const handleSavingsOnlyChange = useCallback(
     (value: boolean) => {
       setSavingsOnly(value);
-      if (value) {
-        setDistribution(
-          normalizeDistribution(
+      const nextDistribution = value
+        ? normalizeDistribution(
             distribution.savings + distribution.investments,
             0,
             distribution.purchases
           )
-        );
-      } else {
-        setDistribution(getProgressiveDistribution(monthlyIncome || 0, currency));
-      }
+        : getProgressiveDistribution(monthlyIncome || 0, currency);
+      setDistribution(nextDistribution);
+      updateProfile({ savingsOnly: value, distribution: nextDistribution });
     },
-    [distribution, monthlyIncome, setDistribution, setSavingsOnly, currency]
+    [distribution, monthlyIncome, setDistribution, setSavingsOnly, updateProfile, currency]
   );
 
   const handleResetDistribution = useCallback(() => {
-    setDistribution(getProgressiveDistribution(monthlyIncome || 0, currency));
-  }, [monthlyIncome, setDistribution, currency]);
+    const next = getProgressiveDistribution(monthlyIncome || 0, currency);
+    setDistribution(next);
+    updateProfile({ distribution: next });
+  }, [monthlyIncome, setDistribution, updateProfile, currency]);
+
+  const handleMonthlyIncomeChange = useCallback(
+    (value: number) => {
+      setMonthlyIncome(value);
+      updateProfile({ monthlyIncome: value });
+    },
+    [setMonthlyIncome, updateProfile]
+  );
+
+  const handleDistributionChange = useCallback(
+    (value: typeof distribution) => {
+      setDistribution(value);
+      updateProfile({ distribution: value });
+    },
+    [setDistribution, updateProfile]
+  );
 
   const getProfilePhoto = () => {
     if (window.Telegram?.WebApp?.initDataUnsafe?.user?.photo_url) {
@@ -84,7 +110,7 @@ const ProfilePage: React.FC = () => {
               { value: 'BYN', label: `${currencySymbols.BYN} BYN` },
             ]}
             value={currency}
-            onChange={(val) => setCurrency(val as Currency)}
+            onChange={(val) => handleCurrencyChange(val as Currency)}
             className={styles['profile-page__dropdown']}
           />
         </div>
@@ -115,7 +141,7 @@ const ProfilePage: React.FC = () => {
               min={0}
               step={1}
               value={monthlyIncome || ''}
-              onChange={(e) => setMonthlyIncome(Number(e.target.value) || 0)}
+              onChange={(e) => handleMonthlyIncomeChange(Number(e.target.value) || 0)}
               className={styles['profile-page__salary-input']}
               placeholder="0"
             />
@@ -127,7 +153,7 @@ const ProfilePage: React.FC = () => {
         <div className={styles['profile-page__distribution']}>
           <DistributionSliders
             distribution={distribution}
-            onChange={setDistribution}
+            onChange={handleDistributionChange}
             savingsOnly={savingsOnly}
             savingsLabel={t('home.savings')}
             investmentsLabel={t('home.investments')}

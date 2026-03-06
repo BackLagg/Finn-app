@@ -67,6 +67,19 @@ export interface PartnerRoom {
   }[];
 }
 
+export interface PlanResponse {
+  _id: string;
+  name: string;
+  amount: number;
+  dayOfMonth?: number;
+  savingFor?: string;
+  category?: string;
+  roomId?: string;
+  deadline?: string;
+  savingsPercent?: number;
+  completedAt?: string;
+}
+
 export const financeAPI = {
   transactions: {
     list: (params?: { roomId?: string; from?: string; to?: string; limit?: number }) =>
@@ -102,6 +115,33 @@ export const financeAPI = {
     update: (id: string, data: Partial<{ title: string; targetAmount: number; currentAmount: number; deadline: string }>) =>
       apiClient.put<Goal>(`/goal/${id}`, data),
     delete: (id: string) => apiClient.delete(`/goal/${id}`),
+  },
+  plans: {
+    list: (roomId?: string) => apiClient.get<PlanResponse[]>('/plan', { params: roomId ? { roomId } : undefined }),
+    create: (data: {
+      name: string;
+      amount: number;
+      dayOfMonth?: number;
+      savingFor?: string;
+      category?: string;
+      roomId?: string;
+      deadline?: string;
+      savingsPercent?: number;
+    }) => apiClient.post<PlanResponse>('/plan', data),
+    update: (
+      id: string,
+      data: Partial<{
+        name: string;
+        amount: number;
+        dayOfMonth: number;
+        savingFor: string;
+        category: string;
+        deadline: string;
+        savingsPercent: number;
+        completedAt: string;
+      }>
+    ) => apiClient.put<PlanResponse>(`/plan/${id}`, data),
+    delete: (id: string) => apiClient.delete(`/plan/${id}`),
   },
   shoppingLists: {
     list: (roomId?: string) => apiClient.get<ShoppingList[]>('/shopping-list', { params: { roomId } }),

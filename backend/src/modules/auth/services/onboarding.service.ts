@@ -9,6 +9,10 @@ import { UserProfileService } from './user-profile.service';
 
 interface CompleteOnboardingData {
   fullName?: string;
+  currency?: string;
+  monthlyIncome?: number;
+  savingsOnly?: boolean;
+  distribution?: { savings: number; investments: number; purchases: number };
 }
 
 @Injectable()
@@ -39,6 +43,10 @@ export class OnboardingService {
       name: string;
       username: string;
       avatarPath: string;
+      currency: string;
+      monthlyIncome: number;
+      savingsOnly: boolean;
+      distribution: { savings: number; investments: number; purchases: number };
     }> = {};
 
     if (isNewUser) {
@@ -47,6 +55,19 @@ export class OnboardingService {
 
     if (onboardingData.fullName && onboardingData.fullName.trim()) {
       updateData.name = onboardingData.fullName.trim();
+    }
+
+    if (onboardingData.currency !== undefined) {
+      updateData.currency = onboardingData.currency;
+    }
+    if (onboardingData.monthlyIncome !== undefined) {
+      updateData.monthlyIncome = onboardingData.monthlyIncome;
+    }
+    if (onboardingData.savingsOnly !== undefined) {
+      updateData.savingsOnly = onboardingData.savingsOnly;
+    }
+    if (onboardingData.distribution !== undefined) {
+      updateData.distribution = onboardingData.distribution;
     }
 
     if (telegramUser.username) {
