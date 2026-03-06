@@ -39,6 +39,7 @@ services:
       - key: ALLOWED_ORIGINS
         value: https://finn-frontend.onrender.com
       - fromGroup: finn-bot-env
+      - fromGroup: finn-file-api
 
   - type: web
     name: finn-file-service
@@ -49,6 +50,7 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - fromGroup: finn-file-api
 
   - type: web
     name: finn-frontend
@@ -65,7 +67,11 @@ services:
     rootDir: Bot_API
     dockerfilePath: Dockerfile
     envVars:
-      - fromGroup: finn-bot-env
+      - key: BOT_TOKEN
+        fromService:
+          type: web
+          name: finn-backend
+          envVarKey: BOT_TOKEN
 
   - type: cron
     name: finn-ping
@@ -83,3 +89,7 @@ envVarGroups:
     envVars:
       - key: BOT_TOKEN
         sync: false
+  - name: finn-file-api
+    envVars:
+      - key: FILE_API_KEY
+        generateValue: true
