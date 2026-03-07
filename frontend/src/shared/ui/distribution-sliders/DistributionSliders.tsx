@@ -17,6 +17,8 @@ export interface DistributionSlidersProps {
   monthlyAmount?: number;
   currencySymbol?: string;
   onReset?: () => void;
+  /** Distribution to show immediately on reset (should match what onReset applies). */
+  resetDistribution?: Distribution;
   resetLabel?: string;
 }
 
@@ -34,6 +36,7 @@ export const DistributionSliders: React.FC<DistributionSlidersProps> = ({
   monthlyAmount = 0,
   currencySymbol = '',
   onReset,
+  resetDistribution,
   resetLabel = 'Reset',
 }) => {
   const [localDistribution, setLocalDistribution] = useState(distribution);
@@ -54,6 +57,17 @@ export const DistributionSliders: React.FC<DistributionSlidersProps> = ({
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, []);
+
+  const handleResetClick = useCallback(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
+    if (resetDistribution != null) {
+      setLocalDistribution(resetDistribution);
+    }
+    onReset?.();
+  }, [onReset, resetDistribution]);
 
   const handleChange = useCallback(
     (key: keyof Distribution, value: number) => {
@@ -92,7 +106,7 @@ export const DistributionSliders: React.FC<DistributionSlidersProps> = ({
         <div className={styles.header}>
           <button
             type="button"
-            onClick={onReset}
+            onClick={handleResetClick}
             className={styles.resetBtn}
             title={resetLabel}
           >

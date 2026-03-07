@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
@@ -49,14 +49,17 @@ const ProfilePage: React.FC = () => {
     [distribution, monthlyIncome, setDistribution, setSavingsOnly, updateProfile, currency]
   );
 
-  const handleResetDistribution = useCallback(() => {
+  const resetDistribution = useMemo(() => {
     const standard = getProgressiveDistribution(monthlyIncome || 0, currency);
-    const next = savingsOnly
+    return savingsOnly
       ? normalizeDistribution(standard.savings + standard.investments, 0, standard.purchases)
       : standard;
-    setDistribution(next);
-    updateProfile({ distribution: next });
-  }, [monthlyIncome, setDistribution, updateProfile, currency, savingsOnly]);
+  }, [monthlyIncome, currency, savingsOnly]);
+
+  const handleResetDistribution = useCallback(() => {
+    setDistribution(resetDistribution);
+    updateProfile({ distribution: resetDistribution });
+  }, [resetDistribution, setDistribution, updateProfile]);
 
   const handleMonthlyIncomeChange = useCallback(
     (value: number) => {
@@ -179,6 +182,7 @@ const ProfilePage: React.FC = () => {
             monthlyAmount={monthlyIncome}
             currencySymbol={currencySymbols[currency]}
             onReset={handleResetDistribution}
+            resetDistribution={resetDistribution}
             resetLabel={t('statistics.planner.applyStandard')}
           />
         </div>

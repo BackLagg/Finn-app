@@ -41,10 +41,6 @@ export const useDistributionPreference = (): [Distribution, (value: Distribution
     return defaultDistribution;
   });
 
-  const value = user?.distribution && isValidDistribution(user.distribution)
-    ? user.distribution
-    : distribution;
-
   useEffect(() => {
     if (user?.distribution && isValidDistribution(user.distribution)) {
       setDistributionState(user.distribution);
@@ -58,11 +54,11 @@ export const useDistributionPreference = (): [Distribution, (value: Distribution
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(distribution));
     } catch {
       // ignore
     }
-  }, [value]);
+  }, [distribution]);
 
-  return [value, setDistributionState];
+  return [distribution, setDistributionState];
 };

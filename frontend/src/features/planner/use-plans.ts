@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { financeAPI } from '@shared/api';
 import type { Plan } from '@entities/planner';
@@ -35,9 +35,32 @@ function redistributePercentAmongActive(plans: Plan[]): Plan[] {
   });
 }
 
+/** Set one plan's percent and distribute the remaining 100% evenly among other active plans. Single active plan is always 100%. */
+function setOneAndRedistribute(plans: Plan[], targetId: string, newPercent: number): Plan[] {
+  const active = plans.filter(isActive);
+  if (active.length <= 1) {
+    return plans.map((p) => (p.id === targetId ? { ...p, savingsPercent: 100 } : p));
+  }
+  const clamped = Math.max(0, Math.min(100, Math.round(newPercent)));
+  const others = active.filter((p) => p.id !== targetId);
+  const rest = 100 - clamped;
+  const perOther = Math.floor(rest / others.length);
+  const remainder = rest - perOther * others.length;
+  return plans.map((p) => {
+    if (p.id === targetId) return { ...p, savingsPercent: clamped };
+    if (!isActive(p)) return p;
+    const idx = others.findIndex((o) => o.id === p.id);
+    const percent = idx === others.length - 1 ? perOther + remainder : perOther;
+    return { ...p, savingsPercent: percent };
+  });
+}
+
+const SAVE_PERCENT_DEBOUNCE_MS = 4000;
+
 export function usePlans(roomId?: string) {
   const queryClient = useQueryClient();
   const queryKey = ['plans', roomId ?? 'personal'];
+  const savePercentTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { data: list = [], isLoading } = useQuery({
     queryKey,
@@ -65,7 +88,10 @@ export function usePlans(roomId?: string) {
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Parameters<typeof financeAPI.plans.update>[1] }) =>
       financeAPI.plans.update(id, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+    onSuccess: (_data, _variables, context?: { skipInvalidate?: boolean }) => {
+      if (context?.skipInvalidate) return;
+      queryClient.invalidateQueries({ queryKey });
+    },
   });
 
   const deleteMutation = useMutation({
@@ -113,12 +139,37 @@ export function usePlans(roomId?: string) {
     [deleteMutation]
   );
 
+  useEffect(() => {
+    return () => {
+      if (savePercentTimerRef.current) clearTimeout(savePercentTimerRef.current);
+    };
+  }, []);
+
   const setPlanSavingsPercent = useCallback(
     (id: string, percent: number) => {
-      const clamped = Math.max(0, Math.min(100, Math.round(percent)));
-      updateMutation.mutate({ id, data: { savingsPercent: clamped } });
+      const nextPlans = setOneAndRedistribute(plans, id, percent);
+      queryClient.setQueryData(queryKey, nextPlans);
+
+      if (savePercentTimerRef.current) clearTimeout(savePercentTimerRef.current);
+      savePercentTimerRef.current = setTimeout(async () => {
+        savePercentTimerRef.current = null;
+        const currentPlans = queryClient.getQueryData<Plan[]>(queryKey) ?? [];
+        const active = currentPlans.filter(isActive);
+        try {
+          await Promise.all(
+            active.map((p) =>
+              updateMutation.mutateAsync({
+                id: p.id,
+                data: { savingsPercent: p.savingsPercent ?? 0 },
+              })
+            )
+          );
+        } finally {
+          queryClient.invalidateQueries({ queryKey });
+        }
+      }, SAVE_PERCENT_DEBOUNCE_MS);
     },
-    [updateMutation]
+    [plans, queryClient, queryKey, updateMutation]
   );
 
   const completePlan = useCallback(

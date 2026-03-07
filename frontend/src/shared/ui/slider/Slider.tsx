@@ -67,7 +67,7 @@ export const Slider: React.FC<SliderProps> = ({
   );
 
   const displayValue = debounceMs != null && debounceMs > 0 ? localValue : value;
-  const percent = max > min ? ((displayValue - min) / (max - min)) * 100 : 0;
+  const percent = max > min ? ((displayValue - min) / (max - min)) * 100 : 100;
 
   return (
     <div className={`${styles.root} ${disabled ? styles.disabled : ''} ${className ?? ''}`}>
