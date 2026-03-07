@@ -109,7 +109,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ roomId }) => {
                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                   }}
                   labelFormatter={(_, payload) => payload?.[0]?.payload?.label ?? ''}
-                  formatter={(value: number) => formatShortNumber(value)}
+                  formatter={(value) => formatShortNumber(Number(value) || 0)}
                 />
                 <Bar dataKey="amount" fill="var(--color-success)" radius={[8, 8, 0, 0]} maxBarSize={24} />
               </BarChart>
@@ -147,7 +147,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ roomId }) => {
                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                   }}
                   labelFormatter={(_, payload) => payload?.[0]?.payload?.label ?? ''}
-                  formatter={(value: number) => formatShortNumber(value)}
+                  formatter={(value) => formatShortNumber(Number(value) || 0)}
                 />
                 <Line
                   type="monotone"
