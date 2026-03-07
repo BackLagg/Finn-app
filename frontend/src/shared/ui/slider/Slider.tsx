@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styles from './Slider.module.scss';
 
 export interface SliderProps {
@@ -13,6 +13,8 @@ export interface SliderProps {
   color?: string;
   className?: string;
   disabled?: boolean;
+  /** Debounce onChange by this many ms; value updates immediately in UI */
+  debounceMs?: number;
 }
 
 export const Slider: React.FC<SliderProps> = ({
@@ -27,8 +29,45 @@ export const Slider: React.FC<SliderProps> = ({
   color,
   className,
   disabled = false,
+  debounceMs,
 }) => {
-  const percent = max > min ? ((value - min) / (max - min)) * 100 : 0;
+  const [localValue, setLocalValue] = useState(value);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+
+  useEffect(() => {
+    setLocalValue(value);
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
+  }, [value]);
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  const handleInputChange = useCallback(
+    (raw: number) => {
+      setLocalValue(raw);
+      if (debounceMs != null && debounceMs > 0) {
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(() => {
+          debounceRef.current = null;
+          onChangeRef.current(raw);
+        }, debounceMs);
+      } else {
+        onChangeRef.current(raw);
+      }
+    },
+    [debounceMs]
+  );
+
+  const displayValue = debounceMs != null && debounceMs > 0 ? localValue : value;
+  const percent = max > min ? ((displayValue - min) / (max - min)) * 100 : 0;
 
   return (
     <div className={`${styles.root} ${disabled ? styles.disabled : ''} ${className ?? ''}`}>
@@ -37,7 +76,7 @@ export const Slider: React.FC<SliderProps> = ({
           {label && <span className={styles.label}>{label}</span>}
           {showValue && (
             <span className={styles.value}>
-              {value}{valueSuffix}
+              {displayValue}{valueSuffix}
             </span>
           )}
         </div>
@@ -55,10 +94,10 @@ export const Slider: React.FC<SliderProps> = ({
           min={min}
           max={max}
           step={step}
-          value={value}
+          value={displayValue}
           disabled={disabled}
           className={styles.input}
-          onChange={(e) => onChange(Number(e.target.value))}
+          onChange={(e) => handleInputChange(Number(e.target.value))}
           aria-label={label}
         />
       </div>

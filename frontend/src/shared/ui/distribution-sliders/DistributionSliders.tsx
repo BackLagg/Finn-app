@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { IoRefreshOutline } from 'react-icons/io5';
 import type { Distribution } from '@shared/lib/distribution';
 import { clampDistribution } from '@shared/lib/distribution';
+import { Slider } from '../slider';
 import styles from './DistributionSliders.module.scss';
+
+const DEBOUNCE_MS = 4000;
 
 export interface DistributionSlidersProps {
   distribution: Distribution;
@@ -33,9 +36,40 @@ export const DistributionSliders: React.FC<DistributionSlidersProps> = ({
   onReset,
   resetLabel = 'Reset',
 }) => {
-  const handleChange = (key: keyof Distribution, value: number) => {
-    onChange(clampDistribution(distribution, key, value, savingsOnly));
-  };
+  const [localDistribution, setLocalDistribution] = useState(distribution);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+
+  useEffect(() => {
+    setLocalDistribution(distribution);
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
+  }, [distribution.savings, distribution.investments, distribution.purchases]);
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  const handleChange = useCallback(
+    (key: keyof Distribution, value: number) => {
+      const next = clampDistribution(localDistribution, key, value, savingsOnly);
+      setLocalDistribution(next);
+
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+      debounceRef.current = setTimeout(() => {
+        debounceRef.current = null;
+        onChangeRef.current(next);
+      }, DEBOUNCE_MS);
+    },
+    [localDistribution, savingsOnly]
+  );
 
   const renderValue = (percent: number) => {
     const amount =
@@ -68,38 +102,41 @@ export const DistributionSliders: React.FC<DistributionSlidersProps> = ({
       )}
       <div className={styles.row}>
         <label className={styles.label}>{savingsLabel}</label>
-        {renderValue(distribution.savings)}
-        <input
-          type="range"
+        {renderValue(localDistribution.savings)}
+        <Slider
+          value={localDistribution.savings}
           min={0}
           max={100}
-          value={distribution.savings}
-          onChange={(e) => handleChange('savings', Number(e.target.value))}
+          step={1}
+          onChange={(v) => handleChange('savings', v)}
+          showValue={false}
           className={styles.slider}
         />
       </div>
       <div className={savingsOnly ? `${styles.row} ${styles.rowDisabled}` : styles.row}>
         <label className={styles.label}>{investmentsLabel}</label>
-        {renderValue(distribution.investments)}
-        <input
-          type="range"
+        {renderValue(localDistribution.investments)}
+        <Slider
+          value={localDistribution.investments}
           min={0}
           max={100}
-          value={distribution.investments}
-          onChange={(e) => handleChange('investments', Number(e.target.value))}
-          className={styles.slider}
+          step={1}
+          onChange={(v) => handleChange('investments', v)}
+          showValue={false}
           disabled={savingsOnly}
+          className={styles.slider}
         />
       </div>
       <div className={styles.row}>
         <label className={styles.label}>{purchasesLabel}</label>
-        {renderValue(distribution.purchases)}
-        <input
-          type="range"
+        {renderValue(localDistribution.purchases)}
+        <Slider
+          value={localDistribution.purchases}
           min={0}
           max={100}
-          value={distribution.purchases}
-          onChange={(e) => handleChange('purchases', Number(e.target.value))}
+          step={1}
+          onChange={(v) => handleChange('purchases', v)}
+          showValue={false}
           className={styles.slider}
         />
       </div>

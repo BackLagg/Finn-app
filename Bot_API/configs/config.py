@@ -45,6 +45,10 @@ MINIAPP_URL = os.getenv("MINIAPP_URL")
 # Админы
 SUPER_ADMIN_ID = os.getenv("SUPER_ADMIN_ID", "1808397020")
 
+# Уведомления календаря: время по МСК и порог "осталось менее N дней"
+PLANNER_NOTIFY_HOUR_MSK = int(os.getenv("PLANNER_NOTIFY_HOUR_MSK", "10"))
+PLANNER_EXPIRE_DAYS = int(os.getenv("PLANNER_EXPIRE_DAYS", "2"))
+
 # ID фотографии для приветственного сообщения
 # Текущий ID фотографии недействителен
 # Чтобы получить новый ID:

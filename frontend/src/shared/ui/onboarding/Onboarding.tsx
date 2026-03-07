@@ -53,8 +53,12 @@ const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   }, [monthlySalary, currency]);
 
   const handleApplyStandard = useCallback(() => {
-    setDistribution(getProgressiveDistribution(monthlySalary || 0, currency));
-  }, [monthlySalary, currency]);
+    const standard = getProgressiveDistribution(monthlySalary || 0, currency);
+    const next = savingsOnly
+      ? normalizeDistribution(standard.savings + standard.investments, 0, standard.purchases)
+      : standard;
+    setDistribution(next);
+  }, [monthlySalary, currency, savingsOnly]);
 
   const steps: StepContent[] = useMemo(
     () => [

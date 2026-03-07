@@ -278,6 +278,7 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector 
                       max={100}
                       step={1}
                       valueSuffix="%"
+                      debounceMs={4000}
                       onChange={(v) => setPlanSavingsPercent(plan.id, v)}
                     />
                   )}

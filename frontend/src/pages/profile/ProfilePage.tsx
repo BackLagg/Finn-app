@@ -50,10 +50,13 @@ const ProfilePage: React.FC = () => {
   );
 
   const handleResetDistribution = useCallback(() => {
-    const next = getProgressiveDistribution(monthlyIncome || 0, currency);
+    const standard = getProgressiveDistribution(monthlyIncome || 0, currency);
+    const next = savingsOnly
+      ? normalizeDistribution(standard.savings + standard.investments, 0, standard.purchases)
+      : standard;
     setDistribution(next);
     updateProfile({ distribution: next });
-  }, [monthlyIncome, setDistribution, updateProfile, currency]);
+  }, [monthlyIncome, setDistribution, updateProfile, currency, savingsOnly]);
 
   const handleMonthlyIncomeChange = useCallback(
     (value: number) => {

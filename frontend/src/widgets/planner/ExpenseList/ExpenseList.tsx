@@ -46,7 +46,12 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ roomId }) => {
   const goPrev = () => setPage((p) => Math.max(1, p - 1));
   const goNext = () => setPage((p) => Math.min(totalPages, p + 1));
 
+  const isFirstRender = useRef(true);
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     listRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [currentPage]);
 
@@ -95,7 +100,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ roomId }) => {
   const balanceTotal = totalIncome + totalExpense;
 
   return (
-    <section ref={listRef} className={styles['expense-list']}>
+    <section className={styles['expense-list']}>
       {balanceTotal > 0 && (
         <div className={styles['expense-list__balance']}>
           <div className={styles['expense-list__balance-label']}>
@@ -133,7 +138,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ roomId }) => {
         onChange={handleReceiptFileChange}
         className={styles['expense-list__file-input']}
       />
-      <ul className={styles['expense-list__items']}>
+      <ul ref={listRef} className={styles['expense-list__items']}>
         {paginatedTransactions.map((tx) => {
           const color = categoryColorMap[tx.category] || '#848e9c';
           const hasReceipt = !!tx.receiptImageUrl;

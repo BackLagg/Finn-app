@@ -1,17 +1,23 @@
 import asyncio
 import logging
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from motor.motor_asyncio import AsyncIOMotorClient
+
 from configs.config import (
     API_TOKEN,
     MONGO_URI,
     DB_NAME,
     SUPERUSER_COLLECTION,
-    SUPER_ADMIN_ID
+    SUPER_ADMIN_ID,
+    PLANNER_NOTIFY_HOUR_MSK,
 )
 from handlers.start import start_router
 from handlers.admin import admin_router, load_welcome_video_id
+from utils.planner_notifications import send_planner_notifications
 
 # Настройка логирования
 logging.basicConfig(
@@ -63,6 +69,24 @@ async def init_super_admin():
     finally:
         client.close()
 
+async def planner_notify_scheduler(bot_instance: Bot) -> None:
+    """Каждый день в 10:00 МСК рассылает уведомления о событиях с истечением < 2 дней."""
+    msk = ZoneInfo("Europe/Moscow")
+    client = AsyncIOMotorClient(MONGO_URI)
+    db = client[DB_NAME]
+    while True:
+        now = datetime.now(msk)
+        next_run = now.replace(
+            hour=PLANNER_NOTIFY_HOUR_MSK, minute=0, second=0, microsecond=0
+        )
+        if now >= next_run:
+            next_run = next_run + timedelta(days=1)
+        wait_secs = (next_run - now).total_seconds()
+        logger.info("Planner notifications next run at %s MSK (in %.0f s)", next_run, wait_secs)
+        await asyncio.sleep(max(1, wait_secs))
+        await send_planner_notifications(bot_instance, db, PLANNER_NOTIFY_HOUR_MSK)
+
+
 async def on_startup(bot: Bot) -> None:
     """Функция, выполняемая при запуске бота"""
     logger.info("Бот Finn запущен")
@@ -73,6 +97,9 @@ async def on_startup(bot: Bot) -> None:
     # Загрузка вступительного видео из БД в кэш
     await load_welcome_video_id()
     logger.info("Вступительное видео загружено в кэш")
+    
+    # Запуск планировщика уведомлений календаря (10:00 МСК)
+    asyncio.create_task(planner_notify_scheduler(bot))
     
     # Сохраняем бота в диспетчере
     dp.bot = bot
