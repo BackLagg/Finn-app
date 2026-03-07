@@ -30,7 +30,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ roomId }) => {
   const [expandedReceiptId, setExpandedReceiptId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const receiptInputRef = useRef<HTMLInputElement>(null);
-  const listRef = useRef<HTMLElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
 
   const totalPages = Math.max(1, Math.ceil(transactions.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
