@@ -14,9 +14,22 @@ function getTxAmount(tx: { amount: number | { USD?: number; EUR?: number; RUB?: 
   if (typeof tx.amount === 'number') n = tx.amount;
   else {
     const a = tx.amount as { USD?: number; EUR?: number; RUB?: number; BYN?: number };
-    n = a.USD ?? a.EUR ?? a.RUB ?? a.BYN ?? 0;
+    n = a.USD || a.EUR || a.RUB || a.BYN || 0;
   }
   return Math.abs(n);
+}
+
+/** Формат осей и подписей: 60k, 100k, 1kk (миллион) */
+function formatShortNumber(n: number): string {
+  if (n >= 1_000_000) {
+    const m = n / 1_000_000;
+    return m % 1 === 0 ? `${m}kk` : `${m.toFixed(1)}kk`;
+  }
+  if (n >= 1000) {
+    const k = n / 1000;
+    return k % 1 === 0 ? `${k}k` : `${k.toFixed(1)}k`;
+  }
+  return String(Math.round(n));
 }
 
 const ChartsSection: React.FC<ChartsSectionProps> = ({ roomId }) => {
@@ -85,7 +98,8 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ roomId }) => {
                   tick={{ fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
-                  width={32}
+                  width={40}
+                  tickFormatter={formatShortNumber}
                 />
                 <Tooltip
                   contentStyle={{
@@ -95,6 +109,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ roomId }) => {
                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                   }}
                   labelFormatter={(_, payload) => payload?.[0]?.payload?.label ?? ''}
+                  formatter={(value: number) => formatShortNumber(value)}
                 />
                 <Bar dataKey="amount" fill="var(--color-success)" radius={[8, 8, 0, 0]} maxBarSize={24} />
               </BarChart>
@@ -121,7 +136,8 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ roomId }) => {
                   tick={{ fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
-                  width={32}
+                  width={40}
+                  tickFormatter={formatShortNumber}
                 />
                 <Tooltip
                   contentStyle={{
@@ -131,6 +147,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ roomId }) => {
                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                   }}
                   labelFormatter={(_, payload) => payload?.[0]?.payload?.label ?? ''}
+                  formatter={(value: number) => formatShortNumber(value)}
                 />
                 <Line
                   type="monotone"

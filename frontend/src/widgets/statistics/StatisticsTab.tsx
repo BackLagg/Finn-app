@@ -17,7 +17,7 @@ function getAmount(tx: { amount: number | { USD?: number; EUR?: number; RUB?: nu
   if (typeof tx.amount === 'number') n = tx.amount;
   else {
     const a = tx.amount as { USD?: number; EUR?: number; RUB?: number; BYN?: number };
-    n = a.USD ?? a.EUR ?? a.RUB ?? a.BYN ?? 0;
+    n = a.USD || a.EUR || a.RUB || a.BYN || 0;
   }
   return Math.abs(n);
 }
