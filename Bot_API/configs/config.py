@@ -1,4 +1,5 @@
 import os
+from urllib.parse import urlparse
 from dotenv import load_dotenv
 
 # Загрузка переменных из .env файла
@@ -9,11 +10,19 @@ API_TOKEN = os.getenv("BOT_TOKEN")
 # Резервный токен
 #API_TOKEN = "8047430728:AAGoA5HDezSyfd3Z1OS07fNAPEVUOKnLPrg"
 
-# MongoDB
+# MongoDB — должна совпадать с БД бэкенда (User + UserProfile)
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
-DB_NAME = os.getenv("DB_NAME", "ref-app")
+# Имя БД: если не задано, берётся из пути MONGO_URI (как в Mongoose), иначе "ref-app"
+_default_db = "ref-app"
+if MONGO_URI:
+    parsed = urlparse(MONGO_URI)
+    if parsed.path and parsed.path != "/":
+        _default_db = parsed.path.lstrip("/").split("/")[0] or _default_db
+DB_NAME = os.getenv("DB_NAME", _default_db)
+# Коллекции бэкенда (schema User -> users, UserProfile -> userprofiles)
 USERS_COLLECTION = os.getenv("USERS_COLLECTION", "users")
 USERS_PROFILE_COLLECTION = os.getenv("USERS_PROFILE_COLLECTION", "profiles")
+USERPROFILES_COLLECTION = os.getenv("USERPROFILES_COLLECTION", "userprofiles")
 SUPERUSER_COLLECTION = os.getenv("SUPERUSER_COLLECTION", "superusers")
 QUIZ_RESULTS_COLLECTION = "quizresults"
 

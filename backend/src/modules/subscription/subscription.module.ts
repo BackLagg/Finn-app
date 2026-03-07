@@ -5,6 +5,7 @@ import { SubscriptionController } from './subscription.controller';
 import { SubscriptionService } from './subscription.service';
 import { AuthModule } from '../auth/auth.module';
 import { CacheModule } from '../cache/cache.module';
+import { SuperUserGuard } from '../../guards/super-user.guard';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { CacheModule } from '../cache/cache.module';
     CacheModule,
   ],
   controllers: [SubscriptionController],
-  providers: [SubscriptionService],
+  providers: [SubscriptionService, SuperUserGuard],
   exports: [SubscriptionService],
 })
 export class SubscriptionModule {}

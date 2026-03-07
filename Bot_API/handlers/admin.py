@@ -2,15 +2,27 @@ from aiogram import Bot, Router, F
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+from aiogram.filters import StateFilter
+from datetime import datetime, timedelta
+from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from configs.config import (
     MONGO_URI,
     DB_NAME,
-    SUPERUSER_COLLECTION
+    SUPERUSER_COLLECTION,
+    USERS_COLLECTION,
+    USERPROFILES_COLLECTION,
 )
-from keyboards.keyboards import get_admin_keyboard, get_webapp_keyboard, get_admins_list_keyboard
+from keyboards.keyboards import (
+    get_admin_keyboard,
+    get_webapp_keyboard,
+    get_admins_list_keyboard,
+    get_user_list_keyboard,
+    get_subscription_actions_keyboard,
+)
 from handlers.start import WELCOME_TEXT
+from handlers.user_search import search_users, format_user_list_message
 
 # Кэш для video_id
 welcome_video_id_cache = None
@@ -20,6 +32,8 @@ BOT_SETTINGS_COLLECTION = "bot_settings"
 
 class AdminStates(StatesGroup):
     waiting_for_video = State()
+    waiting_admin_id = State()
+    waiting_user_search_query = State()
 
 # Создаем роутер для админ-команд
 admin_router = Router(name="admin_router")
@@ -90,7 +104,7 @@ async def back_to_menu_handler(callback: CallbackQuery, state: FSMContext):
 @admin_router.callback_query(F.data == "add_admin")
 async def add_admin_handler(callback: CallbackQuery, state: FSMContext):
     """Обработчик добавления админа"""
-    await state.set_state("waiting_admin_id")
+    await state.set_state(AdminStates.waiting_admin_id)
     # Сохраняем сообщение в состоянии
     await state.update_data(last_bot_message=callback.message)
     await callback.message.edit_text(
@@ -101,13 +115,9 @@ async def add_admin_handler(callback: CallbackQuery, state: FSMContext):
         ])
     )
 
-@admin_router.message(lambda m: m.text)
+@admin_router.message(StateFilter(AdminStates.waiting_admin_id), F.text)
 async def process_admin_id(message: Message, state: FSMContext):
     """Обработчик получения ID нового админа"""
-    current_state = await state.get_state()
-    if current_state != "waiting_admin_id":
-        return
-    
     # Удаляем сообщение с ID в любом случае
     await message.delete()
     
@@ -199,6 +209,261 @@ async def back_to_admin(callback: CallbackQuery, state: FSMContext):
         "Панель администратора",
         reply_markup=get_admin_keyboard()
     )
+
+
+# ——— Менеджер подписок: переиспользуемый компонент со списком юзеров ———
+@admin_router.callback_query(F.data == "subscription_manager")
+async def subscription_manager_handler(callback: CallbackQuery, state: FSMContext):
+    """Менеджер подписок: по умолчанию показываем всех пользователей (первая страница)."""
+    telegram_id = str(callback.from_user.id)
+    is_superuser = await superuser_collection.find_one({"telegramID": telegram_id})
+    if not is_superuser:
+        await callback.answer("У вас нет прав администратора.", show_alert=True)
+        return
+    await state.update_data(last_bot_message=callback.message)
+    # По стандарту — все юзеры без фильтра, страница 0
+    result = await search_users(
+        db,
+        query="",
+        page=0,
+        users_collection=USERS_COLLECTION,
+        userprofiles_collection=USERPROFILES_COLLECTION,
+    )
+    await state.update_data(user_search_query="", user_search_page=0)
+    text = format_user_list_message(
+        result["items"],
+        result["total"],
+        result["page"],
+        result["total_pages"],
+        query=None,
+    )
+    await callback.message.edit_text(
+        text,
+        parse_mode="HTML",
+        reply_markup=get_user_list_keyboard(
+            result["items"],
+            result["page"],
+            result["total_pages"],
+        ),
+    )
+    await callback.answer()
+
+
+@admin_router.callback_query(F.data == "user_search_start")
+async def user_search_start_handler(callback: CallbackQuery, state: FSMContext):
+    """Ввод фильтра поиска (ID или username). После ввода — показ списка."""
+    telegram_id = str(callback.from_user.id)
+    is_superuser = await superuser_collection.find_one({"telegramID": telegram_id})
+    if not is_superuser:
+        await callback.answer("У вас нет прав администратора.", show_alert=True)
+        return
+    await state.set_state(AdminStates.waiting_user_search_query)
+    await state.update_data(last_bot_message=callback.message)
+    await callback.message.edit_text(
+        "🔍 <b>Поиск</b>\n\n"
+        "Введите <b>ID</b> (Telegram ID) или <b>юзернейм</b> (без @).\n"
+        "Пустой ввод — показать всех.",
+        parse_mode="HTML",
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="◀️ Отмена", callback_data="subscription_manager")]
+        ]),
+    )
+    await callback.answer()
+
+
+@admin_router.message(AdminStates.waiting_user_search_query, F.text)
+async def user_search_query_handler(message: Message, state: FSMContext):
+    """Обработка введённого запроса поиска и вывод первой страницы."""
+    await message.delete()
+    data = await state.get_data()
+    last_bot_message = data.get("last_bot_message")
+    if not last_bot_message:
+        await state.clear()
+        return
+    query = (message.text or "").strip()
+    result = await search_users(
+        db,
+        query=query,
+        page=0,
+        users_collection=USERS_COLLECTION,
+        userprofiles_collection=USERPROFILES_COLLECTION,
+    )
+    await state.update_data(
+        user_search_query=query,
+        user_search_page=0,
+    )
+    text = format_user_list_message(
+        result["items"],
+        result["total"],
+        result["page"],
+        result["total_pages"],
+        query=query or None,
+    )
+    await last_bot_message.edit_text(
+        text,
+        parse_mode="HTML",
+        reply_markup=get_user_list_keyboard(
+            result["items"],
+            result["page"],
+            result["total_pages"],
+        ),
+    )
+
+
+@admin_router.callback_query(F.data.startswith("user_search_p_"))
+async def user_search_page_handler(callback: CallbackQuery, state: FSMContext):
+    """Переключение страницы в результатах поиска."""
+    try:
+        page = int(callback.data.replace("user_search_p_", ""))
+    except ValueError:
+        await callback.answer()
+        return
+    data = await state.get_data()
+    query = data.get("user_search_query") or ""
+    last_bot_message = data.get("last_bot_message")
+    if not last_bot_message:
+        await callback.answer("Сессия поиска истекла. Запустите поиск снова.", show_alert=True)
+        await state.clear()
+        return
+    result = await search_users(
+        db,
+        query=query,
+        page=page,
+        users_collection=USERS_COLLECTION,
+        userprofiles_collection=USERPROFILES_COLLECTION,
+    )
+    await state.update_data(user_search_page=page)
+    text = format_user_list_message(
+        result["items"],
+        result["total"],
+        result["page"],
+        result["total_pages"],
+        query=query or None,
+    )
+    await callback.message.edit_text(
+        text,
+        parse_mode="HTML",
+        reply_markup=get_user_list_keyboard(
+            result["items"],
+            result["page"],
+            result["total_pages"],
+        ),
+    )
+    await callback.answer()
+
+
+@admin_router.callback_query(F.data.startswith("sub_sel_"))
+async def subscription_select_user_handler(callback: CallbackQuery, state: FSMContext):
+    """Клик по юзеру: показать «Начислить» / «Снять» подписку."""
+    user_id = callback.data.replace("sub_sel_", "")
+    if not user_id:
+        await callback.answer()
+        return
+    telegram_id = str(callback.from_user.id)
+    is_superuser = await superuser_collection.find_one({"telegramID": telegram_id})
+    if not is_superuser:
+        await callback.answer("Нет прав.", show_alert=True)
+        return
+    # Данные юзера из кэша не берём — показываем только ID; при grant/revoke обновим по user_id
+    user_doc = await db[USERS_COLLECTION].find_one({"_id": ObjectId(user_id)})
+    if not user_doc:
+        await callback.answer("Пользователь не найден.", show_alert=True)
+        return
+    profile = await db[USERPROFILES_COLLECTION].find_one({"userId": ObjectId(user_id)})
+    telegram_id_u = user_doc.get("telegramID") or ""
+    username = (profile or {}).get("username") or "—"
+    name = (profile or {}).get("name") or "—"
+    tier = (profile or {}).get("subscriptionTier") or "none"
+    expires = (profile or {}).get("subscriptionExpiresAt")
+    expires_str = expires.strftime("%d.%m.%Y") if expires else "—"
+    text = (
+        f"👤 <b>Пользователь</b>\n"
+        f"ID: <code>{telegram_id_u}</code>\n"
+        f"@: {username} | {name}\n"
+        f"Подписка: <b>{tier}</b> до {expires_str}\n\n"
+        "Выберите действие:"
+    )
+    await callback.message.edit_text(
+        text,
+        parse_mode="HTML",
+        reply_markup=get_subscription_actions_keyboard(user_id),
+    )
+    await callback.answer()
+
+
+@admin_router.callback_query(F.data.startswith("sub_grant_"))
+async def subscription_grant_handler(callback: CallbackQuery, state: FSMContext):
+    """Начислить подписку (finn или finn_plus)."""
+    payload = callback.data.replace("sub_grant_", "")
+    if payload.endswith("_finn_plus"):
+        user_id = payload[: -len("_finn_plus")]
+        tier = "finn_plus"
+    elif payload.endswith("_finn"):
+        user_id = payload[: -len("_finn")]
+        tier = "finn"
+    else:
+        await callback.answer("Ошибка данных.", show_alert=True)
+        return
+    if not user_id or tier not in ("finn", "finn_plus"):
+        await callback.answer("Неверный тариф.", show_alert=True)
+        return
+    telegram_id = str(callback.from_user.id)
+    is_superuser = await superuser_collection.find_one({"telegramID": telegram_id})
+    if not is_superuser:
+        await callback.answer("Нет прав.", show_alert=True)
+        return
+    try:
+        uid = ObjectId(user_id)
+    except Exception:
+        await callback.answer("Неверный ID.", show_alert=True)
+        return
+    expires_at = datetime.utcnow() + timedelta(days=30)
+    res = await db[USERPROFILES_COLLECTION].update_one(
+        {"userId": uid},
+        {"$set": {"subscriptionTier": tier, "subscriptionExpiresAt": expires_at}},
+    )
+    if res.matched_count == 0:
+        await callback.answer("Профиль не найден.", show_alert=True)
+        return
+    await callback.message.edit_text(
+        f"✅ Подписка <b>{tier}</b> на 30 дней начислена пользователю {user_id}.",
+        parse_mode="HTML",
+        reply_markup=get_subscription_actions_keyboard(user_id),
+    )
+    await callback.answer("Подписка начислена", show_alert=True)
+
+
+@admin_router.callback_query(F.data.startswith("sub_revoke_"))
+async def subscription_revoke_handler(callback: CallbackQuery, state: FSMContext):
+    """Снять подписку."""
+    user_id = callback.data.replace("sub_revoke_", "")
+    if not user_id:
+        await callback.answer()
+        return
+    telegram_id = str(callback.from_user.id)
+    is_superuser = await superuser_collection.find_one({"telegramID": telegram_id})
+    if not is_superuser:
+        await callback.answer("Нет прав.", show_alert=True)
+        return
+    try:
+        uid = ObjectId(user_id)
+    except Exception:
+        await callback.answer("Неверный ID.", show_alert=True)
+        return
+    res = await db[USERPROFILES_COLLECTION].update_one(
+        {"userId": uid},
+        {"$set": {"subscriptionTier": "none"}, "$unset": {"subscriptionExpiresAt": 1}},
+    )
+    if res.matched_count == 0:
+        await callback.answer("Профиль не найден.", show_alert=True)
+        return
+    await callback.message.edit_text(
+        f"✅ Подписка снята у пользователя {user_id}.",
+        parse_mode="HTML",
+        reply_markup=get_subscription_actions_keyboard(user_id),
+    )
+    await callback.answer("Подписка снята", show_alert=True)
+
 
 @admin_router.callback_query(F.data == "change_welcome_video")
 async def change_welcome_video_handler(callback: CallbackQuery, state: FSMContext):
