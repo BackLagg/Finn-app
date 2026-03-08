@@ -11,6 +11,7 @@ import { currencySymbols } from '@shared/lib/currency';
 import { getTransactionAmount } from '@shared/lib/transaction';
 import { getCategoryLabel } from '@shared/lib/category-labels';
 import { hasActiveSubscription } from '@shared/lib/subscription';
+import { formatLocalDate } from '@shared/lib/date-utils';
 import { Dropdown, Modal } from '@shared/ui';
 import { useTransactionStats } from '@features/transactions/use-transaction-stats';
 import { useExpenseCategoryAccordion } from '@features/expense-category';
