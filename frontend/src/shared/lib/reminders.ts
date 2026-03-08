@@ -62,7 +62,7 @@ export const getMarkedDatesWithColors = (
     } else {
       const d = parseDate(r.date);
       if (d.getFullYear() !== year || d.getMonth() !== month) continue;
-      date = d;
+      date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
     }
 
     const key = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
