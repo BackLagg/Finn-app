@@ -163,3 +163,16 @@ def get_back_keyboard() -> InlineKeyboardMarkup:
     
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
+def get_notification_keyboard() -> InlineKeyboardMarkup:
+    """Создает клавиатуру для уведомлений с кнопкой 'Посмотреть'"""
+    keyboard = []
+    if MINIAPP_URL and isinstance(MINIAPP_URL, str) and MINIAPP_URL.strip():
+        keyboard.append([
+            InlineKeyboardButton(
+                text="👀 Посмотреть",
+                web_app=WebAppInfo(url=MINIAPP_URL.strip())
+            )
+        ])
+    
+    return InlineKeyboardMarkup(inline_keyboard=keyboard)
+

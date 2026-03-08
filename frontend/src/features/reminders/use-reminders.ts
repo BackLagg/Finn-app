@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { financeAPI, type Reminder } from '@shared/api';
+import { formatLocalDate } from '@shared/lib/date-utils';
 
 function toReminderWithId(r: Reminder): Reminder & { id: string } {
   return { ...r, id: r._id };
@@ -9,11 +10,11 @@ export function useReminders(roomId?: string, year?: number, month?: number) {
   const queryClient = useQueryClient();
   const from =
     year !== undefined && month !== undefined
-      ? new Date(year, month, 1).toISOString().slice(0, 10)
+      ? formatLocalDate(new Date(year, month, 1))
       : undefined;
   const to =
     year !== undefined && month !== undefined
-      ? new Date(year, month + 1, 0).toISOString().slice(0, 10)
+      ? formatLocalDate(new Date(year, month + 1, 0))
       : undefined;
 
   const query = useQuery({

@@ -16,6 +16,7 @@ import { UpdateGoalDto } from '../../dto/goal.dto';
 import { UserGuard } from '../../guards/user.guard';
 import { AuthenticatedRequest } from '../../interfaces/request.interface';
 import { Types } from 'mongoose';
+import { parseLocalDate } from '../../utils/date.util';
 
 @Controller('goal')
 @UseGuards(UserGuard)
@@ -34,7 +35,7 @@ export class GoalController {
       title: dto.title,
       targetAmount: dto.targetAmount,
       currency: dto.currency,
-      deadline: dto.deadline ? new Date(dto.deadline) : undefined,
+      deadline: dto.deadline ? parseLocalDate(dto.deadline) : undefined,
       roomId: dto.roomId ? new Types.ObjectId(dto.roomId) : undefined,
     });
   }
@@ -62,7 +63,7 @@ export class GoalController {
     if (dto.title !== undefined) data.title = dto.title;
     if (dto.targetAmount !== undefined) data.targetAmount = dto.targetAmount;
     if (dto.currentAmount !== undefined) data.currentAmount = dto.currentAmount;
-    if (dto.deadline !== undefined) data.deadline = new Date(dto.deadline);
+    if (dto.deadline !== undefined) data.deadline = parseLocalDate(dto.deadline);
     return this.goalService.update(id, userId, data);
   }
 

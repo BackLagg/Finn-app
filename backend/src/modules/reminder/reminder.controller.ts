@@ -14,6 +14,7 @@ import { CreateReminderDto } from '../../dto/reminder.dto';
 import { UserGuard } from '../../guards/user.guard';
 import { AuthenticatedRequest } from '../../interfaces/request.interface';
 import { Types } from 'mongoose';
+import { parseLocalDate, parseQueryDate } from '../../utils/date.util';
 
 @Controller('reminder')
 @UseGuards(UserGuard)
@@ -33,7 +34,7 @@ export class ReminderController {
       amount: dto.amount,
       currency: dto.currency,
       description: dto.description,
-      date: new Date(dto.date),
+      date: parseLocalDate(dto.date),
       dayOfMonth: dto.dayOfMonth,
       isRecurring: dto.isRecurring,
       roomId,
@@ -50,8 +51,8 @@ export class ReminderController {
     const userId = this.getUserId(req);
     return this.reminderService.findAll(userId, {
       roomId: roomId ? new Types.ObjectId(roomId) : undefined,
-      from: from ? new Date(from) : undefined,
-      to: to ? new Date(to) : undefined,
+      from: from ? parseQueryDate(from) : undefined,
+      to: to ? parseQueryDate(to) : undefined,
     });
   }
 

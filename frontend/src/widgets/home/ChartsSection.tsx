@@ -3,6 +3,7 @@ import { ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGri
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { financeAPI } from '@shared/api';
+import { formatLocalDate } from '@shared/lib/date-utils';
 import styles from './ChartsSection.module.scss';
 
 interface ChartsSectionProps {
@@ -37,8 +38,8 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ roomId }) => {
   const [currentDate] = useState(new Date());
 
   const now = new Date();
-  const from = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
-  const to = now.toISOString().slice(0, 10);
+  const from = formatLocalDate(new Date(now.getFullYear(), now.getMonth(), 1));
+  const to = formatLocalDate(now);
 
   const { data: transactions = [] } = useQuery({
     queryKey: ['transactions', roomId, from, to],

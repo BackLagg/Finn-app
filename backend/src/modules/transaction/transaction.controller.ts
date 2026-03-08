@@ -17,6 +17,7 @@ import { UserGuard } from '../../guards/user.guard';
 import { AuthenticatedRequest } from '../../interfaces/request.interface';
 import { Types } from 'mongoose';
 import { MultiCurrencyAmount } from '../../schemas/multi-currency-amount.schema';
+import { parseLocalDate, parseQueryDate } from '../../utils/date.util';
 
 function toMultiCurrencyAmount(value: number, currency: string): MultiCurrencyAmount {
   const curr = currency.toUpperCase();
@@ -48,7 +49,7 @@ export class TransactionController {
       inputCurrency: currency,
       type: dto.type,
       category: dto.category,
-      date: dto.date ? new Date(dto.date) : undefined,
+      date: dto.date ? parseLocalDate(dto.date) : undefined,
       description: dto.description,
       roomId,
       receiptImageUrl: dto.receiptImageUrl,
@@ -66,8 +67,8 @@ export class TransactionController {
     const userId = this.getUserId(req);
     return this.transactionService.findAll(userId, {
       roomId: roomId ? new Types.ObjectId(roomId) : undefined,
-      from: from ? new Date(from) : undefined,
-      to: to ? new Date(to) : undefined,
+      from: from ? parseQueryDate(from) : undefined,
+      to: to ? parseQueryDate(to) : undefined,
       limit: limit ? parseInt(limit, 10) : undefined,
     });
   }
@@ -82,8 +83,8 @@ export class TransactionController {
     const userId = this.getUserId(req);
     return this.transactionService.getStatsByCategory(userId, {
       roomId: roomId ? new Types.ObjectId(roomId) : undefined,
-      from: from ? new Date(from) : undefined,
-      to: to ? new Date(to) : undefined,
+      from: from ? parseQueryDate(from) : undefined,
+      to: to ? parseQueryDate(to) : undefined,
     });
   }
 
@@ -111,8 +112,8 @@ export class TransactionController {
     if (!roomId) return [];
     return this.transactionService.getStatsByMember(userId, {
       roomId: new Types.ObjectId(roomId),
-      from: from ? new Date(from) : undefined,
-      to: to ? new Date(to) : undefined,
+      from: from ? parseQueryDate(from) : undefined,
+      to: to ? parseQueryDate(to) : undefined,
     });
   }
 
@@ -135,7 +136,7 @@ export class TransactionController {
     if (dto.amount !== undefined) data.inputCurrency = currency;
     if (dto.type !== undefined) data.type = dto.type;
     if (dto.category !== undefined) data.category = dto.category;
-    if (dto.date !== undefined) data.date = new Date(dto.date);
+    if (dto.date !== undefined) data.date = parseLocalDate(dto.date);
     if (dto.description !== undefined) data.description = dto.description;
     if (dto.receiptImageUrl !== undefined) data.receiptImageUrl = dto.receiptImageUrl;
     return this.transactionService.update(id, userId, data);

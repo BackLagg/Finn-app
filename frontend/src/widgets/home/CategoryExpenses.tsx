@@ -6,6 +6,7 @@ import { CategoryIcon, categoryColorMap } from '@shared/ui';
 import { getCategoryLabel } from '@shared/lib/category-labels';
 import { useCurrencyPreference } from '@shared/lib/use-currency-preference';
 import { currencySymbols } from '@shared/lib/currency';
+import { formatLocalDate } from '@shared/lib/date-utils';
 import styles from './CategoryExpenses.module.scss';
 
 interface CategoryExpensesProps {
@@ -20,8 +21,8 @@ const CategoryExpenses: React.FC<CategoryExpensesProps> = ({ roomId }) => {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
-  const firstDay = new Date(year, month, 1).toISOString().slice(0, 10);
-  const lastDay = new Date(year, month + 1, 0).toISOString().slice(0, 10);
+  const firstDay = formatLocalDate(new Date(year, month, 1));
+  const lastDay = formatLocalDate(new Date(year, month + 1, 0));
 
   const { data: stats = [] } = useQuery({
     queryKey: ['transaction-stats', roomId, firstDay, lastDay],

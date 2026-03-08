@@ -16,6 +16,7 @@ import { UpdatePlanDto } from '../../dto/plan.dto';
 import { UserGuard } from '../../guards/user.guard';
 import { AuthenticatedRequest } from '../../interfaces/request.interface';
 import { Types } from 'mongoose';
+import { parseLocalDate } from '../../utils/date.util';
 
 @Controller('plan')
 @UseGuards(UserGuard)
@@ -37,7 +38,7 @@ export class PlanController {
       savingFor: dto.savingFor,
       category: dto.category,
       roomId: dto.roomId ? new Types.ObjectId(dto.roomId) : undefined,
-      deadline: dto.deadline ? new Date(dto.deadline) : undefined,
+      deadline: dto.deadline ? parseLocalDate(dto.deadline) : undefined,
       savingsPercent: dto.savingsPercent,
     });
   }
@@ -67,7 +68,7 @@ export class PlanController {
     if (dto.dayOfMonth !== undefined) data.dayOfMonth = dto.dayOfMonth;
     if (dto.savingFor !== undefined) data.savingFor = dto.savingFor;
     if (dto.category !== undefined) data.category = dto.category;
-    if (dto.deadline !== undefined) data.deadline = new Date(dto.deadline);
+    if (dto.deadline !== undefined) data.deadline = parseLocalDate(dto.deadline);
     if (dto.savingsPercent !== undefined) data.savingsPercent = dto.savingsPercent;
     if (dto.completedAt !== undefined) data.completedAt = new Date(dto.completedAt);
     return this.planService.update(id, userId, data);

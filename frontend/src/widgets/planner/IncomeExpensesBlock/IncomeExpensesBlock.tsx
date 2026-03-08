@@ -53,8 +53,8 @@ export const IncomeExpensesBlock: React.FC<IncomeExpensesBlockProps> = ({
   const [addModalTab, setAddModalTab] = useState<AddModalTab>('expense');
   const receiptInputRef = useRef<HTMLInputElement>(null);
 
-  const firstDay = new Date(year, month, 1).toISOString().slice(0, 10);
-  const lastDay = new Date(year, month + 1, 0).toISOString().slice(0, 10);
+  const firstDay = formatLocalDate(new Date(year, month, 1));
+  const lastDay = formatLocalDate(new Date(year, month + 1, 0));
 
   const { data: stats = [] } = useTransactionStats(roomId, firstDay, lastDay);
   const { data: transactions = [] } = useQuery({

@@ -8,6 +8,7 @@ import { usePlans } from '@features/planner';
 import { useCurrencyPreference } from '@shared/lib/use-currency-preference';
 import { currencySymbols } from '@shared/lib/currency';
 import { getCategoryLabel } from '@shared/lib/category-labels';
+import { formatLocalDate } from '@shared/lib/date-utils';
 import type { Plan } from '@entities/planner';
 import type { DayBalance } from '@shared/ui';
 import { CollapsibleSection, CategoryIcon, categoryColorMap, Slider, Toggle } from '@shared/ui';
@@ -44,8 +45,8 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector 
   const getSavingsPercent = (plan: Plan) =>
     plan.savingsPercent ?? (activeCount > 0 ? Math.round(100 / activeCount) : 100);
 
-  const firstDay = new Date(year, month, 1).toISOString().slice(0, 10);
-  const lastDay = new Date(year, month + 1, 0).toISOString().slice(0, 10);
+  const firstDay = formatLocalDate(new Date(year, month, 1));
+  const lastDay = formatLocalDate(new Date(year, month + 1, 0));
   const { data: monthTransactions = [] } = useQuery({
     queryKey: ['transactions', roomId, firstDay, lastDay],
     queryFn: async () => {

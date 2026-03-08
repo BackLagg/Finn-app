@@ -1,5 +1,6 @@
 import { WEEKDAY_COLORS } from './weekday-colors';
 import type { Currency } from './currency';
+import { parseLocalDate as parseDate } from './date-utils';
 
 export type { Currency };
 
@@ -35,7 +36,7 @@ export const getRemindersForDate = (
       const effectiveDay = getEffectiveDay(r.dayOfMonth, year, month);
       return effectiveDay === day;
     }
-    const d = new Date(r.date);
+    const d = parseDate(r.date);
     return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
   });
 };
@@ -59,7 +60,7 @@ export const getMarkedDatesWithColors = (
       const effectiveDay = getEffectiveDay(r.dayOfMonth, year, month);
       date = new Date(year, month, effectiveDay);
     } else {
-      const d = new Date(r.date);
+      const d = parseDate(r.date);
       if (d.getFullYear() !== year || d.getMonth() !== month) continue;
       date = d;
     }

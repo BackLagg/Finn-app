@@ -4,6 +4,7 @@ import { FiX, FiChevronUp, FiChevronDown } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Currency, currencySymbols } from '@shared/lib/currency';
 import { getRemindersForDate } from '@shared/lib/reminders';
+import { formatLocalDate } from '@shared/lib/date-utils';
 import type { Reminder } from '@shared/api';
 import type { Plan } from '@entities/planner';
 import { Modal, Toggle } from '@shared/ui';
@@ -89,7 +90,7 @@ export const ReminderFormModal: React.FC<ReminderFormModalProps> = ({
       amount: numAmount,
       currency,
       description: description.trim() || undefined,
-      date: selectedDate.toISOString().slice(0, 10),
+      date: formatLocalDate(selectedDate),
       dayOfMonth,
       isRecurring,
       roomId,

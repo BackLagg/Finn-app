@@ -63,7 +63,6 @@ def _format_message(reminders: list, plans: list) -> str:
         lines.append("")
     if not reminders and not plans:
         return ""
-    lines.append("Откройте Finn, чтобы посмотреть детали.")
     return "\n".join(lines).strip()
 
 
@@ -126,6 +125,9 @@ async def get_events_expiring_soon(db: AsyncIOMotorDatabase, hour_msk: int) -> d
 async def send_planner_notifications(bot: Bot, db: AsyncIOMotorDatabase, hour_msk: int) -> None:
     """Отправить каждому пользователю уведомление о событиях с истечением < 2 дней."""
     try:
+        from keyboards.keyboards import get_notification_keyboard
+        
+        keyboard = get_notification_keyboard()
         data = await get_events_expiring_soon(db, hour_msk)
         for uid_str, payload in data.items():
             telegram_id = payload["telegram_id"]
@@ -139,6 +141,7 @@ async def send_planner_notifications(bot: Bot, db: AsyncIOMotorDatabase, hour_ms
                     chat_id=int(telegram_id),
                     text=text,
                     parse_mode="HTML",
+                    reply_markup=keyboard,
                 )
                 logger.info("Planner notification sent to %s", telegram_id)
             except Exception as e:

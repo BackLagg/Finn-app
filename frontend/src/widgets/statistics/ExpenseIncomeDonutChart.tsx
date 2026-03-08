@@ -5,6 +5,7 @@ import { financeAPI } from '@shared/api';
 import { useCurrencyPreference } from '@shared/lib/use-currency-preference';
 import { currencySymbols } from '@shared/lib/currency';
 import { getCategoryLabel } from '@shared/lib/category-labels';
+import { formatLocalDate } from '@shared/lib/date-utils';
 import { CategoryDonutChart, CategoryDataItem, Toggle, categoryColorMap } from '@shared/ui';
 import { useTransactionStats } from '@features/transactions/use-transaction-stats';
 import { useIncomePayments } from '@features/planner';
@@ -59,8 +60,8 @@ export const ExpenseIncomeDonutChart: React.FC<ExpenseIncomeDonutChartProps> = (
   const now = new Date();
   const y = year ?? now.getFullYear();
   const m = month ?? now.getMonth();
-  const from = new Date(y, m, 1).toISOString().slice(0, 10);
-  const to = new Date(y, m + 1, 0).toISOString().slice(0, 10);
+  const from = formatLocalDate(new Date(y, m, 1));
+  const to = formatLocalDate(new Date(y, m + 1, 0));
 
   const { data: room } = useQuery({
     queryKey: ['partnerRoom', roomId],
