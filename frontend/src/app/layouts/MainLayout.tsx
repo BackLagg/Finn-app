@@ -25,7 +25,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
           <Header />
         </header>
       )}
-      <main className={styles['main-layout__content']}>
+      <main className={`main ${styles['main-layout__content']}`}>
         {children || null}
       </main>
       {showNavigation && (

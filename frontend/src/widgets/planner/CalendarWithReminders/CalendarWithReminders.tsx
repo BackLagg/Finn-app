@@ -137,6 +137,7 @@ export const CalendarWithReminders: React.FC<CalendarWithRemindersProps> = ({
               )}
             </div>
           }
+          className={styles['calendar-reminders__calendar']}
           onDateSelect={handleDateSelect}
           onMonthChange={handleMonthChange}
           markedDatesWithColors={markedDatesWithColors}

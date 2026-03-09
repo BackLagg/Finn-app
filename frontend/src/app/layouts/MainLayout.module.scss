@@ -1,8 +1,9 @@
+@use '@shared/styles/variables' as *;
+
 .main-layout {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: var(--color-bg);
   position: relative;
 
   &__header {
@@ -11,7 +12,6 @@
     left: 0;
     right: 0;
     z-index: 1000;
-    background: var(--color-surface);
   }
 
   &__content {

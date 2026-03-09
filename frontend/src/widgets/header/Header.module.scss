@@ -1,7 +1,8 @@
 @use '../../shared/styles/variables' as *;
 
 .header {
-  background: var(--color-surface);
+  /* Цвет начала градиента фона приложения */
+  background: var(--color-bg);
   border-bottom: 1px solid var(--color-border);
   padding: 14px 16px;
   display: flex;

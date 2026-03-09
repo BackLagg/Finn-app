@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { BiCake } from 'react-icons/bi';
+import Muffin from '@shared/assets/muffin.svg?react';
 import { RootState } from '@app/store';
 import styles from './LoadingPage.module.scss';
 
@@ -82,7 +82,7 @@ const LoadingPage: React.FC<LoadingPageProps> = ({ onComplete }) => {
         <div className={styles.loadingSection}>
           <p className={styles.loadingText}>Loading...</p>
           <div className={styles.loadingIndicator}>
-            <BiCake className={styles.muffinIcon} aria-hidden />
+            <Muffin className={styles.muffinIcon} aria-hidden />
           </div>
         </div>
       </div>
