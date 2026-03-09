@@ -1,0 +1,18 @@
+@use '@shared/styles/variables' as *;
+
+.tooltip {
+  position: fixed;
+  transform: translate(-50%, -6px);
+  padding: 6px 10px;
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 2;
+}
+

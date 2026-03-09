@@ -2,10 +2,11 @@ import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FiImage, FiX, FiTrendingUp, FiTrendingDown, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useTransactions } from '@features/transactions/use-transactions';
-import { CategoryIcon, categoryColorMap } from '@shared/ui';
+import { CategoryIcon, Tooltip, categoryColorMap } from '@shared/ui';
 import { fileAPI, getReceiptImageUrl } from '@shared/api';
 import { useCurrencyPreference } from '@shared/lib/use-currency-preference';
 import { currencySymbols } from '@shared/lib/currency';
+import { getCategoryLabel } from '@shared/lib/category-labels';
 import { toast } from 'react-toastify';
 import type { Transaction } from '@shared/api/finance-api';
 import styles from './ExpenseList.module.scss';
@@ -31,6 +32,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ roomId }) => {
   const [page, setPage] = useState(1);
   const receiptInputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const balanceBarWrapRef = useRef<HTMLDivElement>(null);
 
   const totalPages = Math.max(1, Math.ceil(transactions.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -55,22 +57,87 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ roomId }) => {
     listRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [currentPage]);
 
-  const { totalIncome, totalExpense, incomePercent, paymentsPercent } = useMemo(() => {
+  const { totalIncome, totalExpense, incomePercent, paymentsPercent, segments } = useMemo(() => {
     let income = 0;
     let expense = 0;
+    const incomeByCategory = new Map<string, number>();
+    const expenseByCategory = new Map<string, number>();
     for (const tx of transactions) {
       const a = Math.abs(getAmount(tx));
-      if (tx.type === 'income') income += a;
-      else expense += a;
+      if (!a) continue;
+      const cat = tx.category || t('common.other', 'Другое');
+      if (tx.type === 'income') {
+        income += a;
+        incomeByCategory.set(cat, (incomeByCategory.get(cat) || 0) + a);
+      } else {
+        expense += a;
+        expenseByCategory.set(cat, (expenseByCategory.get(cat) || 0) + a);
+      }
     }
     const total = income + expense;
+    const segs: {
+      key: string;
+      type: 'income' | 'expense';
+      category: string;
+      amount: number;
+      percent: number;
+      color: string;
+    }[] = [];
+    if (total > 0) {
+      const incomePalette = ['#4ade80', '#22c55e', '#16a34a', '#15803d', '#22c55e', '#4ade80', '#16a34a'];
+      const expensePalette = ['#f97373', '#ef4444', '#dc2626', '#b91c1c', '#ef4444', '#f97373', '#dc2626'];
+
+      let incomeIndex = 0;
+      incomeByCategory.forEach((amount, category) => {
+        const color = incomePalette[incomeIndex % incomePalette.length];
+        incomeIndex += 1;
+        segs.push({
+          key: `income-${category}`,
+          type: 'income',
+          category,
+          amount,
+          percent: (amount / total) * 100,
+          color,
+        });
+      });
+
+      let expenseIndex = 0;
+      expenseByCategory.forEach((amount, category) => {
+        const color = expensePalette[expenseIndex % expensePalette.length];
+        expenseIndex += 1;
+        segs.push({
+          key: `expense-${category}`,
+          type: 'expense',
+          category,
+          amount,
+          percent: (amount / total) * 100,
+          color,
+        });
+      });
+    }
     return {
       totalIncome: income,
       totalExpense: expense,
       incomePercent: total > 0 ? (income / total) * 100 : 0,
       paymentsPercent: total > 0 ? (expense / total) * 100 : 0,
+      segments: segs,
     };
-  }, [transactions]);
+  }, [transactions, t]);
+
+  const [hoveredSegment, setHoveredSegment] = useState<
+    | {
+        key: string;
+        label: string;
+        amount: number;
+        percent: number;
+        type: 'income' | 'expense';
+        color: string;
+        centerPercent: number;
+        x: number;
+        y: number;
+      }
+    | null
+  >(null);
 
   const handleAttachReceipt = (txId: string) => {
     receiptInputRef.current?.setAttribute('data-tx-id', txId);
@@ -106,17 +173,91 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ roomId }) => {
           <div className={styles['expense-list__balance-label']}>
             {t('home.scheduledPayments.monthlyBalance')}
           </div>
-          <div className={styles['expense-list__balance-bar-wrap']}>
+          <div
+            className={styles['expense-list__balance-bar-wrap']}
+            ref={balanceBarWrapRef}
+          >
             <div className={styles['expense-list__balance-bar']}>
-              <div
-                className={styles['expense-list__balance-bar-income']}
-                style={{ width: `${incomePercent}%` }}
-              />
-              <div
-                className={styles['expense-list__balance-bar-payments']}
-                style={{ width: `${paymentsPercent}%` }}
-              />
+              {(() => {
+                let offset = 0;
+                return segments.map((segment) => {
+                  const isIncome = segment.type === 'income';
+                  const baseColor = segment.color;
+                  const centerPercent = offset + segment.percent / 2;
+                  const label =
+                    getCategoryLabel(
+                      t,
+                      isIncome ? 'income' : 'expense',
+                      segment.category
+                    ) || segment.category;
+                  const element = (
+                    <div
+                      key={segment.key}
+                      className={`${styles['expense-list__balance-bar-segment']} ${
+                        isIncome
+                          ? styles['expense-list__balance-bar-segment--income']
+                          : styles['expense-list__balance-bar-segment--expense']
+                      }`}
+                      style={{
+                        width: `${segment.percent}%`,
+                        backgroundColor: baseColor,
+                      }}
+                      onMouseEnter={() => {
+                        const rect = balanceBarWrapRef.current?.getBoundingClientRect();
+                        const x =
+                          rect != null
+                            ? rect.left + (centerPercent / 100) * rect.width
+                            : 0;
+                        const y = rect != null ? rect.top - 46 : 0;
+
+                        setHoveredSegment({
+                          key: segment.key,
+                          label,
+                          amount: segment.amount,
+                          percent: segment.percent,
+                          type: segment.type,
+                          color: baseColor,
+                          centerPercent,
+                          x,
+                          y,
+                        });
+                      }}
+                      onMouseLeave={() =>
+                        setHoveredSegment((prev) =>
+                          prev?.key === segment.key ? null : prev
+                        )
+                      }
+                    />
+                  );
+                  offset += segment.percent;
+                  return element;
+                });
+              })()}
             </div>
+            {hoveredSegment && (
+              <Tooltip
+                className={styles['expense-list__balance-tooltip']}
+                style={{
+                  left: `${hoveredSegment.x}px`,
+                  top: `${hoveredSegment.y}px`,
+                  borderColor: hoveredSegment.color,
+                }}
+              >
+                <div
+                  className={styles['expense-list__balance-tooltip-dot']}
+                  style={{ backgroundColor: hoveredSegment.color }}
+                />
+                <div className={styles['expense-list__balance-tooltip-text']}>
+                  <div className={styles['expense-list__balance-tooltip-title']}>
+                    {hoveredSegment.label}
+                  </div>
+                  <div className={styles['expense-list__balance-tooltip-value']}>
+                    {hoveredSegment.amount.toLocaleString()} {symbol} (
+                    {Math.round(hoveredSegment.percent)}%)
+                  </div>
+                </div>
+              </Tooltip>
+            )}
           </div>
           <div className={styles['expense-list__balance-legend']}>
             <span className={styles['expense-list__balance-legend-income']}>
@@ -165,7 +306,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ roomId }) => {
                   }`}
                 >
                   {tx.type === 'expense' ? '−' : '+'}
-                  {getAmount(tx).toLocaleString()}
+                  {Math.abs(getAmount(tx)).toLocaleString()}
                 </span>
               </div>
               <div className={styles['expense-list__item-receipt']}>

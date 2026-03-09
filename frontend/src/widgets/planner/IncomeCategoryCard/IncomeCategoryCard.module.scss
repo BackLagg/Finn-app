@@ -25,6 +25,7 @@
   box-sizing: border-box;
 
   &:hover {
+    border-radius: 20;
     box-shadow: 0 0 0 2px var(--color-accent), 0 4px 12px rgba(0, 0, 0, 0.08);
     transform: translateY(-2px);
   }

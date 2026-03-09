@@ -85,7 +85,12 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector 
       .map(([day, v]) => {
         const direction = v.income > v.expense ? ('income' as const) : ('expense' as const);
         const dayAmount = direction === 'income' ? v.income : v.expense;
-        const total = direction === 'income' ? totalMonthIncome : totalMonthExpense;
+        const total =
+          direction === 'income'
+            ? totalMonthIncome
+            : // For expenses, show how much of total received income was spent.
+              // If there was no income at all, fall back to total expenses.
+              (totalMonthIncome > 0 ? totalMonthIncome : totalMonthExpense);
         const percent = total > 0 ? (dayAmount / total) * 100 : undefined;
         return {
           date: new Date(year, month, day),

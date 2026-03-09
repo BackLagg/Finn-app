@@ -19,3 +19,5 @@ export { ProgressBar } from './progress-bar';
 export type { ProgressBarProps } from './progress-bar';
 export { Slider } from './slider';
 export type { SliderProps } from './slider';
+export { Tooltip } from './tooltip';
+export type { TooltipProps } from './tooltip';

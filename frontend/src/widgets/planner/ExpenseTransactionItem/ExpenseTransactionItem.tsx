@@ -37,7 +37,7 @@ export const ExpenseTransactionItem: React.FC<ExpenseTransactionItemProps> = ({
     >
       <div className={styles.itemContent}>
         <span className={styles.itemAmount}>
-          −{amount.toLocaleString()} {currencySymbols[currency as keyof typeof currencySymbols]}
+          {amount.toLocaleString()} {currencySymbols[currency as keyof typeof currencySymbols]}
         </span>
         <span className={styles.itemDesc}>{transaction.description || '-'}</span>
         <span className={styles.itemDate}>
