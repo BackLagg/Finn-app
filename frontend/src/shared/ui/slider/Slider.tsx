@@ -86,6 +86,7 @@ export const Slider: React.FC<SliderProps> = ({
           className={styles.trackFill}
           style={{
             width: `${percent}%`,
+            borderRadius: percent >= 99.5 ? '999px' : '999px 0 0 999px',
             ...(color ? { backgroundColor: color } : {}),
           }}
         />
