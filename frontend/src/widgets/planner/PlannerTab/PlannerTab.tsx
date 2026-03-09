@@ -154,6 +154,7 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector 
           dayBalance={dayBalance}
           viewDate={currentDate}
           onMonthChange={(y, m) => setCurrentDate(new Date(y, m, 1))}
+          onViewDateChange={(date) => setCurrentDate(date)}
           pinnable
           pinTopOffsetExtra={hasRoomSelector ? 40 : 0}
           plansWithDeadline={plans.filter((p) => p.deadline)}
@@ -169,7 +170,7 @@ export const PlannerTab: React.FC<PlannerTabProps> = ({ roomId, hasRoomSelector 
       </CollapsibleSection>
 
       <CollapsibleSection id="financeList" title={t('home.financeList', 'Список финансов')} defaultExpanded>
-        <ExpenseList roomId={roomId} />
+        <ExpenseList roomId={roomId} year={year} month={month} />
       </CollapsibleSection>
 
       <CollapsibleSection

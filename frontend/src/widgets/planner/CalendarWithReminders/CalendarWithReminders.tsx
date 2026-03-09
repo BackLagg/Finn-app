@@ -19,6 +19,7 @@ interface CalendarWithRemindersProps {
   dayBalance?: DayBalance[];
   viewDate?: Date;
   onMonthChange?: (year: number, month: number) => void;
+  onViewDateChange?: (date: Date) => void;
   pinnable?: boolean;
   pinTopOffsetExtra?: number;
   plansWithDeadline?: Plan[];
@@ -31,6 +32,7 @@ export const CalendarWithReminders: React.FC<CalendarWithRemindersProps> = ({
   dayBalance = [],
   viewDate,
   onMonthChange,
+  onViewDateChange,
   pinnable = false,
   pinTopOffsetExtra = 0,
   plansWithDeadline = [],
@@ -140,6 +142,7 @@ export const CalendarWithReminders: React.FC<CalendarWithRemindersProps> = ({
           className={styles['calendar-reminders__calendar']}
           onDateSelect={handleDateSelect}
           onMonthChange={handleMonthChange}
+          onViewDateChange={onViewDateChange}
           markedDatesWithColors={markedDatesWithColors}
           dayBalance={dayBalance}
         />

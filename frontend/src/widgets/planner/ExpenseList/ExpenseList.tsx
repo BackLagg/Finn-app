@@ -21,18 +21,34 @@ function getAmount(tx: Transaction): number {
 
 interface ExpenseListProps {
   roomId?: string;
+  year?: number;
+  month?: number;
 }
 
-const ExpenseList: React.FC<ExpenseListProps> = ({ roomId }) => {
+const ExpenseList: React.FC<ExpenseListProps> = ({ roomId, year, month }) => {
   const { t } = useTranslation();
   const [currency] = useCurrencyPreference();
-  const { transactions, update } = useTransactions(roomId);
+  const { transactions: allTransactions, update } = useTransactions(roomId);
   const symbol = currencySymbols[currency as keyof typeof currencySymbols] ?? currency;
+  
+  const transactions = React.useMemo(() => {
+    if (year === undefined || month === undefined) return allTransactions;
+    return allTransactions.filter(tx => {
+      const txDate = new Date(tx.date);
+      return txDate.getFullYear() === year && txDate.getMonth() === month;
+    });
+  }, [allTransactions, year, month]);
   const [expandedReceiptId, setExpandedReceiptId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const receiptInputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const balanceBarWrapRef = useRef<HTMLDivElement>(null);
+  const skipScrollRef = useRef(false);
+  
+  useEffect(() => {
+    skipScrollRef.current = true;
+    setPage(1);
+  }, [year, month]);
 
   const totalPages = Math.max(1, Math.ceil(transactions.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -52,6 +68,10 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ roomId }) => {
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
+      return;
+    }
+    if (skipScrollRef.current) {
+      skipScrollRef.current = false;
       return;
     }
     listRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -279,92 +299,100 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ roomId }) => {
         onChange={handleReceiptFileChange}
         className={styles['expense-list__file-input']}
       />
-      <ul ref={listRef} className={styles['expense-list__items']}>
-        {paginatedTransactions.map((tx) => {
-          const color = categoryColorMap[tx.category] || '#848e9c';
-          const hasReceipt = !!tx.receiptImageUrl;
-          const isExpanded = expandedReceiptId === tx._id;
+      {transactions.length === 0 ? (
+        <div className={styles['expense-list__empty']}>
+          <p className={styles['expense-list__empty-text']}>
+            {t('home.noTransactionsThisMonth', 'В этом месяце пока нет транзакций')}
+          </p>
+        </div>
+      ) : (
+        <ul ref={listRef} className={styles['expense-list__items']}>
+          {paginatedTransactions.map((tx) => {
+            const color = categoryColorMap[tx.category] || '#848e9c';
+            const hasReceipt = !!tx.receiptImageUrl;
+            const isExpanded = expandedReceiptId === tx._id;
 
-          return (
-            <li key={tx._id} className={styles['expense-list__item']}>
-              <div className={styles['expense-list__item-main']}>
-                <div
-                  className={styles['expense-list__item-icon']}
-                  style={{ backgroundColor: `${color}20` }}
-                >
-                  <CategoryIcon category={tx.category} size={20} color={color} />
-                </div>
-                <div className={styles['expense-list__item-content']}>
-                  <span className={styles['expense-list__item-category']}>{tx.category}</span>
-                  <span className={styles['expense-list__item-desc']}>
-                    {tx.description || ''}
+            return (
+              <li key={tx._id} className={styles['expense-list__item']}>
+                <div className={styles['expense-list__item-main']}>
+                  <div
+                    className={styles['expense-list__item-icon']}
+                    style={{ backgroundColor: `${color}20` }}
+                  >
+                    <CategoryIcon category={tx.category} size={20} color={color} />
+                  </div>
+                  <div className={styles['expense-list__item-content']}>
+                    <span className={styles['expense-list__item-category']}>{tx.category}</span>
+                    <span className={styles['expense-list__item-desc']}>
+                      {tx.description || ''}
+                    </span>
+                  </div>
+                  <span
+                    className={`${styles['expense-list__item-amount']} ${
+                      tx.type === 'expense' ? styles['expense-list__item-amount--expense'] : styles['expense-list__item-amount--income']
+                    }`}
+                  >
+                    {tx.type === 'expense' ? '−' : '+'}
+                    {Math.abs(getAmount(tx)).toLocaleString()}
                   </span>
                 </div>
-                <span
-                  className={`${styles['expense-list__item-amount']} ${
-                    tx.type === 'expense' ? styles['expense-list__item-amount--expense'] : styles['expense-list__item-amount--income']
-                  }`}
-                >
-                  {tx.type === 'expense' ? '−' : '+'}
-                  {Math.abs(getAmount(tx)).toLocaleString()}
-                </span>
-              </div>
-              <div className={styles['expense-list__item-receipt']}>
-                {hasReceipt ? (
-                  <div className={styles['expense-list__receipt-wrap']}>
+                <div className={styles['expense-list__item-receipt']}>
+                  {hasReceipt ? (
+                    <div className={styles['expense-list__receipt-wrap']}>
+                      <button
+                        type="button"
+                        className={styles['expense-list__receipt-thumb']}
+                        onClick={() => setExpandedReceiptId(isExpanded ? null : tx._id)}
+                      >
+                        <img
+                          src={getReceiptImageUrl(tx.receiptImageUrl)}
+                          alt="Receipt"
+                        />
+                      </button>
+                      <button
+                        type="button"
+                        className={styles['expense-list__receipt-replace']}
+                        onClick={() => handleAttachReceipt(tx._id)}
+                        title={t('common.edit')}
+                      >
+                        <FiImage size={14} />
+                      </button>
+                    </div>
+                  ) : (
                     <button
                       type="button"
-                      className={styles['expense-list__receipt-thumb']}
-                      onClick={() => setExpandedReceiptId(isExpanded ? null : tx._id)}
-                    >
-                      <img
-                        src={getReceiptImageUrl(tx.receiptImageUrl)}
-                        alt="Receipt"
-                      />
-                    </button>
-                    <button
-                      type="button"
-                      className={styles['expense-list__receipt-replace']}
+                      className={styles['expense-list__attach-btn']}
                       onClick={() => handleAttachReceipt(tx._id)}
-                      title={t('common.edit')}
+                      title={t('home.attachReceipt')}
                     >
-                      <FiImage size={14} />
+                      <FiImage size={16} />
                     </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    className={styles['expense-list__attach-btn']}
-                    onClick={() => handleAttachReceipt(tx._id)}
-                    title={t('home.attachReceipt')}
-                  >
-                    <FiImage size={16} />
-                  </button>
-                )}
-              </div>
-              {isExpanded && hasReceipt && (
-                <div
-                  className={styles['expense-list__receipt-fullscreen']}
-                  onClick={() => setExpandedReceiptId(null)}
-                >
-                  <button
-                    type="button"
-                    className={styles['expense-list__receipt-close']}
+                  )}
+                </div>
+                {isExpanded && hasReceipt && (
+                  <div
+                    className={styles['expense-list__receipt-fullscreen']}
                     onClick={() => setExpandedReceiptId(null)}
                   >
-                    <FiX size={24} />
-                  </button>
-                  <img
-                    src={getReceiptImageUrl(tx.receiptImageUrl)}
-                    alt="Receipt"
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </div>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+                    <button
+                      type="button"
+                      className={styles['expense-list__receipt-close']}
+                      onClick={() => setExpandedReceiptId(null)}
+                    >
+                      <FiX size={24} />
+                    </button>
+                    <img
+                      src={getReceiptImageUrl(tx.receiptImageUrl)}
+                      alt="Receipt"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
       {transactions.length > PAGE_SIZE && (
         <div className={styles['expense-list__pagination']}>
           <button

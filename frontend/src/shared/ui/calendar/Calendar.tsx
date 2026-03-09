@@ -23,6 +23,7 @@ interface CalendarProps {
   headerActions?: React.ReactNode;
   onDateSelect?: (date: Date) => void;
   onMonthChange?: (year: number, month: number) => void;
+  onViewDateChange?: (date: Date) => void;
   markedDates?: Date[];
   markedDatesWithColors?: MarkedDateWithColor[];
   dayBalance?: DayBalance[];
@@ -38,6 +39,7 @@ export const Calendar: React.FC<CalendarProps> = ({
   headerActions,
   onDateSelect,
   onMonthChange,
+  onViewDateChange,
   markedDates = [],
   markedDatesWithColors = [],
   dayBalance = [],
@@ -78,16 +80,15 @@ export const Calendar: React.FC<CalendarProps> = ({
     return days;
   };
 
-  const getCurrentWeekDates = (): Date[] => {
-    const now = new Date();
-    const dayOfWeek = now.getDay();
+  const getCurrentWeekDates = (baseDate: Date): Date[] => {
+    const dayOfWeek = baseDate.getDay();
     const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-    const monday = new Date(now);
-    monday.setDate(now.getDate() + mondayOffset);
+    const monday = new Date(baseDate);
+    monday.setDate(baseDate.getDate() + mondayOffset);
     const out: Date[] = [];
     for (let i = 0; i < 7; i++) {
       const d = new Date(monday);
-      d.setDate(monday.getDate() + i);
+      d.setDate(d.getDate() + i);
       out.push(d);
     }
     return out;
@@ -109,15 +110,37 @@ export const Calendar: React.FC<CalendarProps> = ({
   };
 
   const handlePrevMonth = () => {
-    const next = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1);
-    if (!viewDate) setInternalMonth(next);
-    onMonthChange?.(next.getFullYear(), next.getMonth());
+    if (collapsed) {
+      const next = new Date(currentMonth);
+      next.setDate(currentMonth.getDate() - 7);
+      if (!viewDate) setInternalMonth(next);
+      if (onViewDateChange) {
+        onViewDateChange(next);
+      } else {
+        onMonthChange?.(next.getFullYear(), next.getMonth());
+      }
+    } else {
+      const next = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1);
+      if (!viewDate) setInternalMonth(next);
+      onMonthChange?.(next.getFullYear(), next.getMonth());
+    }
   };
 
   const handleNextMonth = () => {
-    const next = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1);
-    if (!viewDate) setInternalMonth(next);
-    onMonthChange?.(next.getFullYear(), next.getMonth());
+    if (collapsed) {
+      const next = new Date(currentMonth);
+      next.setDate(currentMonth.getDate() + 7);
+      if (!viewDate) setInternalMonth(next);
+      if (onViewDateChange) {
+        onViewDateChange(next);
+      } else {
+        onMonthChange?.(next.getFullYear(), next.getMonth());
+      }
+    } else {
+      const next = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1);
+      if (!viewDate) setInternalMonth(next);
+      onMonthChange?.(next.getFullYear(), next.getMonth());
+    }
   };
 
   const isDateSelected = (date: Date | null) => {
@@ -178,7 +201,7 @@ export const Calendar: React.FC<CalendarProps> = ({
   };
 
   const allDays = getDaysInMonth(currentMonth);
-  const currentWeekDays = getCurrentWeekDates();
+  const currentWeekDays = getCurrentWeekDates(currentMonth);
   const days = collapsed ? currentWeekDays : allDays;
   const weekRangeTitle = collapsed ? formatWeekRange(currentWeekDays) : null;
 

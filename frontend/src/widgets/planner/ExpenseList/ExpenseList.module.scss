@@ -106,6 +106,20 @@
     font-weight: 500;
   }
 
+  &__empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+  }
+
+  &__empty-text {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
   &__items {
     list-style: none;
     padding: 0;
