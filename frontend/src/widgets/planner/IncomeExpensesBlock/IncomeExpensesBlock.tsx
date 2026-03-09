@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { RootState } from '@app/store';
-import { FiPlus, FiTrash2, FiChevronUp, FiChevronDown, FiImage, FiCamera } from 'react-icons/fi';
+import { FiPlus, FiImage, FiCamera } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { financeAPI, fileAPI } from '@shared/api';
@@ -12,7 +12,7 @@ import { getTransactionAmount } from '@shared/lib/transaction';
 import { getCategoryLabel } from '@shared/lib/category-labels';
 import { hasActiveSubscription } from '@shared/lib/subscription';
 import { formatLocalDate } from '@shared/lib/date-utils';
-import { Dropdown, Modal } from '@shared/ui';
+import { Dropdown, Modal, Toggle } from '@shared/ui';
 import { useTransactionStats } from '@features/transactions/use-transaction-stats';
 import { useExpenseCategoryAccordion } from '@features/expense-category';
 import { useIncomeCategoryAccordion } from '@features/income-category';
@@ -21,7 +21,6 @@ import { ExpenseCategoryCard } from '../ExpenseCategoryCard';
 import { IncomeCategoryCard } from '../IncomeCategoryCard';
 import styles from './IncomeExpensesBlock.module.scss';
 
-const SWIPE_THRESHOLD = 50;
 type AddModalTab = 'expense' | 'income';
 
 const EXPENSE_CATEGORIES = [
@@ -116,15 +115,6 @@ export const IncomeExpensesBlock: React.FC<IncomeExpensesBlockProps> = ({
     queryClient.invalidateQueries({ queryKey: ['transaction-stats', roomId] });
   }, [queryClient, roomId]);
 
-  const handleSwipeEnd = useCallback(
-    (_e: MouseEvent | TouchEvent | PointerEvent, info: { offset: { y: number }; velocity: { y: number } }) => {
-      const { offset, velocity } = info;
-      if (offset.y < -SWIPE_THRESHOLD || velocity.y < -0.25) setAddModalTab('income');
-      else if (offset.y > SWIPE_THRESHOLD || velocity.y > 0.25) setAddModalTab('expense');
-    },
-    []
-  );
-
   return (
     <div className={styles.block}>
       <div className={styles.block__summary}>
@@ -211,59 +201,27 @@ export const IncomeExpensesBlock: React.FC<IncomeExpensesBlockProps> = ({
         <Modal
           isOpen
           onClose={handleAddModalClose}
-          title={`${t('common.add')} ${addModalTab === 'expense' ? t('common.expense') : t('common.income')}`}
-          aboveContent={
-            addModalTab === 'income' ? (
-              <div className={styles.addModalSwipeHint}>
-                <button
-                  type="button"
-                  className={styles.addModalSwipeHint__btn}
-                  onClick={() => setAddModalTab('expense')}
-                  aria-label={t('statistics.planner.swipeExpense', 'Свайп вниз — расход')}
-                >
-                  <motion.span animate={{ y: [0, 3, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>
-                    <FiChevronDown size={20} />
-                  </motion.span>
-                  <span>{t('statistics.planner.swipeExpense', 'Свайп вниз — расход')}</span>
-                </button>
-              </div>
-            ) : null
-          }
-          belowContent={
-            addModalTab === 'expense' ? (
-              <div className={styles.addModalSwipeHint}>
-                <button
-                  type="button"
-                  className={styles.addModalSwipeHint__btn}
-                  onClick={() => setAddModalTab('income')}
-                  aria-label={t('statistics.planner.swipeIncome', 'Свайп вверх — доход')}
-                >
-                  <motion.span animate={{ y: [0, -3, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>
-                    <FiChevronUp size={20} />
-                  </motion.span>
-                  <span>{t('statistics.planner.swipeIncome', 'Свайп вверх — доход')}</span>
-                </button>
-              </div>
-            ) : null
-          }
+          title={t('common.add')}
         >
-          <motion.div
-            className={styles.addModalSwipe}
-            drag="y"
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={0.2}
-            onDragEnd={handleSwipeEnd}
-          >
-            <div className={styles.addModalSwipe__handle} />
+          <div className={styles.addModalTabs}>
+            <Toggle
+              options={[
+                { value: 'expense', label: t('common.expense') },
+                { value: 'income', label: t('common.income') },
+              ]}
+              value={addModalTab}
+              onChange={(value) => setAddModalTab(value as AddModalTab)}
+            />
+          </div>
+          <div className={styles.addModalContent}>
             <AnimatePresence mode="wait">
               {addModalTab === 'expense' ? (
                 <motion.div
                   key="expense"
-                  className={styles.addModalSwipe__panel}
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -40 }}
-                  transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.2 }}
                 >
                   <AddExpenseForm
                     roomId={roomId}
@@ -278,11 +236,10 @@ export const IncomeExpensesBlock: React.FC<IncomeExpensesBlockProps> = ({
               ) : (
                 <motion.div
                   key="income"
-                  className={styles.addModalSwipe__panel}
-                  initial={{ opacity: 0, y: -40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 40 }}
-                  transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.2 }}
                 >
                   <AddIncomeForm
                     categories={INCOME_CATEGORIES}
@@ -295,7 +252,7 @@ export const IncomeExpensesBlock: React.FC<IncomeExpensesBlockProps> = ({
                 </motion.div>
               )}
             </AnimatePresence>
-          </motion.div>
+          </div>
         </Modal>
       )}
 
