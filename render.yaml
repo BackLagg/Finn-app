@@ -93,7 +93,7 @@ services:
     startCommand: node ping.mjs
     envVars:
       - key: PING_URLS
-        value: "https://finn-backend-as35.onrender.com,https://finn-file-service.onrender.com/health,https://finn-frontend.onrender.com"
+        value: "https://finn-backend-as35.onrender.com,https://finn-file-service.onrender.com/health,https://finn-frontend.onrender.com,https://my-resume-thjr.onrender.com/"
 
 envVarGroups:
   - name: finn-bot-env
