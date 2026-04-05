@@ -81,6 +81,55 @@ export interface PlanResponse {
   completedAt?: string;
 }
 
+export interface BudgetLimit {
+  _id: string;
+  category: string;
+  limit: number;
+  currency: string;
+  period: 'daily' | 'weekly' | 'monthly';
+  spent: number;
+  roomId?: string;
+}
+
+export interface NotificationSettings {
+  _id: string;
+  dailyReminder: boolean;
+  dailyReminderTime?: string;
+  budgetAlerts: boolean;
+  budgetAlertThreshold: number;
+  weeklyReport: boolean;
+  goalProgress: boolean;
+}
+
+export interface RecurringTransaction {
+  _id: string;
+  amount: number;
+  type: 'income' | 'expense';
+  category: string;
+  description?: string;
+  frequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  nextDate: string;
+  isActive: boolean;
+  roomId?: string;
+}
+
+export interface AnalyticsTrend {
+  period: string;
+  income: number;
+  expense: number;
+  savings: number;
+  change: number;
+}
+
+export interface ExportOptions {
+  format: 'csv' | 'pdf' | 'json';
+  from?: string;
+  to?: string;
+  includeCategories?: boolean;
+  includeReceipts?: boolean;
+  roomId?: string;
+}
+
 export const financeAPI = {
   transactions: {
     list: (params?: { roomId?: string; from?: string; to?: string; limit?: number }) =>
@@ -191,5 +240,87 @@ export const financeAPI = {
       fd,
       { params: { language }, headers: { 'Content-Type': 'multipart/form-data' } },
     );
+  },
+
+  // Budget Limits API
+  budgetLimits: {
+    list: (roomId?: string) => 
+      apiClient.get<BudgetLimit[]>('/budget-limit', { params: { roomId } }),
+    create: (data: { category: string; limit: number; currency?: string; period: 'daily' | 'weekly' | 'monthly'; roomId?: string }) =>
+      apiClient.post<BudgetLimit>('/budget-limit', data),
+    update: (id: string, data: Partial<{ limit: number; period: 'daily' | 'weekly' | 'monthly' }>) =>
+      apiClient.put<BudgetLimit>(`/budget-limit/${id}`, data),
+    delete: (id: string) => apiClient.delete(`/budget-limit/${id}`),
+    checkStatus: (roomId?: string) =>
+      apiClient.get<{ category: string; limit: number; spent: number; percentage: number; isOver: boolean }[]>(
+        '/budget-limit/status',
+        { params: { roomId } }
+      ),
+  },
+
+  // Notification Settings API
+  notifications: {
+    get: () => apiClient.get<NotificationSettings>('/notification-settings'),
+    update: (data: Partial<NotificationSettings>) =>
+      apiClient.put<NotificationSettings>('/notification-settings', data),
+    testPush: () => apiClient.post('/notification-settings/test'),
+  },
+
+  // Recurring Transactions API
+  recurring: {
+    list: (roomId?: string) =>
+      apiClient.get<RecurringTransaction[]>('/recurring-transaction', { params: { roomId } }),
+    create: (data: {
+      amount: number;
+      type: 'income' | 'expense';
+      category: string;
+      description?: string;
+      frequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
+      startDate: string;
+      roomId?: string;
+    }) => apiClient.post<RecurringTransaction>('/recurring-transaction', data),
+    update: (id: string, data: Partial<{ amount: number; category: string; frequency: string; isActive: boolean }>) =>
+      apiClient.put<RecurringTransaction>(`/recurring-transaction/${id}`, data),
+    delete: (id: string) => apiClient.delete(`/recurring-transaction/${id}`),
+    trigger: (id: string) => apiClient.post<Transaction>(`/recurring-transaction/${id}/trigger`),
+  },
+
+  // Analytics API
+  analytics: {
+    trends: (params: { period: 'week' | 'month' | 'quarter' | 'year'; roomId?: string }) =>
+      apiClient.get<AnalyticsTrend[]>('/analytics/trends', { params }),
+    compare: (params: { from1: string; to1: string; from2: string; to2: string; roomId?: string }) =>
+      apiClient.get<{ period1: { income: number; expense: number }; period2: { income: number; expense: number }; change: number }>(
+        '/analytics/compare',
+        { params }
+      ),
+    forecast: (params: { months: number; roomId?: string }) =>
+      apiClient.get<{ month: string; predictedIncome: number; predictedExpense: number; predictedSavings: number }[]>(
+        '/analytics/forecast',
+        { params }
+      ),
+    categoryBreakdown: (params: { from?: string; to?: string; roomId?: string }) =>
+      apiClient.get<{ category: string; amount: number; percentage: number; trend: 'up' | 'down' | 'stable' }[]>(
+        '/analytics/category-breakdown',
+        { params }
+      ),
+  },
+
+  // Export API
+  export: {
+    generate: (options: ExportOptions) =>
+      apiClient.post<{ downloadUrl: string; expiresAt: string }>('/export/generate', options),
+    download: (token: string) =>
+      apiClient.get<Blob>(`/export/download/${token}`, { responseType: 'blob' }),
+    history: () =>
+      apiClient.get<{ _id: string; format: string; createdAt: string; downloadUrl: string }[]>('/export/history'),
+  },
+
+  // Currency Converter API
+  currency: {
+    rates: (base?: string) =>
+      apiClient.get<{ base: string; rates: Record<string, number>; updatedAt: string }>('/currency/rates', { params: { base } }),
+    convert: (params: { amount: number; from: string; to: string }) =>
+      apiClient.get<{ amount: number; from: string; to: string; result: number; rate: number }>('/currency/convert', { params }),
   },
 };
