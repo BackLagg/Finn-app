@@ -1,0 +1,196 @@
+@import '@shared/styles/variables';
+
+.export {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  &__formats {
+    display: flex;
+    gap: 10px;
+  }
+
+  &__formatBtn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 16px 12px;
+    background: var(--color-bg-secondary);
+    border: 2px solid var(--color-border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      border-color: var(--color-accent);
+      background: var(--color-accent-muted);
+    }
+
+    &--active {
+      border-color: var(--color-accent);
+      background: var(--color-accent-muted);
+      box-shadow: 0 0 0 3px var(--color-accent-muted);
+    }
+  }
+
+  &__formatIcon {
+    font-size: 20px;
+  }
+
+  &__formatLabel {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  &__periods {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  &__periodBtn {
+    padding: 8px 14px;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+    }
+
+    &--active {
+      background: var(--color-accent);
+      border-color: var(--color-accent);
+      color: #FFFFFF;
+    }
+  }
+
+  &__customDates {
+    display: flex;
+    gap: 12px;
+  }
+
+  &__dateField {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__dateLabel {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+  }
+
+  &__dateInput {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    color: var(--color-text-primary);
+    font-size: 14px;
+    box-sizing: border-box;
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-accent);
+    }
+  }
+
+  &__options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px;
+    background: var(--color-bg-secondary);
+    border-radius: 12px;
+  }
+
+  &__optionRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+
+  &__optionLabel {
+    font-size: 14px;
+    color: var(--color-text-primary);
+  }
+
+  &__checkbox {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--color-accent);
+    cursor: pointer;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  &__cancelBtn {
+    flex: 1;
+    padding: 12px;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    color: var(--color-text-primary);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: var(--color-border);
+    }
+  }
+
+  &__submitBtn {
+    flex: 1;
+    padding: 12px;
+    background: var(--color-accent);
+    border: none;
+    border-radius: 12px;
+    color: #FFFFFF;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+
+    &:hover:not(:disabled) {
+      background: var(--color-accent-hover);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
