@@ -226,9 +226,9 @@ const GoalsWidget: React.FC<GoalsWidgetProps> = ({ roomId }) => {
                     <span className={styles.goals__target}>{formatCurrency(goal.targetAmount)}</span>
                   </div>
 
-                  <ProgressBar 
-                    value={progress} 
-                    variant={isCompleted ? 'success' : 'primary'}
+                  <ProgressBar
+                    value={progress}
+                    color={isCompleted ? '#10b981' : '#6366f1'}
                   />
 
                   <div className={styles.goals__footer}>

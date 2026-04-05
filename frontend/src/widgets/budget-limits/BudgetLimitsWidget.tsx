@@ -29,6 +29,12 @@ const EXPENSE_CATEGORIES = [
 
 const PERIODS = ['daily', 'weekly', 'monthly'] as const;
 
+const PROGRESS_BAR_COLORS = {
+  danger: '#ef4444',
+  warning: '#f59e0b',
+  primary: '#6366f1',
+} as const;
+
 const BudgetLimitsWidget: React.FC<BudgetLimitsWidgetProps> = ({ roomId, compact = false }) => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -152,7 +158,7 @@ const BudgetLimitsWidget: React.FC<BudgetLimitsWidgetProps> = ({ roomId, compact
     return t(`budgetLimits.period.${period}`);
   };
 
-  const getProgressVariant = (percentage: number) => {
+  const getProgressTone = (percentage: number): keyof typeof PROGRESS_BAR_COLORS => {
     if (percentage >= 100) return 'danger';
     if (percentage >= 80) return 'warning';
     return 'primary';
@@ -238,7 +244,7 @@ const BudgetLimitsWidget: React.FC<BudgetLimitsWidgetProps> = ({ roomId, compact
                   <div className={styles.limits__cardHeader}>
                     <div className={styles.limits__categoryInfo}>
                       <h3 className={styles.limits__category}>
-                        {getCategoryLabel(limit.category, t)}
+                        {getCategoryLabel(t, 'expense', limit.category)}
                       </h3>
                       <span className={styles.limits__period}>
                         {getPeriodLabel(limit.period)}
@@ -278,9 +284,9 @@ const BudgetLimitsWidget: React.FC<BudgetLimitsWidgetProps> = ({ roomId, compact
                     <span className={styles.limits__limit}>{formatCurrency(limit.limit)}</span>
                   </div>
 
-                  <ProgressBar 
-                    value={Math.min(percentage, 100)} 
-                    variant={getProgressVariant(percentage)}
+                  <ProgressBar
+                    value={Math.min(percentage, 100)}
+                    color={PROGRESS_BAR_COLORS[getProgressTone(percentage)]}
                   />
 
                   {isOver && (
@@ -307,7 +313,7 @@ const BudgetLimitsWidget: React.FC<BudgetLimitsWidgetProps> = ({ roomId, compact
               >
                 {availableCategories.map((cat) => (
                   <option key={cat} value={cat}>
-                    {getCategoryLabel(cat, t)}
+                    {getCategoryLabel(t, 'expense', cat)}
                   </option>
                 ))}
               </select>

@@ -16,18 +16,8 @@ import { UpdateTransactionDto } from '../../dto/transaction.dto';
 import { UserGuard } from '../../guards/user.guard';
 import { AuthenticatedRequest } from '../../interfaces/request.interface';
 import { Types } from 'mongoose';
-import { MultiCurrencyAmount } from '../../schemas/multi-currency-amount.schema';
 import { parseLocalDate, parseQueryDate } from '../../utils/date.util';
-
-function toMultiCurrencyAmount(value: number, currency: string): MultiCurrencyAmount {
-  const curr = currency.toUpperCase();
-  return {
-    USD: curr === 'USD' ? value : 0,
-    EUR: curr === 'EUR' ? value : 0,
-    RUB: curr === 'RUB' ? value : 0,
-    BYN: curr === 'BYN' ? value : 0,
-  };
-}
+import { toMultiCurrencyAmount } from '../../utils/amount-currency.util';
 
 @Controller('transaction')
 @UseGuards(UserGuard)

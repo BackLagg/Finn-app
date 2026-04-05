@@ -22,6 +22,10 @@ export default registerAs('app', () => {
     // Telegram Bot settings
     botToken: process.env.BOT_TOKEN,
     botUsername: process.env.BOT_USERNAME || 'fabricbotbot',
+    
+    // Bot notification microserver (aiohttp in Bot_API)
+    botNotificationHost: process.env.BOT_NOTIFICATION_HOST || 'localhost',
+    botNotificationPort: parseInt(process.env.BOT_NOTIFICATION_PORT || '3100', 10),
 
     // Payment Service settings
     paymentServiceUrl:

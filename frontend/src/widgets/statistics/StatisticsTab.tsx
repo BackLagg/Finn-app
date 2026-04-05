@@ -11,6 +11,8 @@ import { useIncomePayments } from '@features/planner';
 import { ChartsSection, CategoryExpenses } from '@widgets/home';
 import { ExpenseIncomeDonutChart } from './ExpenseIncomeDonutChart';
 import { PlansDisplay } from './PlansDisplay';
+import { BudgetLimitsWidget } from '@widgets/budget-limits';
+import { ExportModal } from '@widgets/export';
 import styles from './StatisticsTab.module.scss';
 
 function getAmount(tx: { amount: number | { USD?: number; EUR?: number; RUB?: number; BYN?: number } }): number {
@@ -30,6 +32,7 @@ interface StatisticsTabProps {
 export const StatisticsTab: React.FC<StatisticsTabProps> = ({ roomId }) => {
   const { t } = useTranslation();
   const [currency] = useCurrencyPreference();
+  const [showExport, setShowExport] = React.useState(false);
   const now = new Date();
   const y = now.getFullYear();
   const m = now.getMonth();
@@ -84,7 +87,19 @@ export const StatisticsTab: React.FC<StatisticsTabProps> = ({ roomId }) => {
 
   return (
     <div className={styles.statistics}>
-      <h1 className={styles.statistics__hero}>{t('statistics.heroTitle')}</h1>
+      <div className={styles.statistics__header}>
+        <h1 className={styles.statistics__hero}>{t('statistics.heroTitle')}</h1>
+        <button
+          type="button"
+          onClick={() => setShowExport(true)}
+          className={styles.statistics__exportBtn}
+        >
+          📤 {t('export.title', 'Export')}
+        </button>
+      </div>
+      
+      <BudgetLimitsWidget roomId={roomId} compact />
+      
       <div className={styles.statistics__summary}>
         <div className={styles.statistics__card}>
           <div className={styles.statistics__cardLabel}>
@@ -145,6 +160,12 @@ export const StatisticsTab: React.FC<StatisticsTabProps> = ({ roomId }) => {
       <ExpenseIncomeDonutChart roomId={roomId} />
       <ChartsSection roomId={roomId} />
       <PlansDisplay roomId={roomId} />
+      
+      <ExportModal 
+        isOpen={showExport}
+        onClose={() => setShowExport(false)}
+        roomId={roomId}
+      />
     </div>
   );
 };

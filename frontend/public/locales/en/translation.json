@@ -278,7 +278,33 @@
     "includeReceipts": "Include receipt images",
     "download": "Download",
     "generating": "Generating...",
-    "success": "Export ready!"
+    "success": "Export ready!",
+    "description": "Download your transaction data in various formats",
+    "openModal": "Open Export"
+  },
+  "settings": {
+    "title": "Settings",
+    "updated": "Settings updated",
+    "testSent": "Test notification sent",
+    "notifications": "Notifications"
+  },
+  "notifications": {
+    "dailyReminder": "Daily Reminder",
+    "dailyReminderDesc": "Receive daily budget reminders",
+    "budgetAlerts": "Budget Alerts",
+    "budgetAlertsDesc": "Alerts when approaching budget limit",
+    "weeklyReport": "Weekly Report",
+    "weeklyReportDesc": "Weekly spending summary",
+    "goalProgress": "Goal Progress",
+    "goalProgressDesc": "Milestone notifications",
+    "sendTest": "Send test notification"
+  },
+  "recurring": {
+    "title": "Recurring Transactions",
+    "empty": "No recurring transactions yet",
+    "deleted": "Deleted",
+    "confirmDelete": "Delete this recurring transaction?",
+    "nextDate": "Next"
   },
   "categories": {
     "expense": {

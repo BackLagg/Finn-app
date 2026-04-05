@@ -30,6 +30,10 @@ QUIZ_RESULTS_COLLECTION = "quizresults"
 PRODAMUS_SECRET_KEY = os.getenv("PRODAMUS_SECRET_KEY")
 PRODAMUS_API_URL = os.getenv("PRODAMUS_API_URL", "https://payform.ru/api/v1/create/")
 
+# Микросервер уведомлений (HTTP endpoint для бэкенда)
+NOTIFICATION_SERVER_HOST = os.getenv("NOTIFICATION_SERVER_HOST", "0.0.0.0")
+NOTIFICATION_SERVER_PORT = int(os.getenv("NOTIFICATION_SERVER_PORT", "3100"))
+
 # Webhook URLs
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 CREATE_PAYMENT_URL = os.getenv("CREATE_PAYMENT_URL")

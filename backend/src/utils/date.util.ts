@@ -38,3 +38,19 @@ export function parseQueryDate(dateStr: string): Date {
     0
   ));
 }
+
+/**
+ * End of UTC day for YYYY-MM-DD (inclusive upper bound for queries).
+ */
+export function parseQueryDateEnd(dateStr: string): Date {
+  const parts = dateStr.split('-');
+  return new Date(Date.UTC(
+    parseInt(parts[0], 10),
+    parseInt(parts[1], 10) - 1,
+    parseInt(parts[2], 10),
+    23,
+    59,
+    59,
+    999,
+  ));
+}

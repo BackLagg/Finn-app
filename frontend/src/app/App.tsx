@@ -13,6 +13,7 @@ import { ProfilePage } from '@pages/profile';
 import { PartnersPage } from '@pages/partners';
 import { PlannerPage } from '@pages/planner';
 import { StatisticsPage } from '@pages/statistics';
+import { SettingsPage } from '@pages/settings';
 
 import '@shared/styles/index.scss';
 
@@ -51,6 +52,7 @@ const App: React.FC = () => {
           <Route path="/" element={<Navigate to="/planner" replace />} />
           <Route path="/planner" element={<PlannerPage />} />
           <Route path="/statistics" element={<StatisticsPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/partners" element={<PartnersPage />} />
         </Routes>

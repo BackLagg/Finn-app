@@ -5,15 +5,7 @@ import { TransactionDocument } from '../../schemas/transaction.schema';
 import { MultiCurrencyAmount } from '../../schemas/multi-currency-amount.schema';
 import { PartnerRoomService } from '../partner-room/partner-room.service';
 import { BudgetService } from '../budget/budget.service';
-
-function getAmountValue(amount: MultiCurrencyAmount, currency: string): number {
-  const c = (currency || 'USD').toUpperCase();
-  if (c === 'USD') return amount.USD ?? 0;
-  if (c === 'EUR') return amount.EUR ?? 0;
-  if (c === 'RUB') return amount.RUB ?? 0;
-  if (c === 'BYN') return amount.BYN ?? 0;
-  return amount.USD ?? amount.EUR ?? amount.RUB ?? amount.BYN ?? 0;
-}
+import { getAmountInCurrency } from '../../utils/amount-currency.util';
 
 @Injectable()
 export class TransactionService {
@@ -42,7 +34,9 @@ export class TransactionService {
     if (data.type === 'income') {
       const budget = await this.budgetService.findForUser(userId, data.roomId);
       const savingsPercent = budget?.distribution?.savings ?? 20;
-      const amountNum = Math.abs(getAmountValue(data.amount, data.inputCurrency ?? 'USD'));
+      const amountNum = Math.abs(
+        getAmountInCurrency(data.amount, data.inputCurrency ?? 'USD'),
+      );
       savingsAmount = Math.round((amountNum * savingsPercent) / 100 * 100) / 100;
     }
     const doc = await this.transactionModel.create({
@@ -190,6 +184,85 @@ export class TransactionService {
       { $sort: { total: -1 } },
     ]).exec();
     return result.map((r) => ({ userId: r._id.toString(), total: r.total }));
+  }
+
+  /**
+   * Sums expense transactions for a category in a date window; amounts are read in outputCurrency.
+   */
+  async sumExpenseForCategory(
+    userId: Types.ObjectId,
+    params: {
+      roomId?: Types.ObjectId;
+      category: string;
+      from: Date;
+      to: Date;
+      outputCurrency: string;
+    },
+  ): Promise<number> {
+    const match = await this.buildRoomMatch(userId, {
+      roomId: params.roomId,
+      from: params.from,
+      to: params.to,
+    });
+    if (!match) return 0;
+    match.type = 'expense';
+    match.category = params.category;
+    const docs = await this.transactionModel.find(match).exec();
+    let sum = 0;
+    for (const doc of docs) {
+      sum += getAmountInCurrency(doc.amount, params.outputCurrency);
+    }
+    return Math.round(sum * 100) / 100;
+  }
+
+  /**
+   * Aggregates income, expense, and savings (income minus expense) in the given currency.
+   */
+  async aggregateIncomeExpenseSavings(
+    userId: Types.ObjectId,
+    options: { roomId?: Types.ObjectId; from: Date; to: Date },
+    currency: string,
+  ): Promise<{ income: number; expense: number; savings: number }> {
+    const match = await this.buildRoomMatch(userId, options);
+    if (!match) return { income: 0, expense: 0, savings: 0 };
+    const docs = await this.transactionModel.find(match).exec();
+    let income = 0;
+    let expense = 0;
+    for (const d of docs) {
+      const v = getAmountInCurrency(d.amount, currency);
+      if (d.type === 'income') income += v;
+      else expense += v;
+    }
+    const r = (n: number) => Math.round(n * 100) / 100;
+    return {
+      income: r(income),
+      expense: r(expense),
+      savings: r(income - expense),
+    };
+  }
+
+  /**
+   * Expense totals per category in outputCurrency for analytics/breakdown.
+   */
+  async sumExpenseByCategoryMap(
+    userId: Types.ObjectId,
+    options: { roomId?: Types.ObjectId; from: Date; to: Date },
+    outputCurrency: string,
+  ): Promise<Record<string, number>> {
+    const match = await this.buildRoomMatch(userId, options);
+    if (!match) return {};
+    match.type = 'expense';
+    const docs = await this.transactionModel.find(match).exec();
+    const map: Record<string, number> = {};
+    for (const doc of docs) {
+      const cat = doc.category;
+      const v = getAmountInCurrency(doc.amount, outputCurrency);
+      map[cat] = (map[cat] ?? 0) + v;
+    }
+    for (const k of Object.keys(map)) {
+      map[k] = Math.round(map[k] * 100) / 100;
+    }
+    return map;
   }
 
   private async buildRoomMatch(

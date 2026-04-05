@@ -30,6 +30,9 @@ export class Goal {
 
   @Prop({ required: false })
   deadline?: Date;
+
+  @Prop({ type: [Number], default: [] })
+  milestonesNotified?: number[];
 }
 
 export const GoalSchema = SchemaFactory.createForClass(Goal);

@@ -18,6 +18,8 @@ from configs.config import (
 from handlers.start import start_router
 from handlers.admin import admin_router, load_welcome_video_id
 from utils.planner_notifications import send_planner_notifications
+from utils.notification_server import NotificationServer
+from configs.config import NOTIFICATION_SERVER_HOST, NOTIFICATION_SERVER_PORT
 
 # Настройка логирования
 logging.basicConfig(
@@ -98,6 +100,16 @@ async def on_startup(bot: Bot) -> None:
     await load_welcome_video_id()
     logger.info("Вступительное видео загружено в кэш")
     
+    # Запуск микросервера уведомлений
+    notification_server = NotificationServer(
+        bot, 
+        host=NOTIFICATION_SERVER_HOST, 
+        port=NOTIFICATION_SERVER_PORT
+    )
+    await notification_server.start()
+    # Сохраняем сервер в диспетчере для graceful shutdown
+    dp.notification_server = notification_server
+    
     # Запуск планировщика уведомлений календаря (10:00 МСК)
     asyncio.create_task(planner_notify_scheduler(bot))
     
@@ -107,6 +119,10 @@ async def on_startup(bot: Bot) -> None:
 async def on_shutdown(bot: Bot) -> None:
     """Функция, выполняемая при остановке бота"""
     logger.info("Бот Finn остановлен")
+    
+    # Остановка микросервера уведомлений
+    if hasattr(dp, 'notification_server'):
+        await dp.notification_server.stop()
 
 async def main():
     """Основная функция запуска бота"""

@@ -1,4 +1,11 @@
-import { Module, NestModule, MiddlewareConsumer, Logger } from '@nestjs/common';
+import {
+  Module,
+  NestModule,
+  MiddlewareConsumer,
+  Logger,
+  RequestMethod,
+} from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './modules/auth/auth.module';
@@ -14,6 +21,12 @@ import { ReceiptAIModule } from './modules/receipt-ai/receipt-ai.module';
 import { SubscriptionModule } from './modules/subscription/subscription.module';
 import { CacheModule } from './modules/cache/cache.module';
 import { CurrencyModule } from './modules/currency/currency.module';
+import { BudgetLimitModule } from './modules/budget-limit/budget-limit.module';
+import { NotificationSettingsModule } from './modules/notification-settings/notification-settings.module';
+import { RecurringTransactionModule } from './modules/recurring-transaction/recurring-transaction.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { ExportModule } from './modules/export/export.module';
+import { ScheduledJobsModule } from './modules/scheduled-jobs/scheduled-jobs.module';
 import { TelegramAuthMiddleware } from './middleware/telegram-auth.middleware';
 import { User, UserSchema } from './schemas/user.schema';
 import { SuperUser, SuperUserSchema } from './schemas/superuser.schema';
@@ -47,8 +60,15 @@ import { RouteConstants } from './constants/routes.constants';
       { name: UserProfile.name, schema: UserProfileSchema },
     ]),
 
+    ScheduleModule.forRoot(),
     CacheModule,
     CurrencyModule,
+    BudgetLimitModule,
+    NotificationSettingsModule,
+    RecurringTransactionModule,
+    AnalyticsModule,
+    ExportModule,
+    ScheduledJobsModule,
     AuthModule,
     FileModule,
     TransactionModule,
@@ -99,6 +119,10 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
     consumer
       .apply(TelegramAuthMiddleware)
-      .forRoutes(...RouteConstants.PROTECTED_ROUTES);
+      .forRoutes(
+        ...(RouteConstants.PROTECTED_ROUTES as readonly string[]),
+        { path: 'export/generate', method: RequestMethod.POST },
+        { path: 'export/history', method: RequestMethod.GET },
+      );
   }
 }

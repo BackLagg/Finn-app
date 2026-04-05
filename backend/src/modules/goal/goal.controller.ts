@@ -17,6 +17,8 @@ import { UserGuard } from '../../guards/user.guard';
 import { AuthenticatedRequest } from '../../interfaces/request.interface';
 import { Types } from 'mongoose';
 import { parseLocalDate } from '../../utils/date.util';
+import { GoalDocument } from '../../schemas/goal.schema';
+import { getAmountInCurrency } from '../../utils/amount-currency.util';
 
 @Controller('goal')
 @UseGuards(UserGuard)
@@ -28,16 +30,33 @@ export class GoalController {
     return u!._id!;
   }
 
+  /**
+   * Maps stored multi-currency goal to flat numbers expected by the web client.
+   */
+  private mapGoal(g: GoalDocument) {
+    const c = (g.currency || 'USD').toUpperCase();
+    return {
+      _id: g._id,
+      title: g.title,
+      targetAmount: getAmountInCurrency(g.targetAmount, c),
+      currentAmount: getAmountInCurrency(g.currentAmount, c),
+      currency: c,
+      deadline: g.deadline,
+      roomId: g.roomId,
+    };
+  }
+
   @Post()
   async create(@Body() dto: CreateGoalDto, @Req() req: AuthenticatedRequest) {
     const userId = this.getUserId(req);
-    return this.goalService.create(userId, {
+    const doc = await this.goalService.create(userId, {
       title: dto.title,
       targetAmount: dto.targetAmount,
       currency: dto.currency,
       deadline: dto.deadline ? parseLocalDate(dto.deadline) : undefined,
       roomId: dto.roomId ? new Types.ObjectId(dto.roomId) : undefined,
     });
+    return this.mapGoal(doc);
   }
 
   @Get()
@@ -46,10 +65,11 @@ export class GoalController {
     @Req() req: AuthenticatedRequest,
   ) {
     const userId = this.getUserId(req);
-    return this.goalService.findAll(
+    const list = await this.goalService.findAll(
       userId,
       roomId ? new Types.ObjectId(roomId) : undefined,
     );
+    return list.map((g) => this.mapGoal(g));
   }
 
   @Put(':id')
@@ -59,12 +79,14 @@ export class GoalController {
     @Req() req: AuthenticatedRequest,
   ) {
     const userId = this.getUserId(req);
-    const data: Record<string, unknown> = {};
-    if (dto.title !== undefined) data.title = dto.title;
-    if (dto.targetAmount !== undefined) data.targetAmount = dto.targetAmount;
-    if (dto.currentAmount !== undefined) data.currentAmount = dto.currentAmount;
-    if (dto.deadline !== undefined) data.deadline = parseLocalDate(dto.deadline);
-    return this.goalService.update(id, userId, data);
+    const doc = await this.goalService.update(id, userId, {
+      title: dto.title,
+      targetAmount: dto.targetAmount,
+      currentAmount: dto.currentAmount,
+      deadline:
+        dto.deadline !== undefined ? parseLocalDate(dto.deadline) : undefined,
+    });
+    return doc ? this.mapGoal(doc) : null;
   }
 
   @Delete(':id')

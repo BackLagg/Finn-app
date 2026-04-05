@@ -17,55 +17,90 @@ export interface MultiCurrencyAmount {
   BYN: number;
 }
 
+/**
+ * Fetches FX rates (USD-based) with hourly cache; supports table/convert for arbitrary ISO codes from API.
+ */
 @Injectable()
 export class CurrencyService {
   private readonly logger = new Logger(CurrencyService.name);
-  private cachedRates: CurrencyRates | null = null;
-  private lastFetch: number = 0;
+  private cachedUsdRates: Record<string, number> | null = null;
+  private lastFetch = 0;
   private readonly CACHE_DURATION = 3600000;
   private readonly API_URL = 'https://api.exchangerate-api.com/v4/latest/USD';
 
-  async getCurrencyRates(): Promise<CurrencyRates> {
+  private async fetchUsdRates(): Promise<Record<string, number>> {
     if (
-      this.cachedRates &&
+      this.cachedUsdRates &&
       Date.now() - this.lastFetch < this.CACHE_DURATION
     ) {
-      return this.cachedRates;
+      return this.cachedUsdRates;
     }
-
     try {
-      const response = await axios.get(this.API_URL);
-      const { rates } = response.data;
-
-      this.cachedRates = {
-        EUR_to_USD: 1 / rates.EUR,
-        RUB_to_USD: 1 / rates.RUB,
-        BYN_to_USD: 1 / rates.BYN,
-        USD_to_EUR: rates.EUR,
-        USD_to_RUB: rates.RUB,
-        USD_to_BYN: rates.BYN,
-      };
-
+      const response = await axios.get<{ rates: Record<string, number> }>(
+        this.API_URL,
+      );
+      this.cachedUsdRates = { USD: 1, ...response.data.rates };
       this.lastFetch = Date.now();
       this.logger.log('Currency rates updated successfully');
-
-      return this.cachedRates;
+      return this.cachedUsdRates;
     } catch (error) {
       this.logger.error('Failed to fetch currency rates', error);
-
-      if (this.cachedRates) {
-        return this.cachedRates;
-      }
-
+      if (this.cachedUsdRates) return this.cachedUsdRates;
       return {
-        EUR_to_USD: 1.09,
-        RUB_to_USD: 0.011,
-        BYN_to_USD: 0.31,
-        USD_to_EUR: 0.92,
-        USD_to_RUB: 91.5,
-        USD_to_BYN: 3.2,
+        USD: 1,
+        EUR: 0.92,
+        RUB: 91.5,
+        BYN: 3.2,
       };
     }
+  }
+
+  /**
+   * Legacy shape used by receipt/multi-currency helpers (subset of currencies).
+   */
+  async getCurrencyRates(): Promise<CurrencyRates> {
+    const r = await this.fetchUsdRates();
+    const eur = r.EUR ?? 0.92;
+    const rub = r.RUB ?? 91.5;
+    const byn = r.BYN ?? 3.2;
+    return {
+      EUR_to_USD: 1 / eur,
+      RUB_to_USD: 1 / rub,
+      BYN_to_USD: 1 / byn,
+      USD_to_EUR: eur,
+      USD_to_RUB: rub,
+      USD_to_BYN: byn,
+    };
+  }
+
+  /**
+   * API contract: rates[C] = units of C per 1 base (same formula as exchangerate-api with USD base).
+   */
+  async getRatesTable(base = 'USD'): Promise<{
+    base: string;
+    rates: Record<string, number>;
+    updatedAt: string;
+  }> {
+    const usdTable = await this.fetchUsdRates();
+    const b = (base || 'USD').toUpperCase();
+    const basePerUsd = usdTable[b];
+    if (!basePerUsd) {
+      return {
+        base: b,
+        rates: usdTable,
+        updatedAt: new Date(this.lastFetch).toISOString(),
+      };
+    }
+    const out: Record<string, number> = {};
+    for (const [code, perUsd] of Object.entries(usdTable)) {
+      out[code] = perUsd / basePerUsd;
+    }
+    out[b] = 1;
+    return {
+      base: b,
+      rates: out,
+      updatedAt: new Date(this.lastFetch).toISOString(),
+    };
   }
 
   async convertAmount(
@@ -74,32 +109,18 @@ export class CurrencyService {
     toCurrency: string,
   ): Promise<number> {
     if (fromCurrency === toCurrency) return amount;
-
-    const rates = await this.getCurrencyRates();
-
-    if (fromCurrency === 'USD') {
-      switch (toCurrency) {
-        case 'EUR':
-          return amount * rates.USD_to_EUR;
-        case 'RUB':
-          return amount * rates.USD_to_RUB;
-        case 'BYN':
-          return amount * rates.USD_to_BYN;
-        default:
-          return amount;
-      }
+    const rates = await this.fetchUsdRates();
+    const f = fromCurrency.toUpperCase();
+    const t = toCurrency.toUpperCase();
+    const rf = rates[f];
+    const rt = rates[t];
+    if (rf === undefined || rt === undefined) {
+      this.logger.warn(`Missing FX rate for ${f} or ${t}`);
+      return Math.round(amount * 10000) / 10000;
     }
-
-    const amountInUSD =
-      fromCurrency === 'EUR'
-        ? amount / rates.EUR_to_USD
-        : fromCurrency === 'RUB'
-        ? amount / rates.RUB_to_USD
-        : fromCurrency === 'BYN'
-        ? amount / rates.BYN_to_USD
-        : amount;
-
-    return this.convertAmount(amountInUSD, 'USD', toCurrency);
+    const inUsd = f === 'USD' ? amount : amount / rf;
+    const out = t === 'USD' ? inUsd : inUsd * rt;
+    return Math.round(out * 10000) / 10000;
   }
 
   async createMultiCurrencyAmount(
