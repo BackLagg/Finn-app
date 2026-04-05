@@ -41,7 +41,13 @@
     border-radius: 16px;
     padding: 16px;
     box-sizing: border-box;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--shadow);
+    transition: all 0.2s;
+
+    &:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
   }
 
   &__cardLabel {

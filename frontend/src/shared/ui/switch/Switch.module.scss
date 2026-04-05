@@ -45,10 +45,11 @@
 .switch[aria-checked='true'] {
   background: var(--color-accent);
   border-color: var(--color-accent);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
 
   .thumb {
     transform: translateX(20px);
-    background: #1e2329;
+    background: #FFFFFF;
   }
 }
 
