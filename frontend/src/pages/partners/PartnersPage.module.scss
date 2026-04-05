@@ -54,7 +54,7 @@
   &__btn {
     padding: 12px 20px;
     background: var(--color-accent);
-    color: #0a0a0a;
+    color: #FFFFFF;
     border: none;
     border-radius: var(--radius);
     font-weight: 600;
@@ -62,10 +62,12 @@
     cursor: pointer;
     transition: all 0.2s;
     white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
 
     &:hover:not(:disabled) {
       background: var(--color-accent-hover);
       transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
     }
 
     &:disabled {

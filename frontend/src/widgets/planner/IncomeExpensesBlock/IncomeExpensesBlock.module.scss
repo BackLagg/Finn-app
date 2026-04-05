@@ -91,7 +91,7 @@
     gap: 8px;
     padding: 12px;
     background: var(--color-accent);
-    color: #0a0a0a;
+    color: #FFFFFF;
     border: none;
     border-radius: 12px;
     font-weight: 600;
@@ -179,18 +179,18 @@
     gap: 10px;
     padding: 14px 20px;
     background: var(--color-accent);
-    color: #0a0a0a;
+    color: #FFFFFF;
     border: none;
     border-radius: 14px;
     font-weight: 700;
     font-size: 16px;
     cursor: pointer;
     transition: all 0.2s;
-    box-shadow: 0 2px 8px rgba(232, 93, 4, 0.25);
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
 
     &:hover {
       background: var(--color-accent-hover);
-      box-shadow: 0 4px 12px rgba(232, 93, 4, 0.3);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
     }
   }
 
@@ -359,7 +359,7 @@
     align-items: center;
     gap: 8px;
     padding: 10px 14px;
-    background: linear-gradient(135deg, var(--color-accent), #9333ea);
+    background: linear-gradient(135deg, var(--color-accent), #7C3AED);
     border: none;
     border-radius: 12px;
     color: white;
@@ -367,11 +367,12 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
 
     &:hover:not(:disabled) {
-      background: linear-gradient(135deg, var(--color-accent-hover), #a855f7);
+      background: linear-gradient(135deg, var(--color-accent-hover), #8B5CF6);
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
     }
 
     &:disabled {
@@ -428,9 +429,10 @@
     background: var(--color-accent);
     border: none;
     border-radius: 12px;
-    color: #0a0a0a;
+    color: #FFFFFF;
     font-weight: 600;
     cursor: pointer;
+    transition: all 0.2s;
 
     &:hover:not(:disabled) {
       background: var(--color-accent-hover);

@@ -6,6 +6,12 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius, 16px);
   overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: var(--shadow-lg);
+  }
 }
 
 .section__header {

@@ -13,17 +13,18 @@ $color-danger: var(--color-danger);
 $color-success: var(--color-success);
 $color-text-tertiary: var(--color-text-tertiary);
 
-$radius: var(--radius, 4px);
+$radius: var(--radius, 16px);
 $shadow: var(--shadow);
 
-$color-brand-50: var(--color-accent-muted, rgba(217, 138, 24, 0.14));
-$color-brand-100: var(--color-accent-muted, rgba(217, 138, 24, 0.2));
-$color-brand-200: rgba(217, 138, 24, 0.32);
-$color-brand-300: #e89f1a;
-$color-brand-400: #e09418;
+// Брендовые цвета на основе индиго палитры
+$color-brand-50: var(--color-accent-muted, rgba(99, 102, 241, 0.08));
+$color-brand-100: var(--color-accent-muted, rgba(99, 102, 241, 0.12));
+$color-brand-200: rgba(99, 102, 241, 0.20);
+$color-brand-300: #A5B4FC;
+$color-brand-400: #818CF8;
 $color-brand-500: var(--color-accent);
 $color-brand-600: var(--color-accent-hover);
-$color-brand-700: #c47a14;
+$color-brand-700: #4338CA;
 
 // Шрифты
 $font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;

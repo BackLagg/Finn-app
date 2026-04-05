@@ -260,11 +260,12 @@
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.2s;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
 
     &:hover:not(:disabled) {
       background: var(--color-accent-hover);
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
     }
 
     &:active:not(:disabled) {
@@ -277,10 +278,12 @@
     }
 
     &--plus {
-      background: linear-gradient(135deg, var(--color-accent), #9333ea);
+      background: linear-gradient(135deg, var(--color-accent), #7C3AED);
+      box-shadow: 0 4px 14px rgba(124, 58, 237, 0.25);
       
       &:hover:not(:disabled) {
-        background: linear-gradient(135deg, var(--color-accent-hover), #a855f7);
+        background: linear-gradient(135deg, var(--color-accent-hover), #8B5CF6);
+        box-shadow: 0 6px 20px rgba(124, 58, 237, 0.35);
       }
     }
   }

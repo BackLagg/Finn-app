@@ -107,8 +107,9 @@
 
     &--selected {
       background: var(--color-accent);
-      color: #0a0a0a;
+      color: #FFFFFF;
       font-weight: 600;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
 
       &:hover {
         background: var(--color-accent-hover);

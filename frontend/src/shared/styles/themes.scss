@@ -1,49 +1,49 @@
 :root,
 [data-theme='light'] {
-  /* Light theme based on main + additional palette */
-  --color-bg: #F6EFE2; /* Тёплый бежевый фон */
-  --color-bg-secondary: #FBF5FF; /* Очень светлый лавандовый */
+  /* Light theme - Clean, modern finance aesthetic */
+  --color-bg: #F8FAFC; /* Чистый светло-серый с голубым оттенком */
+  --color-bg-secondary: #F1F5F9; /* Более глубокий серый */
   --color-surface: #FFFFFF;
   --color-card: #FFFFFF;
-  --color-border: #D7CFFF; /* Более светлый лавандовый */
-  --color-text-primary: #3A3FA6; /* Чуть более светлый и мягкий */
-  --color-text-secondary: #8B8FD9; /* Светлый сиреневый */
-  --color-text-tertiary: #B0B4F0; /* Ещё более светлый сиреневый */
-  --color-accent: #B69CFF; /* Осветлённый брендовый фиолетовый */
-  --color-accent-hover: #C8B5FF; /* Ещё светлее при hover */
-  --color-accent-muted: rgba(182, 156, 255, 0.16);
-  --color-success: #0ecb81;
-  --color-success-muted: rgba(14, 203, 129, 0.15);
-  --color-danger: #f6465d;
-  --color-danger-muted: rgba(246, 70, 93, 0.15);
-  --color-warning: #FFD8A0; /* Дополнительный: бледно-оранжевый */
-  --color-info: #8E9BFF; /* Более мягкий светлый синий */
+  --color-border: #E2E8F0; /* Нейтральный серый бордер */
+  --color-text-primary: #0F172A; /* Тёмный сланцевый для контраста */
+  --color-text-secondary: #64748B; /* Приглушённый серо-синий */
+  --color-text-tertiary: #94A3B8; /* Светло-серый */
+  --color-accent: #6366F1; /* Индиго - современный и профессиональный */
+  --color-accent-hover: #4F46E5; /* Более глубокий индиго при hover */
+  --color-accent-muted: rgba(99, 102, 241, 0.12);
+  --color-success: #10B981; /* Изумрудный зелёный */
+  --color-success-muted: rgba(16, 185, 129, 0.12);
+  --color-danger: #EF4444; /* Чистый красный */
+  --color-danger-muted: rgba(239, 68, 68, 0.12);
+  --color-warning: #F59E0B; /* Янтарный */
+  --color-info: #3B82F6; /* Синий */
   --radius: 16px;
   --radius-sm: 8px;
   --radius-lg: 24px;
-  --shadow: 0 2px 8px rgba(26, 25, 23, 0.04);
-  --shadow-lg: 0 4px 24px rgba(26, 25, 23, 0.06);
+  --shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 10px 25px rgba(15, 23, 42, 0.08), 0 4px 10px rgba(15, 23, 42, 0.04);
 }
 
 [data-theme='dark'] {
-  /* Dark theme: dark gray background with yellow accents */
-  --color-bg: #15181D; /* Более светлый тёмно-серый основной фон */
-  --color-bg-secondary: #1D2229; /* Чуть светлее, мягкий тёмно-серый */
-  --color-surface: #232933; /* Поверхность под контент */
-  --color-card: #2A313D; /* Карточки ещё светлее фона */
-  --color-border: #3A4250; /* Нейтральный тёмно-серый бордер */
-  --color-text-primary: #F9FAFF; /* Светлый нейтральный текст */
-  --color-text-secondary: #B4BAC8; /* Мягкий холодный серый */
-  --color-text-tertiary: #7C828F; /* Приглушённый серый для второстепенного текста */
-  --color-accent: #FFC980; /* Бледно-оранжевый акцент */
-  --color-accent-hover: #FFD9A1; /* Чуть более светлый бледно-оранжевый при hover */
-  --color-accent-muted: rgba(255, 201, 128, 0.18);
-  --color-success: #0ecb81;
-  --color-success-muted: rgba(14, 203, 129, 0.2);
-  --color-danger: #f6465d;
-  --color-danger-muted: rgba(246, 70, 93, 0.2);
-  --color-warning: #FFD8A0; /* Бледно-оранжевый для предупреждений */
-  --color-info: #FFE7BF; /* Мягкий светлый бледно-оранжевый информационный */
-  --shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
-  --shadow-lg: 0 4px 30px rgba(0, 0, 0, 0.8);
+  /* Dark theme - Premium, sleek finance aesthetic */
+  --color-bg: #0C0F14; /* Глубокий тёмный фон */
+  --color-bg-secondary: #12161D; /* Чуть светлее для вариации */
+  --color-surface: #1A1F2A; /* Поверхность карточек */
+  --color-card: #1E2433; /* Карточки с тонким контрастом */
+  --color-border: #2A3142; /* Тонкий бордер */
+  --color-text-primary: #F8FAFC; /* Чистый белый текст */
+  --color-text-secondary: #94A3B8; /* Приглушённый серый */
+  --color-text-tertiary: #64748B; /* Более тёмный серый */
+  --color-accent: #818CF8; /* Светлый индиго для тёмной темы */
+  --color-accent-hover: #A5B4FC; /* Более светлый при hover */
+  --color-accent-muted: rgba(129, 140, 248, 0.15);
+  --color-success: #34D399; /* Яркий изумрудный */
+  --color-success-muted: rgba(52, 211, 153, 0.15);
+  --color-danger: #F87171; /* Мягкий красный */
+  --color-danger-muted: rgba(248, 113, 113, 0.15);
+  --color-warning: #FBBF24; /* Янтарный */
+  --color-info: #60A5FA; /* Светло-синий */
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
 }

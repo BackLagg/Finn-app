@@ -53,12 +53,15 @@
     background: var(--color-accent);
     border: none;
     border-radius: 12px;
-    color: #0a0a0a;
+    color: #FFFFFF;
     font-weight: 600;
     cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
 
     &:hover:not(:disabled) {
       background: var(--color-accent-hover);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
     }
 
     &:disabled {
